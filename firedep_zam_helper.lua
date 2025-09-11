@@ -5,7 +5,7 @@ local enable_autoupdate = true -- false to disable auto-update + disable sending
 local autoupdate_loaded = false
 local Update = nil
 
-local update_list = ('{00BFFF}1. {87CEFA}Добавлен список изменений в обновлении в сервисном меню.\n{00BFFF}2. {87CEFA}Честно говоря, больше нихуя.')
+local update_list = ('{00BFFF}1. {87CEFA}Добавлен список изменений в обновлении в сервисном меню.\n{00BFFF}2. {87CEFA}Скорректированы цвета.\n{00BFFF}3. {87CEFA}Честно говоря, больше нихуя.')
 
 local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
