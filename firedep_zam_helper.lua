@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A7")
+script_version("Ver.11.09.A8")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -26,7 +26,7 @@ local mysql = require "luasql.mysql"
 local env = assert(mysql.mysql())
 local conn = assert(env:connect("arizona", "longames", "q2w3e4r5", "92.63.71.249", 3306))
 
-local UTC = 4
+local UTC = 0
 local config = {}
 local img = ''
 local inspect = ''
@@ -82,7 +82,7 @@ function main()
 
     sampRegisterChatCommand('zam', zammenu)
     sampRegisterChatCommand('upd', upd)
-    sampRegisterChatCommand('ps', test)
+    sampRegisterChatCommand('ps', ps)
             
         while true do
         wait(0)
@@ -4311,12 +4311,17 @@ function getpoyas()
     info = os.date("%z",os.time()) .. "\t" ..os.offset()
     info = info:gsub('0', '')
     info = info:gsub('+', '')
-    sampAddChatMessage('Часовой пояс: {FFFFFF}+'..UTC, -255)
-    sampAddChatMessage('Время на ПК: {FFFFFF}'..timepc, -255)
-    sampAddChatMessage('Время на сервере: {FFFFFF}'..timeserver, -255)
-    sampAddChatMessage('Мой часовой пояс: {FFFFFF}'..info, -255)
     return info
 end
+
+function ps()
+    tt = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+    sampAddChatMessage('Часовой пояс: {FFFFFF}+'..UTC, -255)
+    sampAddChatMessage('Время на ПК: {FFFFFF}'..timepc, -255)
+    sampAddChatMessage('Время на сервере: {FFFFFF}'..tt, -255)
+    sampAddChatMessage('Мой часовой пояс: {FFFFFF}'..info, -255)
+end
+
 
 function os.offset()
    local currenttime = os.time()
