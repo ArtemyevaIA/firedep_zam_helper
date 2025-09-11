@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Work_v1.2")
+script_version("Work_v2")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -2173,7 +2173,10 @@ function main()
                 if button == 0 then zammenu() end
             end
 
-            if button == 1 and list == 1 then                                                           -- Проверить работу сотрудника
+            -----------------------------------------------------------------------------------
+            -- Проверить работу сотрудника ----------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 1 then
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2200,12 +2203,18 @@ function main()
                 end
             end
 
-            if button == 1 and list == 2 then                                                           -- Лекции
+            -----------------------------------------------------------------------------------
+            -- РП отыгровки (лекции / тренировки / уведомления) -------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 2 then
                 lua_thread.create(function()
                     lec()
                     while sampIsDialogActive(2006) do wait(100) end
                     local result, button, list, input = sampHasDialogRespond(2006)
                     
+                    -----------------------------------------------------------------------------------
+                    -- [RB] Памятка лоя всех ----------------------------------------------------------
+                    -----------------------------------------------------------------------------------
                     if button == 1 and list == 0 then
                         sampProcessChatInput('/rb Уважаемые коллеги, сейчас будет небольшая шпаркалга:', -1)
                         wait(2000)
@@ -2240,6 +2249,9 @@ function main()
                         sampProcessChatInput('/rb Смотрите оф. портал. На этом пока всё, благодарю за внимание!', -1)
                     end
 
+                    -----------------------------------------------------------------------------------
+                    -- [R] Лекция про сон в раздевалке ------------------------------------------------
+                    -----------------------------------------------------------------------------------
                     if button == 1 and list == 1 then
                         sampProcessChatInput('/r Уважаемые сотрудники, прошу минуточку внимания...',-1)
                         wait(1000)
@@ -2266,6 +2278,9 @@ function main()
                         sampProcessChatInput('/r Хорошей службы!',-1)
                     end
 
+                    -----------------------------------------------------------------------------------
+                    -- [D] Информация для департамента по пожарной безопасности -----------------------
+                    -----------------------------------------------------------------------------------
                     if button == 1 and list == 2 then
                         sampProcessChatInput('/d [FD] - [ALL]: Уважаемые коллеги, прошу минуточку внимания...', -1)
                         wait(1000)
@@ -2284,6 +2299,9 @@ function main()
                         sampProcessChatInput('/d [FD] - [ALL]: С уважением, заместитель начальника Пожарного департамента - И.Краун', -1)
                     end
 
+                    -----------------------------------------------------------------------------------
+                    -- [Лекция] Алгоритм действий пожарных при пожаре в здании ------------------------
+                    -----------------------------------------------------------------------------------
                     if button == 1 and list == 3 then
                         sampProcessChatInput('Здравствуйте, уважаемые сотрудники.',-1)
                         wait(1000)
@@ -2324,7 +2342,10 @@ function main()
                         sampProcessChatInput('/time',-1)
                     end
 
-                    if button == 1 and list == 4 then                                                   -- инспекция дома
+                    -----------------------------------------------------------------------------------
+                    -- Провести инспекцию дома --------------------------------------------------------
+                    -----------------------------------------------------------------------------------
+                    if button == 1 and list == 4 then
                         idhouse()
                         while sampIsDialogActive(2018) do wait(200) end
                         local result, button, _, input = sampHasDialogRespond(2018)
@@ -2458,6 +2479,9 @@ function main()
                         end
                     end
 
+                    -----------------------------------------------------------------------------------
+                    -- РП задания для сотрудников -----------------------------------------------------
+                    -----------------------------------------------------------------------------------
                     if button == 1 and list == 6 then
                         rp()
                         while sampIsDialogActive(2009) do wait(200) end
@@ -2574,7 +2598,10 @@ function main()
                 end)
             end
 
-            if button == 1 and list == 4 then                                                           -- Руссификатор ника
+            -----------------------------------------------------------------------------------
+            -- Руссификатор ника --------------------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 4 then
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2589,7 +2616,10 @@ function main()
                 end
             end
 
-            if button == 1 and list == 5 then                                                           -- Скопировать ник для проверки
+            -----------------------------------------------------------------------------------
+            -- Скопировать ник для проверки на ЧСП и ЧСГос ------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 5 then
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2603,7 +2633,10 @@ function main()
                 end
             end
 
-            if button == 1 and list == 6 then                                                           -- Скопировать команду на НонРП ник
+            -----------------------------------------------------------------------------------
+            -- Проверка на НонРП ник ----------------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 6 then
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2617,12 +2650,18 @@ function main()
                 end
             end
 
-            if button == 1 and list == 7 then                                                           -- меню таймеров
+            -----------------------------------------------------------------------------------
+            -- Таймеры ------------------------------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 7 then
                 timermenu()
                 while sampIsDialogActive(2017) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2017)
 
-                if button == 1 and list == 0 then                                                       -- Таймер 5 минут для явки на работу
+                -----------------------------------------------------------------------------------
+                -- [5 мин] Таймер 5 минут для явки на работу --------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 0 then
                     inputid()
                     while sampIsDialogActive(2001) do wait(100) end
                     local result, button, _, input = sampHasDialogRespond(2001)
@@ -2652,8 +2691,11 @@ function main()
                         end)
                     end
                 end
-
-                if button == 1 and list == 1 then                                                       -- Таймер 1 минута
+                
+                -----------------------------------------------------------------------------------
+                -- [1 мин] Таймер на 1 минуту -----------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 1 then
                     lua_thread.create(function()
                         local timer = 1
                         local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
@@ -2671,8 +2713,11 @@ function main()
                         setAudioStreamState(fire_1, 1)
                     end)
                 end
-
-                if button == 1 and list == 2 then                                                       -- Таймер 3 минуты
+                
+                -----------------------------------------------------------------------------------
+                -- [3 мин] Таймер на 3 минуты -----------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 2 then
                     lua_thread.create(function()
                         local timer = 3
                         local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
@@ -2687,8 +2732,11 @@ function main()
                         sampShowDialog(0, "Сработал таймер", "{78dbe2}Время таймера на {FFA500}"..timer.." {78dbe2}мин. вышло. {78dbe2}вышло.", "Закрыть", "", DIALOG_STYLE_MSGBOX)
                     end)
                 end
-
-                if button == 1 and list == 3 then                                                       -- Таймер 5 минут
+                
+                -----------------------------------------------------------------------------------
+                -- [5 мин] Таймер на 5 минут ------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 3 then
                     lua_thread.create(function()
                         local timer = 5
                         local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
@@ -2703,8 +2751,11 @@ function main()
                         sampShowDialog(0, "Сработал таймер", "{78dbe2}Время таймера на {FFA500}"..timer.." {78dbe2}мин. вышло. {78dbe2}вышло.", "Закрыть", "", DIALOG_STYLE_MSGBOX)
                     end)
                 end
-
-                if button == 1 and list == 4 then                                                       -- Таймер для игрока свое время
+                
+                -----------------------------------------------------------------------------------
+                -- [Своё время] Установить таймер для игрока --------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 4 then
                     inputid()
                     while sampIsDialogActive(2001) do wait(100) end
                     local result, button, _, input = sampHasDialogRespond(2001)
@@ -2730,8 +2781,11 @@ function main()
                         end)
                     end
                 end
-
-                if button == 1 and list == 5 then                                                       -- Таймер своего времени для себя
+                
+                -----------------------------------------------------------------------------------
+                -- [Своё время] Установить таймер для себя ----------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 5 then
                     inputimer()
                     while sampIsDialogActive(2010) do wait(100) end
                     local result, button, _, input = sampHasDialogRespond(2010)
@@ -2752,8 +2806,11 @@ function main()
                         end)
                     end
                 end
-
-                if button == 1 and list == 6 then                                                       -- Таймер собеседомания
+                
+                -----------------------------------------------------------------------------------
+                -- [15 мин] Начать собеседование --------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 6 then
                     lua_thread.create(function()
                         local timer = 15
                         local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
@@ -2784,7 +2841,10 @@ function main()
                 if button == 0 then zammenu() end
             end
 
-            if button == 1 and list == 9 then                                                           -- Заказать доставку ТС
+            -----------------------------------------------------------------------------------
+            -- Заказать доставку ТС -----------------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 9 then
                 sampProcessChatInput('/r Запрашиваю заправку служебного авто, просьба занять места.', -1)
                 wait(5000)
                 sampProcessChatInput('/r Заправка транспорта через 10 секунд.', -1)
@@ -2795,7 +2855,10 @@ function main()
                 sampProcessChatInput('/lmenu', -1)
             end
 
-            if button == 1 and list == 10 then                                                           -- Назначить быстрое собеседование
+            -----------------------------------------------------------------------------------
+            -- Назначить собес на ближ. время -------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 10 then
                 start_sobes = true
                 local hour = os.date('%H', os.time() - (3 * 3600))
                 sobes = hour..',05,Пожарный департамент'
@@ -2804,7 +2867,10 @@ function main()
                 sampProcessChatInput('/lmenu', -1)
             end
 
-            if button == 1 and list == 11 then                                                           -- Установить тэг
+            -----------------------------------------------------------------------------------
+            -- Установить отдел игроку --------------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 11 then
                 settag()
                 while sampIsDialogActive(2020) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2020)
@@ -2866,15 +2932,24 @@ function main()
                 end
             end
 
-            if button == 1 and list == 12 then                                                  -- отправить сообщение в диалог ВК
+            -----------------------------------------------------------------------------------
+            -- Отправить сообщение в диалог вк ------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 12 then
                 inputmsg()
                 while sampIsDialogActive(2022) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2022)
                 if button == 1 then
-                    vkmsg(encodeUrl(input))
+                    local _, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                    local nick = sampGetPlayerNickname(id)
+                    local text = (nick..' ['..id..']: '..input)
+                    vkmsg(encodeUrl(text))
                 end
             end
 
+            -----------------------------------------------------------------------------------
+            -- Совместные задания -------------------------------------------------------------
+            -----------------------------------------------------------------------------------
             if button == 1 and list == 14 then
                 zadmenu()
                 while sampIsDialogActive(1000) do wait(100) end
@@ -3535,14 +3610,14 @@ function main()
     end
 end
 
-function JSONSave()
-    if doesFileExist("moonloader/firedep_zam_helper/data.json") then
-        local f = io.open("moonloader/firedep_zam_helper/data.json", 'w+')
-        if f then
-            f:write(encodeJson(config)):close()
-        end
-    end
-end
+-- function JSONSave()
+--     if doesFileExist("moonloader/firedep_zam_helper/data.json") then
+--         local f = io.open("moonloader/firedep_zam_helper/data.json", 'w+')
+--         if f then
+--             f:write(encodeJson(config)):close()
+--         end
+--     end
+-- end
 
 function zad()
     sampShowDialog(1001, "Добавить задание в очередь", "Выдать похвалу\nПовысить сотрудника\nПринять в организацию\nУстановить отдел\nВыдать выговор\nУволить из организации\nЗанести в ЧС орг", 'Выбрать', 'Отмена', 2)
