@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver11.09.5")
+script_version("Ver11.09.6")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -3613,13 +3613,19 @@ function main()
                 while sampIsDialogActive(9000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(9000)
                 
+                -----------------------------------------------------------------------------------
+                -- Выполнить ручное обновление ----------------------------------------------------
+                -----------------------------------------------------------------------------------
                 if button == 1 and list == 0 then
                     sampAddChatMessage('Выполнена ручная проверка обновления', -255)
                     upd()
                 end
 
+                -----------------------------------------------------------------------------------
+                -- Список изменений в версии ------------------------------------------------------
+                -----------------------------------------------------------------------------------
                 if button == 1 and list == 1 then
-                    sampShowDialog(0, '{FFA500}Последнее обновление до версии {7CFC00}'..thisScript().version, update_list, 'Закрыть', '', DIALOG_STYLE_MSGBOX)
+                    sampShowDialog(0, '{FFA500}Изменения в версии {7CFC00}'..thisScript().version, update_list, 'Закрыть', '', DIALOG_STYLE_MSGBOX)
                 end
 
                 if button == 0 then
@@ -3648,7 +3654,7 @@ end
 --     end
 -- end
 function zammenu_service()
-    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в последнем обновлении", 'Выбрать', 'Назад', 2)
+    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version, 'Выбрать', 'Назад', 2)
 end
 
 function zammenu()
