@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Work_v25_bd")
+script_version("Ver11.09.1")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -83,7 +83,7 @@ function main()
     sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Версия помощника: {7CFC00}'..thisScript().version, 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Команда для открытия меню {ffa000}/zam {7FFFD4}или клавиша {ffa000}Scroll Lock', 0x7FFFD4)
-    sampAddChatMessage('{7FFFD4}Разработчик: {ffa000}Irin_Crown', 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Разработчик: {ffa000}Irin_Crown (Никита Артемьев)', 0x7FFFD4)
     sampAddChatMessage('', 0x7FFFD4)
 
     sampRegisterChatCommand('zam', zammenu)
