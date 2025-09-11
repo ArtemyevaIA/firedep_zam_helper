@@ -80,6 +80,7 @@ function main()
     
     sampAddChatMessage('', -1)
     sampAddChatMessage('Помощник руководителя пожарного департамента загружен', -1)
+    sampAddChatMessage('Версия помощника: {ffa000}'..thisScript().version, -1)
     sampAddChatMessage('{ffffff}Команда для открытия меню: {ffa000}/zam {ffffff}или клавиша {ffa000}Scroll Lock', -1)
     sampAddChatMessage('Разработчик: {ffa000}Irin_Crown', -1)
     sampAddChatMessage('', -1)
