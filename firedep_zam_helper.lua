@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A3")
+script_version("Ver.11.09.A4")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -26,6 +26,7 @@ local mysql = require "luasql.mysql"
 local env = assert(mysql.mysql())
 local conn = assert(env:connect("arizona", "longames", "q2w3e4r5", "92.63.71.249", 3306))
 
+local UTC = 4
 local config = {}
 local img = ''
 local inspect = ''
@@ -78,11 +79,12 @@ function main()
 
     sampRegisterChatCommand('zam', zammenu)
     sampRegisterChatCommand('upd', upd)
+    sampRegisterChatCommand('ps', test)
             
         while true do
         wait(0)
 
-        if afk and os.date('%H:%M:%S') == "23:55:00" then
+        if afk and os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "19:55:00" then
             sampAddChatMessage("{90EE90}Время выходить из режима АФК",-1)
             wait(2000)
             sampProcessChatInput('/rec',-1)
@@ -143,8 +145,8 @@ function main()
                             while sampIsDialogActive(2004) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(2004)
                             if button == 1 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/fractionrp '..id,-1)
                                 wait(2000)
@@ -205,8 +207,8 @@ function main()
                                 while sampIsDialogActive(2004) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(2004)
                                 if button == 1 then
-                                    local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                    local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                    local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                    local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
                                     sampProcessChatInput('/fractionrp '..id,-1)
                                     wait(2000)
                                     sampProcessChatInput('/r Приветствуем нового сотрудника пожарного департамента - '..nm..'.',-1)
@@ -284,8 +286,8 @@ function main()
                                 while sampIsDialogActive(2004) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(2004)
                                 if button == 1 then
-                                    local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                    local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                    local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                    local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                     sampProcessChatInput('/r Приветствуем нового сотрудника пожарного департамента - '..nm..'.',-1)
                                     sampProcessChatInput('/new '..id,-1)
@@ -352,8 +354,8 @@ function main()
                             -- [1] Рекрут ---------------------------------------------------------------------
                             -----------------------------------------------------------------------------------
                             if button == 1 and list == 0 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -391,8 +393,8 @@ function main()
                             -- [2] Старший рекрут -------------------------------------------------------------
                             -----------------------------------------------------------------------------------
                             if button == 1 and list == 1 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -428,8 +430,8 @@ function main()
                             -- [3] Младший пожарный -----------------------------------------------------------
                             -----------------------------------------------------------------------------------
                             if button == 1 and list == 2 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -466,8 +468,8 @@ function main()
                             -- [4] Пожарный -------------------------------------------------------------------
                             -----------------------------------------------------------------------------------
                             if button == 1 and list == 3 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -504,8 +506,8 @@ function main()
                             -- [5] Старший пожарный -----------------------------------------------------------
                             -----------------------------------------------------------------------------------
                             if button == 1 and list == 4 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -542,8 +544,8 @@ function main()
                             -- [6] Пожарный иинспектор --------------------------------------------------------
                             -----------------------------------------------------------------------------------
                             if button == 1 and list == 5 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -580,8 +582,8 @@ function main()
                             -- [7] Лейтенант ------------------------------------------------------------------
                             -----------------------------------------------------------------------------------
                             if button == 1 and list == 6 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -618,8 +620,8 @@ function main()
                             -- [8] Капитан --------------------------------------------------------------------
                             -----------------------------------------------------------------------------------
                             if button == 1 and list == 7 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -674,8 +676,8 @@ function main()
                         local result, button, _, input = sampHasDialogRespond(2005)
                         if button == 1 then
                             local reason = input
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do КПК весит на поясе.',-1)
                             wait(1000)
@@ -751,8 +753,8 @@ function main()
                         local result, button, list, input = sampHasDialogRespond(2013)
                         if button == 1 and list == 0 then                                                               -- Нарушение устава                    
                             local reason = "Н.У."
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do КПК весит на поясе.',-1)
                             wait(1000)
@@ -809,8 +811,8 @@ function main()
 
                         if button == 1 and list == 1 then                                                               -- Прогул рабочего дня
                             local reason = "Прогул РД"
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do КПК весит на поясе.',-1)
                             wait(1000)
@@ -868,8 +870,8 @@ function main()
 
                         if button == 1 and list == 2 then                                                               -- Сон на посту
                             local reason = "Сон на посту"
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do КПК весит на поясе.',-1)
                             wait(1000)
@@ -928,8 +930,8 @@ function main()
 
                         if button == 1 and list == 3 then                                                               -- Отсутствие активности
                             local reason = "Неактив"
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do КПК весит на поясе.',-1)
                             wait(1000)
@@ -992,8 +994,8 @@ function main()
                             local result, button, _, input = sampHasDialogRespond(2005)
                             if button == 1 then
                                 local reason = input
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do КПК весит на поясе.',-1)
                                 wait(1000)
@@ -1068,8 +1070,8 @@ function main()
                         local result, button, _, input = sampHasDialogRespond(2005)
                         if button == 1 then
                             local reason = input
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do КПК весит на поясе.',-1)
                             wait(1000)
@@ -1140,8 +1142,8 @@ function main()
                         local result, button, _, input = sampHasDialogRespond(2005)
                         if button == 1 then
                             local reason = input
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do КПК весит на поясе.', -1)
                             wait(1000)
@@ -1218,8 +1220,8 @@ function main()
                         local result, button, _, input = sampHasDialogRespond(2005)
                         if button == 1 then
                             local reason = input
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do КПК весит на поясе.', -1)
                             wait(1000)
@@ -1291,8 +1293,8 @@ function main()
                         
                         if button == 1 and list == 0 then                                           -- Принича: Села батарейка в рации
                             local reason = 'Села батарейка в рации'
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do Рация весит на поясе.', -1)
                             wait(1000)
@@ -1339,8 +1341,8 @@ function main()
 
                         if button == 1 and list == 1 then                                           -- Принича: Оскорбление коллег
                             local reason = 'Оскорбление коллег'
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do Рация весит на поясе.', -1)
                             wait(1000)
@@ -1391,8 +1393,8 @@ function main()
                             local result, button, _, input = sampHasDialogRespond(2005)
                             if button == 1 then
                                 local reason = input
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do Рация весит на поясе.', -1)
                                 wait(1000)
@@ -1459,8 +1461,8 @@ function main()
                         local result, button, _, input = sampHasDialogRespond(2005)
                         if button == 1 then
                             local reason = input
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                             wait(1000)
@@ -1527,8 +1529,8 @@ function main()
                         local result, button, _, input = sampHasDialogRespond(2005)
                         if button == 1 then
                             local reason = input
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                             wait(1000)
@@ -1603,8 +1605,8 @@ function main()
                             local rank = {"Рекрут", "Старший рекрут", "Младший пожарный", "Пожарный", "Старший пожарный", "Пожарный инспектор", "Лейтенант", "Капитан"}
 
                             if button == 1 and list == 0 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -1651,8 +1653,8 @@ function main()
                                 sendvkimg(encodeUrl(info),img)
                             end
                             if button == 1 and list == 1 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -1699,8 +1701,8 @@ function main()
                                 sendvkimg(encodeUrl(info),img)
                             end
                             if button == 1 and list == 2 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -1747,8 +1749,8 @@ function main()
                                 sendvkimg(encodeUrl(info),img)
                             end
                             if button == 1 and list == 3 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -1795,8 +1797,8 @@ function main()
                                 sendvkimg(encodeUrl(info),img)
                             end
                             if button == 1 and list == 4 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -1843,8 +1845,8 @@ function main()
                                 sendvkimg(encodeUrl(info),img)
                             end
                             if button == 1 and list == 5 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -1891,8 +1893,8 @@ function main()
                                 sendvkimg(encodeUrl(info),img)
                             end
                             if button == 1 and list == 6 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -1939,8 +1941,8 @@ function main()
                                 sendvkimg(encodeUrl(info),img)
                             end
                             if button == 1 and list == 7 then
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                                 wait(1000)
@@ -2016,8 +2018,8 @@ function main()
 
                             if button == 1 then
                                 local prisecount = input
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                                local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                                local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                                 for i = 1, prisecount do
                                     sampProcessChatInput("/praise "..id.." "..reason,-1)
@@ -2058,8 +2060,8 @@ function main()
                         local result, button, _, input = sampHasDialogRespond(2005)
                         if button == 1 then
                             local reason = input
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                             wait(1000)
@@ -2124,8 +2126,8 @@ function main()
                         local result, button, _, input = sampHasDialogRespond(2005)
                         if button == 1 then
                             local reason = input
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                             sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                             wait(1000)
@@ -2188,8 +2190,8 @@ function main()
                     local id = input
                     local nick = sampGetPlayerNickname(id)
                     local nm = trst(nick)
-                    local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                    local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                    local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                    local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
 
                     sampProcessChatInput('/do На поясе закреплен КПК.', -1)
                     wait(1000)
@@ -2356,8 +2358,8 @@ function main()
                         if button == 1 then
                             local i = 0
                             local house = input
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
                             
                             lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Инспекции домов/'..date.. ' ' ..timed.. ' Дом №' ..house)
 
@@ -2465,7 +2467,7 @@ function main()
                             wait(1000)
                             sampProcessChatInput('/me зафиксировала время проверки', -1)
                             wait(1000)
-                            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                             sampProcessChatInput('/do Время завершения проверки: '..time..'.', -1)
                             wait(2000)
                             sampProcessChatInput('/time', -1)
@@ -2674,8 +2676,8 @@ function main()
                             local id = input
                             local nick = sampGetPlayerNickname(id)
                             local nm = trst(nick)
-                            local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timeend = os.date('%H:%M:%S', os.time() - (4 * 3600)+(60*5))
+                            local time                          = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timeend = os.date('%H:%M:%S', os.time() - (UTC * 3600)+(60*5))
                             sampProcessChatInput('/r '..nm.. ', у Вас есть 5 минут для того, чтобы надеть форму и приступить к работе.',-1)
                             wait(1000)
                             sampProcessChatInput('/r В случае игнорирования, к Вам будет применено дисциплинарное взыскание. Время пошло.',-1)
@@ -2701,8 +2703,8 @@ function main()
                 if button == 1 and list == 1 then
                     lua_thread.create(function()
                         local timer = 1
-                        local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                        local timeend = os.date('%H:%M:%S', os.time() - (4 * 3600)+(60*timer))
+                        local time                          = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                        local timeend = os.date('%H:%M:%S', os.time() - (UTC * 3600)+(60*timer))
                         sampAddChatMessage('{FFFFFF}Таймер установлен на {FFA500}'..timer..' мин.',-1)
                         sampAddChatMessage('{FFFFFF}Запушен в {FFA500}'..time,-1)
                         sampAddChatMessage('{FFFFFF}Время окончания: {FFA500}'..timeend,-1)
@@ -2723,8 +2725,8 @@ function main()
                 if button == 1 and list == 2 then
                     lua_thread.create(function()
                         local timer = 3
-                        local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                        local timeend = os.date('%H:%M:%S', os.time() - (4 * 3600)+(60*timer))
+                        local time                          = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                        local timeend = os.date('%H:%M:%S', os.time() - (UTC * 3600)+(60*timer))
                         sampAddChatMessage('{FFFFFF}Таймер установлен на {FFA500}'..timer..' мин.',-1)
                         sampAddChatMessage('{FFFFFF}Запушен в {FFA500}'..time,-1)
                         sampAddChatMessage('{FFFFFF}Время окончания: {FFA500}'..timeend,-1)
@@ -2742,8 +2744,8 @@ function main()
                 if button == 1 and list == 3 then
                     lua_thread.create(function()
                         local timer = 5
-                        local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                        local timeend = os.date('%H:%M:%S', os.time() - (4 * 3600)+(60*timer))
+                        local time                          = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                        local timeend = os.date('%H:%M:%S', os.time() - (UTC * 3600)+(60*timer))
                         sampAddChatMessage('{FFFFFF}Таймер установлен на {FFA500}'..timer..' мин.',-1)
                         sampAddChatMessage('{FFFFFF}Запушен в {FFA500}'..time,-1)
                         sampAddChatMessage('{FFFFFF}Время окончания: {FFA500}'..timeend,-1)
@@ -2774,8 +2776,8 @@ function main()
                             local timer = input
                             local nick = sampGetPlayerNickname(id)
                             local nm = trst(nick)
-                            local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timeend = os.date('%H:%M:%S', os.time() - (4 * 3600)+(60*timer))
+                            local time                          = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timeend = os.date('%H:%M:%S', os.time() - (UTC * 3600)+(60*timer))
                             sampShowDialog(0, "Таймер для {FFA500}"..nick, "{78dbe2}Время запуска:{FFA500} "..time.."\n{78dbe2}Время окончания:{FFA500} "..timeend.."\n\n{78dbe2}Сотрудник {FFA500}"..nick.." ["..id.."] \n{78dbe2}Время таймера: {FFA500}"..timer.." мин.", "Закрыть", "", DIALOG_STYLE_MSGBOX)
                             sampProcessChatInput('/time',-1)
                             wait(1000*60*timer)
@@ -2796,8 +2798,8 @@ function main()
                     if button == 1 then
                         lua_thread.create(function()
                             local timer = input
-                            local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                            local timeend = os.date('%H:%M:%S', os.time() - (4 * 3600)+(60*timer))
+                            local time                          = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                            local timeend = os.date('%H:%M:%S', os.time() - (UTC * 3600)+(60*timer))
                             sampAddChatMessage('{FFFFFF}Таймер установлен на {FFA500}'..timer..' мин.',-1)
                             sampAddChatMessage('{FFFFFF}Запушен в {FFA500}'..time,-1)
                             sampAddChatMessage('{FFFFFF}Время окончания: {FFA500}'..timeend,-1)
@@ -2816,8 +2818,8 @@ function main()
                 if button == 1 and list == 6 then
                     lua_thread.create(function()
                         local timer = 15
-                        local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
-                        local timeend = os.date('%H:%M:%S', os.time() - (4 * 3600)+(60*timer))
+                        local time                          = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                        local timeend = os.date('%H:%M:%S', os.time() - (UTC * 3600)+(60*timer))
                         img = 'photo-232454643_456239043'
                         sendvkimg(encodeUrl('Собеседование начато.'),img)
                         sampAddChatMessage('{FFFFFF}Начато собеседование. Время собеседования {FFA500}'..timer..' минут',-1)
@@ -3256,7 +3258,7 @@ function main()
                             local row = cursor:fetch({}, "a")
 
                             if row.name:match('похвалу') then                                                                                            -- если выполнить задание: выдать похвалу
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local date = os.date('%d.%m.%Y')
                                 local datetime = (date..' '..time)
                                 local id = sampGetPlayerIdByNickname(row.nick)
@@ -3287,7 +3289,7 @@ function main()
                             end
 
                             if row.name:match('повышение') then                                                                                           -- если выполнить задание: выдать повышение
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local date = os.date('%d.%m.%Y')
                                 local datetime = (date..' '..time)
                                 local id = sampGetPlayerIdByNickname(row.nick)
@@ -3318,7 +3320,7 @@ function main()
                             end
 
                             if row.name:match('Принять') then                                                                                            -- если выполнить задание: принять в организацию
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local date = os.date('%d.%m.%Y')
                                 local datetime = (date..' '..time)
                                 local id = sampGetPlayerIdByNickname(row.nick)
@@ -3381,7 +3383,7 @@ function main()
                             end
 
                             if row.name:match('отдел') then                                                                                              -- если выполнить задание: выдать отдел
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local date = os.date('%d.%m.%Y')
                                 local datetime = (date..' '..time)
                                 local id = sampGetPlayerIdByNickname(row.nick)
@@ -3412,7 +3414,7 @@ function main()
                             end
 
                             if row.name:match('выговор') then                                                                                            -- если выполнить задание: выдать выговор
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local date = os.date('%d.%m.%Y')
                                 local datetime = (date..' '..time)
                                 local id = sampGetPlayerIdByNickname(row.nick)
@@ -3443,7 +3445,7 @@ function main()
                             end
 
                             if row.name:match('Уволить') then                                                                                            -- если выполнить задание: Уволить из организации
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local date = os.date('%d.%m.%Y')
                                 local datetime = (date..' '..time)
                                 local id = sampGetPlayerIdByNickname(row.nick)
@@ -3474,7 +3476,7 @@ function main()
                             end
 
                             if row.name:match('список') then                                                                                             -- если выполнить задание: внести в черный список
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local date = os.date('%d.%m.%Y')
                                 local datetime = (date..' '..time)
                                 local id = sampGetPlayerIdByNickname(row.nick)
@@ -3505,7 +3507,7 @@ function main()
                             end
 
                             if row.name:match('первый') then                                                                                             -- если выполнить задание: внести в черный список
-                                local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local date = os.date('%d.%m.%Y')
                                 local datetime = (date..' '..time)
                                 local id = sampGetPlayerIdByNickname(row.nick)
@@ -3546,7 +3548,7 @@ function main()
                 -- Удалить задание ----------------------------------------------------------------
                 -----------------------------------------------------------------------------------
                 if button == 1 and list == 2 then
-                    local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
+                    local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                     local date = os.date('%d.%m.%Y')
                     local datetime = (date..' '..time)
                     local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
@@ -3967,8 +3969,8 @@ function sampev.onServerMessage(color, text)
             sampProcessChatInput('/do Собеседование начато.',-1)
             wait(1000)
             local timer = 15
-            local time                          = os.date('%H:%M:%S', os.time() - (4 * 3600))
-            local timeend = os.date('%H:%M:%S', os.time() - (4 * 3600)+(60*timer))
+            local time                          = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+            local timeend = os.date('%H:%M:%S', os.time() - (UTC * 3600)+(60*timer))
             img = 'photo-232454643_456239043'
             sendvkimg(encodeUrl('Собеседование начато и продлится 15 минут.'),img)
             sampAddChatMessage('{FFFFFF}Начато собеседование. Время собеседования {FFA500}'..timer..' минут',-1)
@@ -4022,8 +4024,8 @@ function sampev.onServerMessage(color, text)
             nick = string.match(text,"%a+_%a+")
             id = sampGetPlayerIdByNickname(nick)
 
-            local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
-            local timed = os.date('%H-%M-%S', os.time() - (4 * 3600))
+            local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+            local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
             local nm = trst(nick)
 
             wait(1000)
@@ -4300,4 +4302,12 @@ function runToJob(tox, toy)
         angle = getHeadingFromVector2d(tox - x, toy - y)
         setCameraPositionUnfixed(xAngle, math.rad(angle - 90))
     end
+end
+
+function test()
+    timepc = os.date('%H:%M:%S')
+    timeserver = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+    sampAddChatMessage('Часовой пояс: {FFFFFF}'..UTC, -255)
+    sampAddChatMessage('Время на ПК: {FFFFFF}'..timepc, -255)
+    sampAddChatMessage('Время на сервере: {FFFFFF}'..timeserver, -255)
 end
