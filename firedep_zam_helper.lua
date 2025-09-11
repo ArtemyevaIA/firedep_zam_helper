@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A1")
+script_version("Ver.11.09.A2")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -3622,6 +3622,11 @@ function main()
                 -----------------------------------------------------------------------------------
                 if button == 1 and list == 1 then
                     sampShowDialog(0, '{FFA500}Изменения в версии {7CFC00}'..thisScript().version, update_list, 'Закрыть', '', DIALOG_STYLE_MSGBOX)
+                    while sampIsDialogActive(0) do wait(100) end
+                    local result, button, _, input = sampHasDialogRespond(0)
+                    if button == 0 then
+                        zammenu_service()
+                    end
                 end
 
                 -----------------------------------------------------------------------------------
@@ -3682,6 +3687,7 @@ function main()
                             end
                         end)
                     end
+                    zammenu_service()
                 end
 
                 if button == 0 then
@@ -3863,6 +3869,8 @@ function sampev.onServerMessage(color, text)
             runToCorner()
             afk = false
         end)
+    else
+        afk = false
     end
 
     if text:find('(.+)Заместитель начальника Irin_Crown(.+)назначил собеседование в свою организацию') then
