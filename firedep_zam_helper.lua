@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver11.09.4")
+script_version("Ver11.09.5")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -3618,6 +3618,10 @@ function main()
                     upd()
                 end
 
+                if button == 1 and list == 1 then
+                    sampShowDialog(0, '{FFA500}Последнее обновление до версии {7CFC00}'..thisScript().version, update_list, 'Закрыть', '', DIALOG_STYLE_MSGBOX)
+                end
+
                 if button == 0 then
                     zammenu()
                 end
@@ -3643,6 +3647,9 @@ end
 --         end
 --     end
 -- end
+function zammenu_service()
+    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в последнем обновлении", 'Выбрать', 'Назад', 2)
+end
 
 function zammenu()
     sampShowDialog(1999, "{FFA500}Меню заместителя начальника пожарного департамента", 'Работа с составом\nПроверить работу сотрудника\nРП отыгровки (лекции / тренировки / уведомления)\n \nРуссифицировать ник в буфер\nСкопировать ник для проверки ЧСП и ЧСГос\nПроверка на НонРП ник\nТаймеры\n \n{e9dc7c}Заказать доставку ТС\nНазначить собес на ближ. время\nУстановить отдел игроку\n{00EAFF}Сообщение в диалог ВК\n \nСовместные задания\nСервисное меню', 'Выбрать', 'Отмена', 2)
@@ -3650,10 +3657,6 @@ end
 
 function zad()
     sampShowDialog(1001, "Добавить задание в очередь", "Выдать похвалу\nПовысить сотрудника\nПринять в организацию\nУстановить отдел\nВыдать выговор\nУволить из организации\nЗанести в ЧС орг", 'Выбрать', 'Отмена', 2)
-end
-
-function zammenu_service()
-    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную", 'Выбрать', 'Назад', 2)
 end
 
 
