@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Work_v2")
+script_version("Work_v3")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
