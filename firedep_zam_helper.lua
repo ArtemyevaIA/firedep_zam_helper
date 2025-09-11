@@ -78,15 +78,14 @@ function main()
         pcall(Update.check, Update.json_url, Update.prefix, Update.url)
     end
     
-    sampAddChatMessage('', -1)
-    sampAddChatMessage('Помощник руководителя пожарного департамента загружен', -1)
-    sampAddChatMessage('Версия помощника: {ffa000}'..thisScript().version, -1)
-    sampAddChatMessage('{ffffff}Команда для открытия меню: {ffa000}/zam {ffffff}или клавиша {ffa000}Scroll Lock', -1)
-    sampAddChatMessage('Разработчик: {ffa000}Irin_Crown', -1)
-    sampAddChatMessage('', -1)
+    sampAddChatMessage('', 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Версия помощника: {7CFC00}'..thisScript().version, 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Команда для открытия меню {ffa000}/zam {7FFFD4}или клавиша {ffa000}Scroll Lock', 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Разработчик: {ffa000}Irin_Crown', 0x7FFFD4)
+    sampAddChatMessage('', 0x7FFFD4)
 
     sampRegisterChatCommand('zam', zammenu)
-    sampRegisterChatCommand('ps', ps)
     sampRegisterChatCommand('upd', armupd)
             
         while true do
