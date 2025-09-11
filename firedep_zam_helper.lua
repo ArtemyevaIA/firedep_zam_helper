@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Work_v10")
+script_version("Work_v11")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -2957,7 +2957,7 @@ function main()
                 while sampIsDialogActive(1000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(1000)
 
-                if button == 1 and list == 0 then                                                                                           -- добавить задание
+                if button == 1 and list == 0 then                                                                                                       -- добавить задание
                     zad()
                     while sampIsDialogActive(1001) do wait(100) end
                     local result, button, list, input = sampHasDialogRespond(1001)
@@ -3600,6 +3600,24 @@ function main()
                 end
             end
 
+            -----------------------------------------------------------------------------------
+            -- Сервисные функции --------------------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 15 then
+                zammenu_service()
+                while sampIsDialogActive(9000) do wait(100) end
+                local result, button, list, input = sampHasDialogRespond(9000)
+                
+                if button == 1 and list == 0 then
+                    sampAddChatMessage('Выполнена ручная проверка обновления', -255)
+                    armupd()
+                end
+
+                if button == 0 then
+                    zammenu()
+                end
+            end
+
             if button == 0 then
                 sampCloseCurrentDialogWithButton(0)
             end
@@ -3621,13 +3639,18 @@ end
 --     end
 -- end
 
+function zammenu()
+    sampShowDialog(1999, "{FFA500}Меню заместителя начальника пожарного департамента", 'Работа с составом\nПроверить работу сотрудника\nРП отыгровки (лекции / тренировки / уведомления)\n \nРуссифицировать ник в буфер\nСкопировать ник для проверки ЧСП и ЧСГос\nПроверка на НонРП ник\nТаймеры\n \n{e9dc7c}Заказать доставку ТС\nНазначить собес на ближ. время\nУстановить отдел игроку\n{00EAFF}Сообщение в диалог ВК\n \nСовместные задания\nСервисное меню', 'Выбрать', 'Отмена', 2)
+end
+
 function zad()
     sampShowDialog(1001, "Добавить задание в очередь", "Выдать похвалу\nПовысить сотрудника\nПринять в организацию\nУстановить отдел\nВыдать выговор\nУволить из организации\nЗанести в ЧС орг", 'Выбрать', 'Отмена', 2)
 end
 
-function zammenu()
-    sampShowDialog(1999, "{FFA500}Меню заместителя начальника пожарного департамента", 'Работа с составом\nПроверить работу сотрудника\nРП отыгровки (лекции / тренировки / уведомления)\n \nРуссифицировать ник в буфер\nСкопировать ник для проверки ЧСП и ЧСГос\nПроверка на НонРП ник\nТаймеры\n \n{e9dc7c}Заказать доставку ТС\nНазначить собес на ближ. время\nУстановить отдел игроку\n{00EAFF}Сообщение в диалог ВК\n \nСовместные задания', 'Выбрать', 'Отмена', 2)
+function zammenu_service()
+    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную", 'Выбрать', 'Назад', 2)
 end
+
 
 function zadmenu()
     sampShowDialog(1000, "{FFA500}Меню заданий руководителей", 'Добавить задание\nСписок заданий на выполнение\nУдалить задание\n \n{00EAFF}Сообщение в диалог рук-ва ВК\nИстория выполнений', 'Выбрать', 'Отмена', 2)
