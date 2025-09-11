@@ -11,9 +11,9 @@ local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,
 if updater_loaded then
     autoupdate_loaded, Update = pcall(Updater)
     if autoupdate_loaded then
-        Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/zad/refs/heads/main/zad.json?" .. tostring(os.clock())
+        Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
         Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
-        Update.url = "https://github.com/ArtemyevaIA/zad"
+        Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
     end
 
 end
@@ -3979,9 +3979,9 @@ function upd()
    if updater_loaded then
        autoupdate_loaded, Update = pcall(Updater)
        if autoupdate_loaded then
-           Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/zad/refs/heads/main/zad.json?" .. tostring(os.clock())
+           Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
            Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
-           Update.url = "https://github.com/ArtemyevaIA/zad"
+           Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
        end
 
    end
@@ -3997,9 +3997,9 @@ function armupd()
    if updater_loaded then
        autoupdate_loaded, Update = pcall(Updater)
        if autoupdate_loaded then
-           Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/zad/refs/heads/main/zad.json?" .. tostring(os.clock())
+           Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
            Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
-           Update.url = "https://github.com/ArtemyevaIA/zad"
+           Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
        end
 
    end
