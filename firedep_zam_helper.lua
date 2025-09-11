@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A5")
+script_version("Ver.11.09.A6")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -3893,8 +3893,6 @@ function sampev.onServerMessage(color, text)
             runToCorner()
             afk = false
         end)
-    else
-        afk = false
     end
 
     if text:find('(.+)Заместитель начальника Irin_Crown(.+)назначил собеседование в свою организацию') then
