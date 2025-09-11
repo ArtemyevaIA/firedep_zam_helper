@@ -1,11 +1,12 @@
 script_name("firedep_zam_helper")
-script_version("Ver11.09.10")
+script_version("Ver.11.09.A1")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
 local Update = nil
+local afk = false
 
-local update_list = ('{00BFFF}1. {87CEFA}Добавлен список изменений в обновлении в сервисном меню.\n{00BFFF}2. {87CEFA}Скорректированы цвета.\n{00BFFF}3. {87CEFA}Честно говоря, больше нихуя.\n\n{FFD700}В перспективе следующего обновления:\n{00BFFF}1. {87CEFA}Внедрить хелпера пожарного департамента. \n{00BFFF}2. {87CEFA}Сделать AFK бота для фарма после РД.\n{00BFFF}3. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.\n{00BFFF}4. {87CEFA}Добавить пункт благодарность разработчику.')
+local update_list = ('{00BFFF}1. {87CEFA}Добавлен список изменений в обновлении в сервисном меню.\n{00BFFF}2. {87CEFA}Скорректированы цвета.\n{00BFFF}3. {87CEFA}Добавлен режим АФК после рабочего дня.\n\n{FFD700}В перспективе следующего обновления:\n{00BFFF}1. {87CEFA}Внедрить хелпера пожарного департамента.\n{00BFFF}2. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.\n{00BFFF}3. {87CEFA}Добавить пункт благодарность разработчику.')
 
 local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
@@ -60,17 +61,6 @@ local file = io.open("moonloader/firedep_zam_helper/list.json", "r")            
 --     return {dialogId, style, title, button1, button2, text}
 -- end
 
--- local dialog_id = 32 --айди диалога
--- local send_text = 'Можно ли проводить собеседование не в рд?' --текст который будет отправлен в качестве ответа на диалог
--- function sampev.onShowDialog(id, style, title, button1, button2, text)
---     if id == dialog_id then
---         sampSendDialogResponse(dialog_id, 1 , nil, send_text)
---         return false
---     end
--- end
-
-
-
 function main()
     if not isSampfuncsLoaded() or not isSampLoaded() then return end
     while not isSampAvailable() do wait(0) end
@@ -91,6 +81,12 @@ function main()
             
         while true do
         wait(0)
+
+        if afk and os.date('%H:%M:%S') == "23:55:00" then
+            sampAddChatMessage("{90EE90}Время выходить из режима АФК",-1)
+            wait(2000)
+            sampProcessChatInput('/rec',-1)
+        end
 
         if isKeyJustPressed(vkey.VK_SCROLL) then
            zammenu()
@@ -3628,6 +3624,66 @@ function main()
                     sampShowDialog(0, '{FFA500}Изменения в версии {7CFC00}'..thisScript().version, update_list, 'Закрыть', '', DIALOG_STYLE_MSGBOX)
                 end
 
+                -----------------------------------------------------------------------------------
+                -- Режим AFK ----------------------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 2 then
+                    if afk then
+                        afk = false
+                        sampAddChatMessage('Режим AFK отключен.', -255)
+                    else
+                        afk = true
+                        sampAddChatMessage('{90EE90}Включен режим AFK. Через 30 секунд ваша сессия будет завершена.', 0x90EE90)
+                        sampAddChatMessage('{90EE90}За 5 минут до окончания рабочего дня будет выполнена команда /rec.', 0x90EE90)
+                        sampAddChatMessage('{90EE90}После персонаж автоматически пойдет одеваться и встанет в угол фармить.', 0x90EE90)
+                        sampAddChatMessage('{90EE90}Для отключения зайдите обратно в сервисное меню и переключите режим.', 0x90EE90)
+                        lua_thread.create(function()
+                            if afk then
+                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}30 секунд', 0x90EE90)
+                                wait(1000*15)
+                            end
+                            if afk then                                
+                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}15 секунд', 0x90EE90)
+                                wait(1000*5)
+                            end
+                            if afk then
+                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}10 секунд', 0x90EE90)
+                                wait(1000*5)
+                            end
+                            if afk then
+                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}5 секунд', 0x90EE90)
+                                wait(1000)
+                            end
+                            if afk then
+                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}4 секунды', 0x90EE90)
+                                wait(1000)
+                            end
+                            if afk then
+                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}3 секунды', 0x90EE90)
+                                wait(1000)
+                            end
+                            if afk then
+                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}2 секунды', 0x90EE90)
+                                wait(1000)
+                            end
+                            if afk then
+                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}1 секунда', 0x90EE90)
+                                wait(1000)
+                            end
+                            if afk then
+                                sampAddChatMessage('{90EE90}Уходим в режим AFK до окончания рабочего дня.', 0x90EE90)
+                                wait(1000)
+                                sampSetGamestate(GAMESTATE_DISCONNECTED)
+                                sampDisconnectWithReason(0)
+                                sampAddChatMessage('', 0x90EE90)
+                                sampAddChatMessage('{90EE90}Выполнен уход в режим АФК.', 0x90EE90)
+                                sampAddChatMessage('{90EE90}Ожидаем {FFFFFF}19:55:00 {90EE90}для выхода из режима.', 0x90EE90)
+                                sampAddChatMessage('', 0x90EE90)
+                            end
+                        end)
+                    end
+                end
+
                 if button == 0 then
                     zammenu()
                 end
@@ -3653,8 +3709,16 @@ end
 --         end
 --     end
 -- end
+
 function zammenu_service()
-    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version, 'Выбрать', 'Назад', 2)
+    
+    if afk then
+        afk_info = '{00FF7F}[Включен]'
+    else
+        afk_info = '{FFA07A}[Выключен]'
+    end
+
+    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\n{FFFFFF}Режим AFK до конца РД "..afk_info, 'Выбрать', 'Назад', 2)
 end
 
 function zammenu()
@@ -3664,7 +3728,6 @@ end
 function zad()
     sampShowDialog(1001, "Добавить задание в очередь", "Выдать похвалу\nПовысить сотрудника\nПринять в организацию\nУстановить отдел\nВыдать выговор\nУволить из организации\nЗанести в ЧС орг", 'Выбрать', 'Отмена', 2)
 end
-
 
 function zadmenu()
     sampShowDialog(1000, "{FFA500}Меню заданий руководителей", 'Добавить задание\nСписок заданий на выполнение\nУдалить задание\n \n{00EAFF}Сообщение в диалог рук-ва ВК\nИстория выполнений', 'Выбрать', 'Отмена', 2)
@@ -3792,6 +3855,16 @@ local nick = ''
 local id = ''
 
 function sampev.onServerMessage(color, text)
+    if text:find('(.+)Список не доступен пока Вы не на смене/дежурстве(.+)') then
+        lua_thread.create(function()
+            wait(1000)
+            runToJob()
+            wait(3000)
+            runToCorner()
+            afk = false
+        end)
+    end
+
     if text:find('(.+)Заместитель начальника Irin_Crown(.+)назначил собеседование в свою организацию') then
         local time_sobes = text:match('на (%A+)!')
         id = sampGetPlayerIdByNickname('Irin_Crown')
@@ -3987,7 +4060,41 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
         end
         start_sobes = false
     end
+
+    if afk and id == 25527 then
+        if title:find("Выбор места спавна") then 
+            if text:find("Последнее место выхода") then 
+                sampSendDialogResponse(id, 1, 4, nil)
+                sampAddChatMessage('{90EE90}Событие с последним местом выхода', -1)
+                sampProcessChatInput('/fires',-1)
+                sampProcessChatInput('/fires',-1)
+                return false
+            end
+            sampSendDialogResponse(id, 1, 3, nil)
+            sampAddChatMessage('{90EE90}Событие обычное', -1)
+            sampProcessChatInput('/fires',-1)
+            sampProcessChatInput('/fires',-1)
+            return false
+        end
+    end
+
+    if afk and id == 27263 then
+        if title:find("Раздевалка") then
+            changedesk = false
+            sampSendDialogResponse(id, 1, 0, nil)
+            return false -- Убираем рисовку окон
+        end
+    end
 end
+
+-- local dialog_id = 32 --айди диалога
+-- local send_text = 'Можно ли проводить собеседование не в рд?' --текст который будет отправлен в качестве ответа на диалог
+-- function sampev.onShowDialog(id, style, title, button1, button2, text)
+--     if id == dialog_id then
+--         sampSendDialogResponse(dialog_id, 1 , nil, send_text)
+--         return false
+--     end
+-- end
 
 function encodeUrl(str)
    str = str:gsub(' ', '%+')
@@ -4103,4 +4210,67 @@ function upd()
    if autoupdate_loaded and Update then
        pcall(Update.check, Update.json_url, Update.prefix, Update.url)
    end 
+end
+
+-- Пойти встать в угол
+function runToCorner(tox, toy)
+    local tox = -1282.1599
+    local toy = -45.0525
+    local x, y, z = getCharCoordinates(PLAYER_PED)
+    local angle = getHeadingFromVector2d(tox - x, toy - y)
+    local xAngle = math.random(-50, 50)/100
+    setCameraPositionUnfixed(xAngle, math.rad(angle - 90))
+    while getDistanceBetweenCoords2d(x, y, tox, toy) > 0.8 do
+        setGameKeyState(1, -255)
+        setGameKeyState(16, 1)
+        wait(1)
+        x, y, z = getCharCoordinates(PLAYER_PED)
+        angle = getHeadingFromVector2d(tox - x, toy - y)
+        setCameraPositionUnfixed(xAngle, math.rad(angle - 90))
+    end
+end
+
+-- Пойти переодеться в форму
+function runToJob(tox, toy)
+    local tox, toy = -1290.1544, -48.5959
+    local x, y, z = getCharCoordinates(PLAYER_PED)
+    local angle = getHeadingFromVector2d(tox - x, toy - y)
+    local xAngle = math.random(-50, 50)/100
+    setCameraPositionUnfixed(xAngle, math.rad(angle - 90))
+    while getDistanceBetweenCoords2d(x, y, tox, toy) > 0.8 do
+        setGameKeyState(1, -255)
+        setGameKeyState(16, 1)
+        wait(1)
+        x, y, z = getCharCoordinates(PLAYER_PED)
+        angle = getHeadingFromVector2d(tox - x, toy - y)
+        setCameraPositionUnfixed(xAngle, math.rad(angle - 90))
+    end
+
+    local tox, toy = -1289.7994, -45.7143
+    local x, y, z = getCharCoordinates(PLAYER_PED)
+    local angle = getHeadingFromVector2d(tox - x, toy - y)
+    local xAngle = math.random(-50, 50)/100
+    setCameraPositionUnfixed(xAngle, math.rad(angle - 90))
+    while getDistanceBetweenCoords2d(x, y, tox, toy) > 0.8 do
+        setGameKeyState(1, -255)
+        setGameKeyState(16, 1)
+        wait(1)
+        x, y, z = getCharCoordinates(PLAYER_PED)
+        angle = getHeadingFromVector2d(tox - x, toy - y)
+        setCameraPositionUnfixed(xAngle, math.rad(angle - 90))
+    end
+
+    local tox, toy = -1288.4854, -45.5982
+    local x, y, z = getCharCoordinates(PLAYER_PED)
+    local angle = getHeadingFromVector2d(tox - x, toy - y)
+    local xAngle = math.random(-50, 50)/100
+    setCameraPositionUnfixed(xAngle, math.rad(angle - 90))
+    while getDistanceBetweenCoords2d(x, y, tox, toy) > 0.8 do
+        setGameKeyState(1, -255)
+        setGameKeyState(16, 1)
+        wait(1)
+        x, y, z = getCharCoordinates(PLAYER_PED)
+        angle = getHeadingFromVector2d(tox - x, toy - y)
+        setCameraPositionUnfixed(xAngle, math.rad(angle - 90))
+    end
 end
