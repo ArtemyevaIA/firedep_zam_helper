@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A2")
+script_version("Ver.11.09.A3")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -2951,14 +2951,33 @@ function main()
             end
 
             -----------------------------------------------------------------------------------
+            -- Сообщение в диалог рук-ва ВК ---------------------------------------------------
+            -----------------------------------------------------------------------------------
+            if button == 1 and list == 13 then
+                inputmsg()
+                while sampIsDialogActive(2022) do wait(100) end
+                local result, button, _, input = sampHasDialogRespond(2022)
+                if button == 1 then
+                    local _, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                    local nick = sampGetPlayerNickname(id)
+                    local text = (nick..' ['..id..']: '..input)
+
+                    sendvkmsg(encodeUrl(text))
+                end
+            end
+
+            -----------------------------------------------------------------------------------
             -- Совместные задания -------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 14 then
+            if button == 1 and list == 15 then
                 zadmenu()
                 while sampIsDialogActive(1000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(1000)
 
-                if button == 1 and list == 0 then                                                                                                       -- добавить задание
+                -----------------------------------------------------------------------------------
+                -- Добавить задание ---------------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 0 then
                     zad()
                     while sampIsDialogActive(1001) do wait(100) end
                     local result, button, list, input = sampHasDialogRespond(1001)
@@ -3211,7 +3230,11 @@ function main()
                         zadmenu()
                     end
                 end
-                if button == 1 and list == 1 then                                                                                                       -- выполнить задание
+
+                -----------------------------------------------------------------------------------
+                -- Выполнить задание --------------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 1 then
                     local cursor = assert(conn:execute("SELECT * FROM zadlist ORDER by id DESC"))
                     local row = cursor:fetch({}, "a")
                     local list = ''
@@ -3518,7 +3541,11 @@ function main()
                         zadmenu()
                     end
                 end
-                if button == 1 and list == 2 then                                                                                                       -- удаление задания
+
+                -----------------------------------------------------------------------------------
+                -- Удалить задание ----------------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 2 then
                     local time = os.date('%H:%M:%S', os.time() - (4 * 3600))
                     local date = os.date('%d.%m.%Y')
                     local datetime = (date..' '..time)
@@ -3568,20 +3595,12 @@ function main()
                     if button == 0 then
                         zadmenu()
                     end
-                end        
-                if button == 1 and list == 4 then                                                                                                       -- Сообщение в диалог рук-ва ВК
-                    inputmsg()
-                    while sampIsDialogActive(2022) do wait(100) end
-                    local result, button, _, input = sampHasDialogRespond(2022)
-                    if button == 1 then
-                        local _, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                        local nick = sampGetPlayerNickname(id)
-                        local text = (nick..' ['..id..']: '..input)
-
-                        sendvkmsg(encodeUrl(text))
-                    end
                 end
-                if button == 1 and list == 5 then                                                                                                       -- История выполнений
+
+                -----------------------------------------------------------------------------------
+                -- История выполнения заданий -----------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 4 then
                     local cursor = assert(conn:execute("SELECT * FROM history ORDER by uid ASC"))
                     local row = cursor:fetch({}, "a")
                     info = ''
@@ -3604,7 +3623,7 @@ function main()
             -----------------------------------------------------------------------------------
             -- Сервисные функции --------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 15 then
+            if button == 1 and list == 16 then
                 zammenu_service()
                 while sampIsDialogActive(9000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(9000)
@@ -3728,7 +3747,7 @@ function zammenu_service()
 end
 
 function zammenu()
-    sampShowDialog(1999, "{FFA500}Меню заместителя начальника пожарного департамента", 'Работа с составом\nПроверить работу сотрудника\nРП отыгровки (лекции / тренировки / уведомления)\n \nРуссифицировать ник в буфер\nСкопировать ник для проверки ЧСП и ЧСГос\nПроверка на НонРП ник\nТаймеры\n \n{e9dc7c}Заказать доставку ТС\nНазначить собес на ближ. время\nУстановить отдел игроку\n{00EAFF}Сообщение в диалог ВК\n \nСовместные задания\nСервисное меню', 'Выбрать', 'Отмена', 2)
+    sampShowDialog(1999, "{FFA500}Меню заместителя начальника пожарного департамента", 'Работа с составом\nПроверить работу сотрудника\nРП отыгровки (лекции / тренировки / уведомления)\n \nРуссифицировать ник в буфер\nСкопировать ник для проверки ЧСП и ЧСГос\nПроверка на НонРП ник\nТаймеры\n \n{e9dc7c}Заказать доставку ТС\nНазначить собес на ближ. время\nУстановить отдел игроку\n{00EAFF}Сообщение в диалог ВК\n{00EAFF}Сообщение в диалог рук-ва ВК\n \nСовместные задания\nСервисное меню', 'Выбрать', 'Отмена', 2)
 end
 
 function zad()
@@ -3736,7 +3755,7 @@ function zad()
 end
 
 function zadmenu()
-    sampShowDialog(1000, "{FFA500}Меню заданий руководителей", 'Добавить задание\nСписок заданий на выполнение\nУдалить задание\n \n{00EAFF}Сообщение в диалог рук-ва ВК\nИстория выполнений', 'Выбрать', 'Отмена', 2)
+    sampShowDialog(1000, "{FFA500}Меню заданий руководителей", 'Добавить задание\nСписок заданий на выполнение\nУдалить задание\n \nИстория выполнений', 'Выбрать', 'Отмена', 2)
 end
 
 function zad()
