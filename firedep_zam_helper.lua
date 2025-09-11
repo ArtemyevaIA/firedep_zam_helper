@@ -1,12 +1,12 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A4")
+script_version("Ver.11.09.A5")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
 local Update = nil
 local afk = false
 
-local update_list = ('{00BFFF}1. {87CEFA}Добавлен список изменений в обновлении в сервисном меню.\n{00BFFF}2. {87CEFA}Скорректированы цвета.\n{00BFFF}3. {87CEFA}Добавлен режим АФК после рабочего дня.\n\n{FFD700}В перспективе следующего обновления:\n{00BFFF}1. {87CEFA}Внедрить хелпера пожарного департамента.\n{00BFFF}2. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.\n{00BFFF}3. {87CEFA}Добавить пункт благодарность разработчику.')
+local update_list = ('{00BFFF}1. {87CEFA}Добавлен список изменений в обновлении в сервисном меню.\n{00BFFF}2. {87CEFA}Скорректированы цвета.\n{00BFFF}3. {87CEFA}Добавлен режим АФК после рабочего дня.\n{00BFFF}4. {87CEFA}Добавлено автоматическое определение часового пояса.\n\n{FFD700}В перспективе следующего обновления:\n{00BFFF}1. {87CEFA}Внедрить хелпера пожарного департамента.\n{00BFFF}2. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.\n{00BFFF}3. {87CEFA}Добавить пункт благодарность разработчику.')
 
 local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
@@ -69,13 +69,16 @@ function main()
     if autoupdate_loaded and enable_autoupdate and Update then
         pcall(Update.check, Update.json_url, Update.prefix, Update.url)
     end
-    
+    UTC = getpoyas() - 3
+
     sampAddChatMessage('', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
-    sampAddChatMessage('{7FFFD4}Версия помощника: {7CFC00}'..thisScript().version, 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Версия помощника: {7CFC00}'..thisScript().version..' {7FFFD4}Часовой пояс: {FFFFFF}+ '..UTC..' {FFFFFF}мск', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Команда для открытия меню {ffa000}/zam {7FFFD4}или клавиша {ffa000}Scroll Lock', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Разработчик: {ffa000}Irin_Crown (Никита Артемьев)', 0x7FFFD4)
     sampAddChatMessage('', 0x7FFFD4)
+    
+
 
     sampRegisterChatCommand('zam', zammenu)
     sampRegisterChatCommand('upd', upd)
@@ -4304,10 +4307,22 @@ function runToJob(tox, toy)
     end
 end
 
-function test()
+function getpoyas()
     timepc = os.date('%H:%M:%S')
     timeserver = os.date('%H:%M:%S', os.time() - (UTC * 3600))
-    sampAddChatMessage('Часовой пояс: {FFFFFF}'..UTC, -255)
+    info = os.date("%z",os.time()) .. "\t" ..os.offset()
+    info = info:gsub('0', '')
+    info = info:gsub('+', '')
+    sampAddChatMessage('Часовой пояс: {FFFFFF}+'..UTC, -255)
     sampAddChatMessage('Время на ПК: {FFFFFF}'..timepc, -255)
     sampAddChatMessage('Время на сервере: {FFFFFF}'..timeserver, -255)
+    sampAddChatMessage('Мой часовой пояс: {FFFFFF}'..info, -255)
+    return info
+end
+
+function os.offset()
+   local currenttime = os.time()
+   local datetime = os.date("*t",currenttime)
+   datetime.isdst = true -- Флаг дневного времени суток
+   return currenttime - os.time(datetime)
 end
