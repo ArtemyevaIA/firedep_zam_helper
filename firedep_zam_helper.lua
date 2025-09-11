@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A8")
+script_version("Ver.11.09.A9")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -3885,7 +3885,7 @@ local nick = ''
 local id = ''
 
 function sampev.onServerMessage(color, text)
-    if text:find('(.+)Список не доступен пока Вы не на смене/дежурстве(.+)') then
+    if afk and text:find('(.+)Список не доступен пока Вы не на смене/дежурстве(.+)') then
         lua_thread.create(function()
             wait(1000)
             runToJob()
