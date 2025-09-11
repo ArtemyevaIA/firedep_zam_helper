@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Work_v25")
+script_version("Work_v25_bd")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -19,6 +19,10 @@ if updater_loaded then
     end
 
 end
+
+local mysql = require "luasql.mysql"
+local env = assert(mysql.mysql())
+local conn = assert(env:connect("arizona", "longames", "q2w3e4r5", "92.63.71.249", 3306))
 
 local config = {}
 local img = ''
