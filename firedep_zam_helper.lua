@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A25")
+script_version("Ver.11.09.A26")
 
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
@@ -2886,7 +2886,7 @@ function main()
             -----------------------------------------------------------------------------------
             if button == 1 and list == 10 then
                 start_sobes = true
-                local hour = os.date('%H', os.time() - (3 * 3600))
+                local hour = os.date('%H', os.time() - (UTC * 3600))
                 sobes = hour..',05,Пожарный департамент'
                 sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..sobes,-1)
                 --sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..h,-1)
@@ -3945,7 +3945,8 @@ function sampev.onServerMessage(color, text)
             end)
         end
 
-    if not fd_find_fire and fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
+    --if not fd_find_fire and fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
+    if fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
         lua_thread.create(function()
             fd_find_fire = true
             lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
