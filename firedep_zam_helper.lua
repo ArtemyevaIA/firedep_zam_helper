@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A10")
+script_version("Ver.11.09.A11")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -74,7 +74,7 @@ function main()
 
     sampAddChatMessage('', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
-    sampAddChatMessage('{7FFFD4}Версия помощника: {7CFC00}'..thisScript().version..' {7FFFD4}Часовой пояс: {FFFFFF}+ '..UTC..' {FFFFFF}мск', 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Версия помощника: {7CFC00}'..thisScript().version..' {7FFFD4}Часовой пояс: {FFFFFF}+'..UTC..' {FFFFFF}мск', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Команда для открытия меню {ffa000}/zam {7FFFD4}или клавиша {ffa000}Scroll Lock', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Разработчик: {ffa000}Irin_Crown (Никита Артемьев)', 0x7FFFD4)
     sampAddChatMessage('', 0x7FFFD4)
@@ -3712,7 +3712,7 @@ function main()
                             end
                         end)
                     end
-                    zammenu_service()
+                    zammenu()
                 end
 
                 -----------------------------------------------------------------------------------
@@ -3722,19 +3722,20 @@ function main()
                     if fd_helper then
                         fd_helper = false
                         fd_find_fire = false
-                        sampAddChatMessage('{90EE90}Хелпер пожарного департамента {FFA07A}выключен.', -255)
+                        sampAddChatMessage('{90EE90}Хелпер пожарного департамента {FFA07A}выключен.', 0x90EE90)
                     else
                         fd_helper = true
                         fd_find_fire = true
                         lua_thread.create(function()
-                            sampAddChatMessage('{90EE90}Хелпер пожарного департамента {00FF7F}включен.', -255)
-                            sampAddChatMessage('{90EE90}После происхождения первого пожара автоматически запустится отыгровка РП.', -255)
-                            sampAddChatMessage('{90EE90}Пока проишествие не будет завершено, отыгровки по новой не запустятся.', -255)
-                            sampAddChatMessage('{90EE90}По окончанию пожара вы получите окно статистики: ', -255)
-                            sampAddChatMessage('{90EE90}Степень происшествия / Время начала / Время окончания / Сколько заработано', -255)
+                            sampAddChatMessage('{90EE90}Хелпер пожарного департамента {7CFC00}включен', 0x90EE90)
+                            sampAddChatMessage('{90EE90}После происхождения первого пожара автоматически запустится отыгровка РП.', 0x90EE90)
+                            sampAddChatMessage('{90EE90}Пока проишествие не будет завершено, отыгровки по новой не запустятся.', 0x90EE90)
+                            sampAddChatMessage('{90EE90}По окончанию пожара вы получите окно статистики: ', 0x90EE90)
+                            sampAddChatMessage('{90EE90}Степень происшествия / Время начала / Время окончания / Сколько заработано', 0x90EE90)
+                            sampAddChatMessage('{7FFFD4}Для просмотра времени следующего происшествия введите: {ffa000}/nf', 0x7FFFD4)
                         end)
                     end
-                    zammenu_service()
+                    zammenu()
                 end
 
                 if button == 0 then
