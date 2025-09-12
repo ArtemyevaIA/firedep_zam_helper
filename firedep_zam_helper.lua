@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A14")
+script_version("Ver.11.09.A15")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -2319,7 +2319,7 @@ function main()
                         wait(1000)
                         sampProcessChatInput('/d [FD] - [ALL]: У меня на этом всё, благодарю за внимание.', -1)
                         wait(1000)
-                        sampProcessChatInput('/d [FD] - [ALL]: С уважением, заместитель начальника Пожарного департамента - И.Краун', -1)
+                        sampProcessChatInput('/d [FD] - [ALL]: С уважением, заместитель начальника Пожарного департамента - '..nick_fire, -1)
                     end
 
                     -----------------------------------------------------------------------------------
