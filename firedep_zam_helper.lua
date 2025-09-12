@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A20")
+script_version("Ver.11.09.A21")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -3934,6 +3934,13 @@ function sampev.onServerMessage(color, text)
             next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
         end)
     end
+
+    if (text:find("некст") or text:find("next") or text:find("Next") or text:find("Некст")) then
+            lua_thread.create(function()
+                wait(1000)
+                sampProcessChatInput('/rb :fire: Следующий пожар в '..next_fire,-1)
+            end)
+        end
 
     if not fd_find_fire and fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
         lua_thread.create(function()
