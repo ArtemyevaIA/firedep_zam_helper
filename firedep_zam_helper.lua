@@ -1,13 +1,17 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A11")
+script_version("Ver.11.09.A12")
+
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
 local Update = nil
 local afk = false
 local fd_helper, fd_find_fire = false, false
+local next_fire = 'появится после пожара'
+local time_fire, time_end = '00:00:00', '00:00:00'
+local give, lvl = '0', '0'
 
-local update_list = ('{00BFFF}1. {87CEFA}Добавлен список изменений в обновлении в сервисном меню.\n{00BFFF}2. {87CEFA}Скорректированы цвета.\n{00BFFF}3. {87CEFA}Добавлен режим АФК после рабочего дня.\n{00BFFF}4. {87CEFA}Добавлено автоматическое определение часового пояса.\n\n{FFD700}В перспективе следующего обновления:\n{00BFFF}1. {87CEFA}Внедрить хелпера пожарного департамента.\n{00BFFF}2. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.\n{00BFFF}3. {87CEFA}Добавить пункт благодарность разработчику.')
+local update_list = ('{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.\n{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.\n{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.\n\n{FFD700}В перспективе следующего обновления:\n{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.\n{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.')
 
 local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
@@ -70,7 +74,13 @@ function main()
     if autoupdate_loaded and enable_autoupdate and Update then
         pcall(Update.check, Update.json_url, Update.prefix, Update.url)
     end
+    
     UTC = getpoyas() - 3
+
+    _, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+    nick = sampGetPlayerNickname(id)
+    nick_rus = trst(nick)
+    nick_fire = nick_rus:match('(.)')..'.'..string.gsub(nick_rus, "(.+)(%s)", "")
 
     sampAddChatMessage('', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
@@ -79,11 +89,10 @@ function main()
     sampAddChatMessage('{7FFFD4}Разработчик: {ffa000}Irin_Crown (Никита Артемьев)', 0x7FFFD4)
     sampAddChatMessage('', 0x7FFFD4)
     
-
-
     sampRegisterChatCommand('zam', zammenu)
     sampRegisterChatCommand('upd', upd)
     sampRegisterChatCommand('ps', ps)
+    sampRegisterChatCommand('nf', function() sampAddChatMessage('{7FFFD4}Следующий пожар в {FFFFFF}'..next_fire, 0x7FFFD4) end)
             
         while true do
         wait(0)
@@ -3725,9 +3734,8 @@ function main()
                         sampAddChatMessage('{90EE90}Хелпер пожарного департамента {FFA07A}выключен.', 0x90EE90)
                     else
                         fd_helper = true
-                        fd_find_fire = true
                         lua_thread.create(function()
-                            sampAddChatMessage('{90EE90}Хелпер пожарного департамента {7CFC00}включен', 0x90EE90)
+                            sampAddChatMessage('{90EE90}Хелпер пожарного департамента {7CFC00}включен.', 0x90EE90)
                             sampAddChatMessage('{90EE90}После происхождения первого пожара автоматически запустится отыгровка РП.', 0x90EE90)
                             sampAddChatMessage('{90EE90}Пока проишествие не будет завершено, отыгровки по новой не запустятся.', 0x90EE90)
                             sampAddChatMessage('{90EE90}По окончанию пожара вы получите окно статистики: ', 0x90EE90)
@@ -3915,6 +3923,71 @@ local nick = ''
 local id = ''
 
 function sampev.onServerMessage(color, text)
+    if not fd_find_fire and fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
+        lua_thread.create(function()
+            fd_find_fire = true
+            lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
+            time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+            next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
+            sampAddChatMessage('', 0x7FFFD4)
+            sampAddChatMessage('ВНИМАНИЕ!!!', 0xDC143C)
+            sampAddChatMessage('В штате произошлоа происшествие. Степень опасности: {DC143C}'..lvl, 0x7FFFD4)
+            sampAddChatMessage('Время происшествия: {FFFFFF}'..time_fire, 0x7FFFD4)
+            sampAddChatMessage('Следующее происшествие в: {FFFFFF}'..next_fire, 0x7FFFD4)
+            sampAddChatMessage('', 0x7FFFD4)
+            sampProcessChatInput('/fires',-1)
+            wait(500)
+            setVirtualKeyDown(VK_RETURN, true) -- зажать клавишу
+            wait(100)
+            setVirtualKeyDown(VK_RETURN, false) -- отжать клавишу
+            sampProcessChatInput('/engine',-1)
+
+            sampProcessChatInput('/r Докладывает '..nick_fire..': выезжаю на происшествие '..lvl.. ' степени опасности!',-1)             
+        end)
+    end
+
+    if fd_find_fire and fd_helper and text:find("Вы прибыли на место пожара") then
+        lua_thread.create(function()
+            sampProcessChatInput('/r Докладывает '..nick_fire..': прыбыл на место происшествия.',-1)
+        end)
+    end
+
+    if fd_find_fire and fd_helper and text:find("Отнесите пострадавшего в палатку") then
+        lua_thread.create(function()
+            sampProcessChatInput('/r Докладывает '..nick_fire..': оказываю помощь пострадавшему.',-1)
+        end)
+    end
+
+    if fd_find_fire and fd_helper and text:find("Отлично! Вы спасли пострадавшего!") then
+        lua_thread.create(function()
+            sampProcessChatInput('/r Докладывает '..nick_fire..': пострадавшему оказана первая помощь.',-1)
+        end)
+    end
+
+    if fd_find_fire and fd_helper and text:find("Все очаги возгорания ликвидированы.") then
+        lua_thread.create(function()
+            sampProcessChatInput('/r Докладывает '..nick_fire..': все очаги возгарания ликвидированы.',-1)
+        end)
+    end
+
+    if fd_find_fire and fd_helper and text:find("Вы заработали на происшествие {90EE90}$(%d+)") then
+        lua_thread.create(function()
+            sampProcessChatInput('/r Докладывает '..nick_fire..': пожар успешно ликвидирован. Возвращаюсь на базу.',-1)
+            time_end = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+            give = text:match('Вы заработали на происшествие {90EE90}$(%d+)')
+            wait(2000)
+            sampAddChatMessage('', 0x7FFFD4)
+            sampAddChatMessage('{7FFFD4}Происшествие {DC143C}'..lvl..' степени {7FFFD4}ликвидировано', 0x7FFFD4)
+            sampAddChatMessage('{7FFFD4}Следующее происшествие в: {DC143C}'..next_fire,0x7FFFD4)
+            sampAddChatMessage('{7FFFD4}Заработано за происшествие: {26fc66}$'..give.. ' ['..string.format("%2.1f", give/1000000)..'М]', 0x7FFFD4)
+            sampAddChatMessage('', 0x7FFFD4)
+            sampProcessChatInput('/time',-1)
+            sampShowDialog(0, "{FFA500}Завершение пожара", "{8eeaf0}Пожар {d54447}" ..lvl.. " степени {8eeaf0}был ликвидирован.\n\n{8eeaf0}Время начала: {d5a044}" ..time_fire.. "\n{8eeaf0}Время ликвидации: {d5a044}" ..time_end.. "\n{8eeaf0}Доход: {d5a044}+ $"..give.. " ["..string.format("%2.1f", give/1000000).."М]", "Закрыть", "", DIALOG_STYLE_MSGBOX)
+            fd_find_fire = false
+        end)
+    end
+
+
     if afk and text:find('(.+)Список не доступен пока Вы не на смене/дежурстве(.+)') then
         lua_thread.create(function()
             wait(1000)
