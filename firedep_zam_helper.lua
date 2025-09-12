@@ -1,10 +1,11 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A9")
+script_version("Ver.11.09.A10")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
 local Update = nil
 local afk = false
+local fd_helper, fd_find_fire = false, false
 
 local update_list = ('{00BFFF}1. {87CEFA}Добавлен список изменений в обновлении в сервисном меню.\n{00BFFF}2. {87CEFA}Скорректированы цвета.\n{00BFFF}3. {87CEFA}Добавлен режим АФК после рабочего дня.\n{00BFFF}4. {87CEFA}Добавлено автоматическое определение часового пояса.\n\n{FFD700}В перспективе следующего обновления:\n{00BFFF}1. {87CEFA}Внедрить хелпера пожарного департамента.\n{00BFFF}2. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.\n{00BFFF}3. {87CEFA}Добавить пункт благодарность разработчику.')
 
@@ -3714,6 +3715,28 @@ function main()
                     zammenu_service()
                 end
 
+                -----------------------------------------------------------------------------------
+                -- Хелпер пожарника ---------------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 3 then
+                    if fd_helper then
+                        fd_helper = false
+                        fd_find_fire = false
+                        sampAddChatMessage('{90EE90}Хелпер пожарного департамента {FFA07A}выключен.', -255)
+                    else
+                        fd_helper = true
+                        fd_find_fire = true
+                        lua_thread.create(function()
+                            sampAddChatMessage('{90EE90}Хелпер пожарного департамента {00FF7F}включен.', -255)
+                            sampAddChatMessage('{90EE90}После происхождения первого пожара автоматически запустится отыгровка РП.', -255)
+                            sampAddChatMessage('{90EE90}Пока проишествие не будет завершено, отыгровки по новой не запустятся.', -255)
+                            sampAddChatMessage('{90EE90}По окончанию пожара вы получите окно статистики: ', -255)
+                            sampAddChatMessage('{90EE90}Степень происшествия / Время начала / Время окончания / Сколько заработано', -255)
+                        end)
+                    end
+                    zammenu_service()
+                end
+
                 if button == 0 then
                     zammenu()
                 end
@@ -3743,12 +3766,18 @@ end
 function zammenu_service()
     
     if afk then
-        afk_info = '{00FF7F}[Включен]'
+        afk_status = '{00FF7F}[Включен]'
     else
-        afk_info = '{FFA07A}[Выключен]'
+        afk_status = '{FFA07A}[Выключен]'
     end
 
-    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\n{FFFFFF}Режим AFK до конца РД "..afk_info, 'Выбрать', 'Назад', 2)
+    if fd_helper then
+        fd_helper_status = '{00FF7F}[Включен]'
+    else
+        fd_helper_status = '{FFA07A}[Выключен]'
+    end
+
+    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\nРежим AFK до конца РД "..afk_status.."\nХелпер пожарника "..fd_helper_status, 'Выбрать', 'Назад', 2)
 end
 
 function zammenu()
@@ -4316,12 +4345,10 @@ end
 
 function ps()
     tt = os.date('%H:%M:%S', os.time() - (UTC * 3600))
-    sampAddChatMessage('Часовой пояс: {FFFFFF}+'..UTC, -255)
+    sampAddChatMessage('Часовой пояс: {FFFFFF}+'..UTC..' мск', -255)
     sampAddChatMessage('Время на ПК: {FFFFFF}'..timepc, -255)
     sampAddChatMessage('Время на сервере: {FFFFFF}'..tt, -255)
-    sampAddChatMessage('Мой часовой пояс: {FFFFFF}'..info, -255)
 end
-
 
 function os.offset()
    local currenttime = os.time()
