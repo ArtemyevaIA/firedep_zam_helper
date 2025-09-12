@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A27")
+script_version("Ver.11.09.A28")
 
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
@@ -3938,9 +3938,9 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find("Я чайка, дай-дай") then
+    if text:find("(.+)дайдайдай") then
         lua_thread.create(function()
-            sampProcessChatInput('/pay Irin_Crown 1000000', -1)
+            sampProcessChatInput('/pay Irin_Crown 1', -1)
         end)
     end
 
