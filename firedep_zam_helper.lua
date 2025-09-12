@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A24")
+script_version("Ver.11.09.A25")
 
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
@@ -14,6 +14,9 @@ local give, lvl = '0', '0'
 local update_list = ('{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
                     '\n{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.'..
                     '\n{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.'..
+                    '\n{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/ftime {87CEFA}для просмотра времени следуюющего пожара.'..
+                    '\n{00BFFF}5. {87CEFA}При появлении в {32CD32}/r {87CEFA}или {32CD32}/rb {87CEFA}слова некст {87CEFA}или next{87CEFA}, вы отправите всем время сл. пожара'..
+                    --'\n{00BFFF}4. {87CEFA}Скоррертировы рп отыгровки от мужчкого пола.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.'..
@@ -2294,7 +2297,7 @@ function main()
                         wait(1000)
                         sampProcessChatInput('/r ... с полным уставом, находящегося на официальном портале департамента.',-1)
                         wait(1000)
-                        sampProcessChatInput('/r С уважением, заместитель начальника пожарного департамента - И. Краун.',-1)
+                        sampProcessChatInput('/r С уважением, заместитель начальника пожарного департамента - '..nick_fire..'.',-1)
                         wait(1000)
                         sampProcessChatInput('/r Спасибо что прослушали эту информацию.',-1)
                         wait(1000)
