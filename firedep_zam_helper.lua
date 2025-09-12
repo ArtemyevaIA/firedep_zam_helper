@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A22")
+script_version("Ver.11.09.A23")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -97,7 +97,7 @@ function main()
     sampRegisterChatCommand('zam', zammenu)
     sampRegisterChatCommand('upd', upd)
     sampRegisterChatCommand('ps', ps)
-    sampRegisterChatCommand('nf', function() sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4) end)
+    sampRegisterChatCommand('ftime', function() sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4) end)
             
         while true do
         wait(0)
@@ -3745,7 +3745,7 @@ function main()
                             sampAddChatMessage('{90EE90}Пока проишествие не будет завершено, отыгровки по новой не запустятся.', 0x90EE90)
                             sampAddChatMessage('{90EE90}По окончанию пожара вы получите окно статистики: ', 0x90EE90)
                             sampAddChatMessage('{90EE90}Степень происшествия / Время начала / Время окончания / Сколько заработано', 0x90EE90)
-                            sampAddChatMessage('{7FFFD4}Для просмотра времени следующего происшествия введите: {ffa000}/nf', 0x7FFFD4)
+                            sampAddChatMessage('{7FFFD4}Для просмотра времени следующего происшествия введите: {ffa000}/ftime', 0x7FFFD4)
                         end)
                     end
                     zammenu()
