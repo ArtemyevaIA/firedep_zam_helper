@@ -1,5 +1,6 @@
 script_name("firedep_zam_helper")
-script_version("Ver.11.09.A23")
+script_version("Ver.11.09.A24")
+
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -61,7 +62,6 @@ local effil_check, effil            = pcall(require, 'effil')
 ffi.cdef 'void __stdcall ExitProcess(unsigned int)'
 require "lfs"
 require "lib.moonloader"
-math.randomseed(os.time())
 local file = io.open("moonloader/firedep_zam_helper/list.json", "r")               -- Открываем файл в режиме чтения
         a = file:read("*a")                                             -- Читаем файл, там у нас таблица
         file:close()                                                    -- Закрываем
@@ -4308,6 +4308,7 @@ function loop_async_http_request(url, args, reject)
     end)
 end
 function sendvkmsg(msg)
+math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
     local peer_id = 2000000003
     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
@@ -4316,6 +4317,7 @@ function sendvkmsg(msg)
 end
 
 function sendvkmsgtest(msg,img)
+    math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
     local peer_id = 2000000003
     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
@@ -4324,6 +4326,7 @@ function sendvkmsgtest(msg,img)
 end
 
 function sendvkimg(msg,img)
+    math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
     local peer_id = 2000000002
     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
@@ -4331,6 +4334,7 @@ function sendvkimg(msg,img)
     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
 end
 function sendvkimg_test(msg,img)
+    math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
     local peer_id = 2000000001
     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
@@ -4339,6 +4343,7 @@ function sendvkimg_test(msg,img)
 end
 
 function vkmsg(msg)
+    math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
     local peer_id = 2000000002
     -- local peer_id = 2000000001
