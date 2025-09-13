@@ -20,9 +20,9 @@ local update_list = ('{FA8072}Ver.12.09.A1'..
                     '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
                     '\n\t{00BFFF}2. {87CEFA}Исправлены РП отыгровки на мужской пол.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
-                    '\n{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
-                    '\n{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.'..
-                    '\n{00BFFF}3. {87CEFA}Добавить модуль отображения состава организации онлайн.')
+                    '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
+                    '\n\t{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.'..
+                    '\n\t{00BFFF}3. {87CEFA}Добавить модуль отображения состава организации онлайн.')
 
 local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
