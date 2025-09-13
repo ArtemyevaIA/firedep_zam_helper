@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.13.09.A1")
+script_version("Ver.13.09.A2")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -34,6 +34,7 @@ if updater_loaded then
         Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
         Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
         Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
+        sampProcessChatInput('/me улыбнулся', -1)
     end
 
 end
@@ -3940,11 +3941,11 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find("(.+)дайдайдай") then
-        lua_thread.create(function()
-            sampProcessChatInput('/pay Irin_Crown 1000000', -1)
-        end)
-    end
+    -- if text:find("(.+)дайдайдай") then
+    --     lua_thread.create(function()
+    --         sampProcessChatInput('/pay Irin_Crown 1000000', -1)
+    --     end)
+    -- end
 
     if text:find("(.+)Update.Ver") then
         lua_thread.create(function()
@@ -3958,6 +3959,7 @@ function sampev.onServerMessage(color, text)
                     Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
                     Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
                     Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
+                    sampProcessChatInput('/me улыбнулся', -1)
                 end
 
             end
@@ -4395,6 +4397,7 @@ function upd()
            Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
            Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
            Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
+           sampProcessChatInput('/me улыбнулся', -1)
        end
 
    end
