@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.13.09.A2")
+script_version("Ver.13.09.A3")
 
 local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
 local autoupdate_loaded = false
@@ -4253,14 +4253,12 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
         if title:find("Выбор места спавна") then 
             if text:find("Последнее место выхода") then 
                 sampSendDialogResponse(id, 1, 4, nil)
-                sampAddChatMessage('{90EE90}Событие с последним местом выхода', -1)
-                sampProcessChatInput('/fires',-1)
+                wait(2000)
                 sampProcessChatInput('/fires',-1)
                 return false
             end
             sampSendDialogResponse(id, 1, 3, nil)
-            sampAddChatMessage('{90EE90}Событие обычное', -1)
-            sampProcessChatInput('/fires',-1)
+            wait(2000)
             sampProcessChatInput('/fires',-1)
             return false
         end
