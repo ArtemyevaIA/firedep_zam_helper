@@ -1,5 +1,6 @@
 script_name("firedep_zam_helper")
-script_version("Ver.15.09.A2")
+script_version("Ver.15.09.A3")
+
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini' -- слеш перед названием файла обязателен
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini' -- прямая ссылка на файл
@@ -2967,7 +2968,7 @@ function main()
             -----------------------------------------------------------------------------------
             if button == 1 and list == 10 then
                 start_sobes = true
-                local hour = os.date('%H', os.time() - (UTC * 3600))
+                local hour = os.date('%H', os.time() - ((UTC) * 3600) + 3600)
                 sobes = hour..',05,Пожарный департамент'
                 sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..sobes,-1)
                 --sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..h,-1)
