@@ -1,58 +1,14 @@
 script_name("firedep_zam_helper")
-script_version("Ver.13.09.A3")
+script_version("Ver.15.09.A9")
 
-local enable_autoupdate = true -- false to disable auto-update + disable sending initial telemetry (server, moonloader version, script version, samp nickname, virtual volume serial number)
-local autoupdate_loaded = false
-local Update = nil
-local afk = false
-local fd_helper, fd_find_fire = false, false
-local next_fire = 'появится после пожара'
-local time_fire, time_end = '00:00:00', '00:00:00'
-local give, lvl = '0', '0'
+local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini' -- слеш перед названием файла обязателен
+local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini' -- прямая ссылка на файл
 
-local update_list = ('{FA8072}Ver.12.09.A1'..
-                    '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
-                    '\n\t{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.'..
-                    '\n\t{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.'..
-                    '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/ftime {87CEFA}для просмотра времени следуюющего пожара.'..
-                    '\n\t{00BFFF}5. {87CEFA}При появлении в {32CD32}/r {87CEFA}или {32CD32}/rb {87CEFA}слова некст {87CEFA}или next{87CEFA}, вы отправите всем время сл. пожара'..
-                    '\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
-                    '\n\t{00BFFF}2. {87CEFA}Исправлены РП отыгровки на мужской пол.'..
-                    '\n\n{FFD700}В перспективе следующего обновления:'..
-                    '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
-                    '\n\t{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.'..
-                    '\n\t{00BFFF}3. {87CEFA}Добавить модуль отображения состава организации онлайн.')
+local mysql                         = require "luasql.mysql"
+local env                           = assert(mysql.mysql())
+local conn                          = assert(env:connect("arizona", "longames", "q2w3e4r5", "92.63.71.249", 3306))
+assert(conn:execute("SET NAMES 'cp1251'"))
 
-local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
-                                                        sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
-                                                        sampShowDialog(0, "{FFA500}Вышло обновление", "{FFA500}Помощник руководителя пожарного департамента\n{78dbe2}был автоматически обновлен на новую версию.\nПосмотреть изменения можно в Меню -> Сервисные функции -> Изменения", "Закрыть", "", DIALOG_STYLE_MSGBOX)
-                                                        print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
-if updater_loaded then
-    autoupdate_loaded, Update = pcall(Updater)
-    if autoupdate_loaded then
-        Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
-        Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
-        Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
-        sampProcessChatInput('/me улыбнулся', -1)
-    end
-
-end
-
-local mysql = require "luasql.mysql"
-local env = assert(mysql.mysql())
-local conn = assert(env:connect("arizona", "longames", "q2w3e4r5", "92.63.71.249", 3306))
-
-local UTC = 0
-local config = {}
-local img = ''
-local inspect = ''
-local inspect_1, inspect_2, inspect_3, inspect_4, inspect_5 = '','','','',''
-local docs = ''
-local sobes = ',05,Пожарный департамент'
-local start_sobes = false
-local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т',['th'] = 'т',['Sh'] = 'Ш',['sh'] = 'ш', ['ea'] = 'и',['Ae'] = 'Э',['ae'] = 'э',['size'] = 'сайз',['Jj'] = 'Джейджей',['Whi'] = 'Вай',['whi'] = 'вай',['Ck'] = 'К',['ck'] = 'к',['Kh'] = 'Х',['kh'] = 'х',['hn'] = 'н',['Hen'] = 'Ген',['Zh'] = 'Ж',['zh'] = 'ж',['Yu'] = 'Ю',['yu'] = 'ю',['Yo'] = 'Ё',['yo'] = 'ё',['Cz'] = 'Ц',['cz'] = 'ц', ['ia'] = 'я', ['ea'] = 'и',['Ya'] = 'Я', ['ya'] = 'я', ['ove'] = 'ав',['ay'] = 'эй', ['rise'] = 'райз',['oo'] = 'у', ['Oo'] = 'У'}
-local trstl = {['B'] = 'Б',['Z'] = 'З',['T'] = 'Т',['Y'] = 'Й',['P'] = 'П',['J'] = 'Дж',['X'] = 'Кс',['G'] = 'Г',['V'] = 'В',['H'] = 'Х',['N'] = 'Н',['E'] = 'Е',['I'] = 'И',['D'] = 'Д',['O'] = 'О',['K'] = 'К',['F'] = 'Ф',['y`'] = 'ы',['e`'] = 'э',['A'] = 'А',['C'] = 'К',['L'] = 'Л',['M'] = 'М',['W'] = 'В',['Q'] = 'К',['U'] = 'А',['R'] = 'Р',['S'] = 'С',['zm'] = 'зьм',['h'] = 'х',['q'] = 'к',['y'] = 'и',['a'] = 'а',['w'] = 'в',['b'] = 'б',['v'] = 'в',['g'] = 'г',['d'] = 'д',['e'] = 'е',['z'] = 'з',['i'] = 'и',['j'] = 'ж',['k'] = 'к',['l'] = 'л',['m'] = 'м',['n'] = 'н',['o'] = 'о',['p'] = 'п',['r'] = 'р',['s'] = 'с',['t'] = 'т',['u'] = 'у',['f'] = 'ф',['x'] = 'x',['c'] = 'к',['``'] = 'ъ',['`'] = 'ь',['_'] = ' '}
 local ffi                           = require('ffi')
 local ImGui                         = require 'imgui'
 local sampev                        = require "lib.samp.events"
@@ -61,30 +17,82 @@ local encoding                      = require 'encoding'
 encoding.default                    = 'CP1251'
 local u8                            = encoding.UTF8
 local bit                           = require('bit')
-local date                          = os.date('%d.%m.%Y')
-local spawnts                       = false
 local vkey                          = require'vkeys'
 local effil_check, effil            = pcall(require, 'effil')
-ffi.cdef 'void __stdcall ExitProcess(unsigned int)'
-require "lfs"
-require "lib.moonloader"
-local file = io.open("moonloader/firedep_zam_helper/list.json", "r")               -- Открываем файл в режиме чтения
-        a = file:read("*a")                                             -- Читаем файл, там у нас таблица
-        file:close()                                                    -- Закрываем
-        info = decodeJson(a)                                            -- Читаем нашу JSON-Таблицу
+                                      ffi.cdef 'void __stdcall ExitProcess(unsigned int)'
+                                      require "lfs"
+                                      require "lib.moonloader"
+local inicfg                        = require 'inicfg'
+local font_flag                     = require('moonloader').font_flag
+local my_font                       = renderCreateFont('Arial', 8.2, font_flag.BOLD + font_flag.SHADOW)
+local mainIni                       = inicfg.load({orgs = {}})
 
--- require('samp.events').onShowDialog = function(dialogId, style, title, button1, button2, text)
---     text = ('ID: %d (%d) %s | %s'):format(dialogId,style,title, text)
---     return {dialogId, style, title, button1, button2, text}
--- end
+local trstl = {['B'] = 'Б',['Z'] = 'З',['T'] = 'Т',['Y'] = 'Й',['P'] = 'П',['J'] = 'Дж',['X'] = 'Кс',['G'] = 'Г',['V'] = 'В',['H'] = 'Х',['N'] = 'Н',['E'] = 'Е',['I'] = 'И',['D'] = 'Д',['O'] = 'О',['K'] = 'К',['F'] = 'Ф',['y`'] = 'ы',['e`'] = 'э',['A'] = 'А',['C'] = 'К',['L'] = 'Л',['M'] = 'М',['W'] = 'В',['Q'] = 'К',['U'] = 'А',['R'] = 'Р',['S'] = 'С',['zm'] = 'зьм',['h'] = 'х',['q'] = 'к',['y'] = 'и',['a'] = 'а',['w'] = 'в',['b'] = 'б',['v'] = 'в',['g'] = 'г',['d'] = 'д',['e'] = 'е',['z'] = 'з',['i'] = 'и',['j'] = 'ж',['k'] = 'к',['l'] = 'л',['m'] = 'м',['n'] = 'н',['o'] = 'о',['p'] = 'п',['r'] = 'р',['s'] = 'с',['t'] = 'т',['u'] = 'у',['f'] = 'ф',['x'] = 'x',['c'] = 'к',['``'] = 'ъ',['`'] = 'ь',['_'] = ' '}
+local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т',['th'] = 'т',['Sh'] = 'Ш',['sh'] = 'ш', ['ea'] = 'и',['Ae'] = 'Э',['ae'] = 'э',['size'] = 'сайз',['Jj'] = 'Джейджей',['Whi'] = 'Вай',['whi'] = 'вай',['Ck'] = 'К',['ck'] = 'к',['Kh'] = 'Х',['kh'] = 'х',['hn'] = 'н',['Hen'] = 'Ген',['Zh'] = 'Ж',['zh'] = 'ж',['Yu'] = 'Ю',['yu'] = 'ю',['Yo'] = 'Ё',['yo'] = 'ё',['Cz'] = 'Ц',['cz'] = 'ц', ['ia'] = 'я', ['ea'] = 'и',['Ya'] = 'Я', ['ya'] = 'я', ['ove'] = 'ав',['ay'] = 'эй', ['rise'] = 'райз',['oo'] = 'у', ['Oo'] = 'У'}
 
+local date = os.date('%d.%m.%Y')
+local fd_helper, fd_find_fire, autoupdate_loaded, afk, start_sobes, enable_autoupdate, Update = false, false, false, false, false, true, nil
+local sobes, next_fire, time_fire, time_end = ',05,Пожарный департамент', 'появится после пожара', '00:00:00', '00:00:00'
+local cnt, give, lvl, UTC = 0, 0, 0, 0
+local config = {}
+local docs, inspect, img, inspect_1, inspect_2, inspect_3, inspect_4, inspect_5 = '','','','','', '', '', ''
+local showorgs, showorg, isGoing = true, true, true
+
+local spisok_org=io.open(download,"r")
+
+local update_list = ('{FA8072}Ver.12.09.A3'..
+                    '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
+                    '\n\t{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.'..
+                    '\n\t{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.'..
+                    '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/ftime {87CEFA}для просмотра времени следуюющего пожара.'..
+                    '\n\t{00BFFF}5. {87CEFA}При появлении в {32CD32}/r {87CEFA}или {32CD32}/rb {87CEFA}слова некст {87CEFA}или next{87CEFA}, вы отправите всем время сл. пожара.'..
+                    '\n\t{00BFFF}6. {87CEFA}Исправлены РП отыгровки на мужской пол.'..
+                    '\n{7CFC00}'..thisScript().version..
+                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
+                    '\n\t{00BFFF}2. {87CEFA}Добавлена функция отображения членов организации онлайн, и кто из оргнанизации рядом с вами.'..
+                    '\n\t{00BFFF}3. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
+                    '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/stime {87CEFA}для сверки часового пояса.'..
+                    '\n\t{00BFFF}5. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
+                    '\n\t{00BFFF}6. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
+                    '\n\n{FFD700}В перспективе следующего обновления:'..
+                    '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
+                    '\n\t{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.')
+
+local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
+                                                        sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
+                                                        sampShowDialog(0, "{FFA500}Вышло обновление", "{FFA500}Помощник руководителя пожарного департамента\n{78dbe2}был автоматически обновлен на новую версию.\nПосмотреть изменения можно в Меню -> Сервисные функции -> Изменения", "Закрыть", "", DIALOG_STYLE_MSGBOX)
+                                                        print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
 function main()
     if not isSampfuncsLoaded() or not isSampLoaded() then return end
-    while not isSampAvailable() do wait(0) end
+
+    if updater_loaded then
+        autoupdate_loaded, Update = pcall(Updater)
+        if autoupdate_loaded then
+            Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
+            Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
+            Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
+        end
+    end
     
+    if spisok_org~=nil then
+        io.close(spisok_org)
+    else 
+        sampAddChatMessage('Список сотрудников не найден. Сейчас подгрузим.', -255)
+        downloadUrlToFile(url, download)
+        wait(3000)
+        sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
+        while sampIsDialogActive(0) do wait(100) end
+        local result, button, _, input = sampHasDialogRespond(0)
+        if button == 1 then
+            sampProcessChatInput('/q', -1)
+        end
+    end
+
     if autoupdate_loaded and enable_autoupdate and Update then
         pcall(Update.check, Update.json_url, Update.prefix, Update.url)
     end
+
+    while not isSampAvailable() do wait(0) end
     
     UTC = getpoyas() - 3
 
@@ -92,6 +100,7 @@ function main()
     nick = sampGetPlayerNickname(id)
     nick_rus = trst(nick)
     nick_fire = nick_rus:match('(.)')..'.'..string.gsub(nick_rus, "(.+)(%s)", "")
+
 
     sampAddChatMessage('', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
@@ -102,11 +111,82 @@ function main()
     
     sampRegisterChatCommand('zam', zammenu)
     sampRegisterChatCommand('upd', upd)
-    sampRegisterChatCommand('ps', ps)
-    sampRegisterChatCommand('ftime', function() sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4) end)
+    sampRegisterChatCommand('stime', stime)
+    sampRegisterChatCommand('ftime', function() 
+        sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4) 
+    end)
+
+    sampRegisterChatCommand('afk', function()
+        afk = true
+        sampSetGamestate(GAMESTATE_DISCONNECTED)
+        sampDisconnectWithReason(0)
+        sampAddChatMessage('', 0x90EE90)
+        sampAddChatMessage('{90EE90}Выполнен уход в режим АФК. Ваша сессия завершена.', 0x90EE90)
+        sampAddChatMessage('{90EE90}За 5 минут до окончания рабочего дня будет выполнена команда /rec.', 0x90EE90)
+        sampAddChatMessage('{90EE90}После персонаж автоматически пойдет одеваться и встанет в угол фармить.', 0x90EE90)
+        sampAddChatMessage('', 0x90EE90)
+        sampAddChatMessage('{90EE90}Ожидаем {FFFFFF}19:55:00 {90EE90}для выхода из режима.', 0x90EE90)
+        sampAddChatMessage('', 0x90EE90)
+    end)
+
+    sampRegisterChatCommand("co", co)
+    sampRegisterChatCommand("new", neworg)
+    sampRegisterChatCommand("del", delorg)
+    sampRegisterChatCommand("cho", switchMod)
+    sampRegisterChatCommand("coc", coc)
             
-        while true do
-        wait(0)
+    while true do wait(0)
+
+        if showorgs then
+            local resX, resY = getScreenResolution()
+            local ADM_POS_X = resX-(resX/27*3)
+            local ADM_POS_Y = resY/4
+            local ADM_POS_XX = resX-(resX/27*5)
+            local ADM_POS_YY = resY/4
+            local PLY_POS_Y = resY/3
+            local PLY_POS_X = resX/27
+
+            local tbl_org = {}
+            local y_org, n_org = 0, 0
+
+            for id_org = 0, sampGetMaxPlayerId() do
+                if sampIsPlayerConnected(id_org) then
+                    local name_org, id_org = sampGetPlayerNickname(id_org)
+                    if findInIni(name_org) then 
+                        table.insert(tbl_org,name_org)
+                    end
+                end
+            end
+
+            renderFontDrawText(my_font, "{f87858}Члены организации онлайн:", ADM_POS_X, ADM_POS_Y, -255)
+
+            for cnt_org, v_org in pairs(tbl_org) do
+                id_org = sampGetPlayerIdByNickname(v_org)
+                color = sampGetPlayerColor(id_org)
+
+                if showorg then
+                    for _, a in pairs(getAllChars()) do
+                        local result_org, uid_org = sampGetPlayerIdByCharHandle(a)
+                        if result_org and id_org == uid_org then
+                            y_org = y_org+1
+                            renderFontDrawText(my_font, "{f87858}Члены организации рядом:", ADM_POS_XX, ADM_POS_YY, -255)
+                            
+                            if color == 2164212992 then
+                                renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
+                            else
+                                renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
+                            end
+                        end
+                    end
+                end
+
+                if color == 2164212992 then
+                    renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
+                else
+                    renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
+                end
+            end
+        end
 
         if afk and os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "19:55:00" then
             sampAddChatMessage("{90EE90}Время выходить из режима АФК",-1)
@@ -124,8 +204,8 @@ function main()
             -----------------------------------------------------------------------------------
             -- Работа с составом --------------------------------------------------------------
             -----------------------------------------------------------------------------------
+            if button == 1 and list == 0 then lua_thread.create(function()
 
-            if button == 1 and list == 0 then
                 sostav()
                 while sampIsDialogActive(2000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2000)
@@ -2200,12 +2280,12 @@ function main()
                 end
 
                 if button == 0 then zammenu() end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Проверить работу сотрудника ----------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 1 then
+            if button == 1 and list == 1 then lua_thread.create(function()
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2230,13 +2310,12 @@ function main()
 
                     lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Статистики/'..date.. ' ' ..timed.. ' ' ..nick.. ' (jobprogress)')
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- РП отыгровки (лекции / тренировки / уведомления) -------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 2 then
-                lua_thread.create(function()
+            if button == 1 and list == 2 then lua_thread.create(function()
                     lec()
                     while sampIsDialogActive(2006) do wait(100) end
                     local result, button, list, input = sampHasDialogRespond(2006)
@@ -2623,14 +2702,12 @@ function main()
                     end
 
                     if button == 0 then zammenu() end
-
-                end)
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Руссификатор ника --------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 4 then
+            if button == 1 and list == 4 then lua_thread.create(function()
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2643,12 +2720,12 @@ function main()
                     setClipboardText(nm)
                     sampAddChatMessage('{78dbe2}Ник {ffa000}'..nm..' ['..id..'] {78dbe2}скопирован в буфер обмена', -1)
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Скопировать ник для проверки на ЧСП и ЧСГос ------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 5 then
+            if button == 1 and list == 5 then lua_thread.create(function()
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2660,12 +2737,12 @@ function main()
                     setClipboardText(nick)
                     sampAddChatMessage('{78dbe2}Ник {ffa000}'..nick..' ['..id..'] {78dbe2}скопирован в буфер обмена', -1)
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Проверка на НонРП ник ----------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 6 then
+            if button == 1 and list == 6 then lua_thread.create(function()
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2677,12 +2754,12 @@ function main()
                     setClipboardText(nick)
                     sampAddChatMessage('{78dbe2}Команда {ffa000}'..nick..' {78dbe2}скопирована в буфер обмена', -1)
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Таймеры ------------------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 7 then
+            if button == 1 and list == 7 then lua_thread.create(function()
                 timermenu()
                 while sampIsDialogActive(2017) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2017)
@@ -2868,12 +2945,12 @@ function main()
                 end
 
                 if button == 0 then zammenu() end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Заказать доставку ТС -----------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 9 then
+            if button == 1 and list == 9 then lua_thread.create(function()
                 sampProcessChatInput('/r Запрашиваю заправку служебного авто, просьба занять места.', -1)
                 wait(5000)
                 sampProcessChatInput('/r Заправка транспорта через 10 секунд.', -1)
@@ -2882,24 +2959,24 @@ function main()
                 wait(5000)
                 sampProcessChatInput('/r Заправка транспорта сейчас.', -1)
                 sampProcessChatInput('/lmenu', -1)
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Назначить собес на ближ. время -------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 10 then
+            if button == 1 and list == 10 then lua_thread.create(function()
                 start_sobes = true
-                local hour = os.date('%H', os.time() - (UTC * 3600))
+                local hour = os.date('%H', os.time() - ((UTC) * 3600) + 3600)
                 sobes = hour..',05,Пожарный департамент'
                 sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..sobes,-1)
                 --sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..h,-1)
                 sampProcessChatInput('/lmenu', -1)
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Установить отдел игроку --------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 11 then
+            if button == 1 and list == 11 then lua_thread.create(function()
                 settag()
                 while sampIsDialogActive(2020) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2020)
@@ -2959,12 +3036,12 @@ function main()
                         vkmsg(encodeUrl(text))
                     end
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Отправить сообщение в диалог вк ------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 12 then
+            if button == 1 and list == 12 then lua_thread.create(function()
                 inputmsg()
                 while sampIsDialogActive(2022) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2022)
@@ -2974,12 +3051,12 @@ function main()
                     local text = (nick..' ['..id..']: '..input)
                     vkmsg(encodeUrl(text))
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Сообщение в диалог рук-ва ВК ---------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 13 then
+            if button == 1 and list == 13 then lua_thread.create(function()
                 inputmsg()
                 while sampIsDialogActive(2022) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2022)
@@ -2990,12 +3067,12 @@ function main()
 
                     sendvkmsg(encodeUrl(text))
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Совместные задания -------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 15 then
+            if button == 1 and list == 15 then lua_thread.create(function()
                 zadmenu()
                 while sampIsDialogActive(1000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(1000)
@@ -3644,12 +3721,12 @@ function main()
                         zadmenu()
                     end
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Сервисные функции --------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 16 then
+            if button == 1 and list == 16 then lua_thread.create(function()
                 zammenu_service()
                 while sampIsDialogActive(9000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(9000)
@@ -3670,14 +3747,14 @@ function main()
                     while sampIsDialogActive(0) do wait(100) end
                     local result, button, _, input = sampHasDialogRespond(0)
                     if button == 0 then
-                        zammenu_service()
+                        zammenu()
                     end
                 end
 
                 -----------------------------------------------------------------------------------
                 -- Режим AFK ----------------------------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 2 then
+                if button == 1 and list == 3 then
                     if afk then
                         afk = false
                         sampAddChatMessage('Режим AFK отключен.', -255)
@@ -3738,7 +3815,7 @@ function main()
                 -----------------------------------------------------------------------------------
                 -- Хелпер пожарника ---------------------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 3 then
+                if button == 1 and list == 4 then
                     if fd_helper then
                         fd_helper = false
                         fd_find_fire = false
@@ -3757,10 +3834,70 @@ function main()
                     zammenu()
                 end
 
+                -----------------------------------------------------------------------------------
+                -- Быстрое восстановление льготы +10% ---------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 6 then
+                    sampProcessChatInput('/r Уважаемые сотрудники, прошу минуточку внимания...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Я хочу напомнить вам о том, что спать в раздевалке...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r В рабочее время запрещено.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Также запрещено разгуливать вне департамента...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r в рабочей форме. Если поймаем вас на этом...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Будут применены дисциплинарные меры.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Спать в раздевалке можно только не в рабочее время.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Во избежание получения дисциплинарных взысканий, рекомендую Вам ознакомится....',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r ... с полным уставом, находящегося на официальном портале департамента.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r С уважением, руководитель пожарного департамента - '..nick_fire..'.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Спасибо что прослушали эту информацию.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Хорошей службы!',-1)
+                    wait(3000)
+                    sampProcessChatInput('/d [FD] - [ALL]: Уважаемые коллеги, прошу минуточку внимания...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: В связи участившимися случаями пожаров, просьба довести до личного состава...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: правила обращения со средствами пожаротушения. ', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: Проверить актуальность планов пожарной эвакуации...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: а также проверить техническое состояние огнетушителей...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: и наличие средств оказания первой помощи.', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: У меня на этом всё, благодарю за внимание.', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: С уважением, руководитель Пожарного департамента - '..nick_fire, -1)
+                end
+
+                -----------------------------------------------------------------------------------
+                -- Описание и возможности ---------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 8 then
+                    sampShowDialog(0, "{FFA500}FAQ по работе с хелпером", "{ffa000}Доступные команды:"..
+                        "\n\t{7CFC00}/zam {7FFFD4}- Открыть хеплер руководителя пожарного департамента"..
+                        "\n\t{7CFC00}/ftime {7FFFD4}- Посмотреть время следующего пожара"..
+                        "\n\t{7CFC00}/stime {7FFFD4}- Сверка времени с сервером и времения на вашем компьютере"..
+                        "\n\t{7CFC00}/new [id] {7FFFD4}- Добавить сотрудника в список отслеживания онлайн организации"..
+                        "\n\t{7CFC00}/del [id] {7FFFD4}- Удалить сотрудника из списка отслеживания онлайн организации"..
+                        "\n\t{7CFC00}/afk {7FFFD4}- Моментально уйти в режим АФК до конца рабочего дня"..
+                        "\n\n{FFA07A}... дополнится в скором времени.",
+                        "Закрыть", "", DIALOG_STYLE_MSGBOX)
+                end
+
                 if button == 0 then
                     zammenu()
                 end
-            end
+            end) end
 
             if button == 0 then
                 sampCloseCurrentDialogWithButton(0)
@@ -3797,7 +3934,7 @@ function zammenu_service()
         fd_helper_status = '{FFA07A}[Выключен]'
     end
 
-    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\nРежим AFK до конца РД "..afk_status.."\nХелпер пожарника "..fd_helper_status, 'Выбрать', 'Назад', 2)
+    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\n \nРежим AFK до конца РД "..afk_status.."\nХелпер пожарника "..fd_helper_status.."\n \n{ffa000}[+10%] {FFFFFF}Быстрое восстановление льготы\n \n{7FFFD4}[FAQ] Описание и возможности", 'Выбрать', 'Назад', 2)
 end
 
 function zammenu()
@@ -3934,6 +4071,17 @@ local nick = ''
 local id = ''
 
 function sampev.onServerMessage(color, text)
+    if isGoing and text:find("(%W)R(%W)") then
+        local nick = string.match(text,"%a+_%a+")
+        if not nick then return sendCmdMsg('Что-то пошло не так! вот сообщение:'..text) end
+        local nick = string.match(nick,"%a+_%a+")
+        if not findInIni(nick) then
+            sampAddChatMessage('{7FFFD4}Новый член организации! Это - "'..nick..'"',0x7FFFD4)
+            table.insert(mainIni.orgs, nick)
+            inicfg.save(mainIni)
+        end
+    end
+
     if text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
         lua_thread.create(function()
             time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
@@ -3959,7 +4107,6 @@ function sampev.onServerMessage(color, text)
                     Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
                     Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
                     Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
-                    sampProcessChatInput('/me улыбнулся', -1)
                 end
 
             end
@@ -4251,14 +4398,16 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
 
     if afk and id == 25527 then
         if title:find("Выбор места спавна") then 
-            if text:find("Последнее место выхода") then 
+            if text:find("Последнее место выхода") then
                 sampSendDialogResponse(id, 1, 4, nil)
-                wait(2000)
+                sampProcessChatInput('/fires',-1)
+                sampProcessChatInput('/fires',-1)
                 sampProcessChatInput('/fires',-1)
                 return false
             end
             sampSendDialogResponse(id, 1, 3, nil)
-            wait(2000)
+            sampProcessChatInput('/fires',-1)
+            sampProcessChatInput('/fires',-1)
             sampProcessChatInput('/fires',-1)
             return false
         end
@@ -4272,15 +4421,6 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
         end
     end
 end
-
--- local dialog_id = 32 --айди диалога
--- local send_text = 'Можно ли проводить собеседование не в рд?' --текст который будет отправлен в качестве ответа на диалог
--- function sampev.onShowDialog(id, style, title, button1, button2, text)
---     if id == dialog_id then
---         sampSendDialogResponse(dialog_id, 1 , nil, send_text)
---         return false
---     end
--- end
 
 function encodeUrl(str)
    str = str:gsub(' ', '%+')
@@ -4395,7 +4535,6 @@ function upd()
            Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
            Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
            Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
-           sampProcessChatInput('/me улыбнулся', -1)
        end
 
    end
@@ -4476,11 +4615,13 @@ function getpoyas()
     return info
 end
 
-function ps()
+function stime()
     tt = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+    sampAddChatMessage('', -255)
     sampAddChatMessage('Часовой пояс: {FFFFFF}+'..UTC..' мск', -255)
     sampAddChatMessage('Время на ПК: {FFFFFF}'..timepc, -255)
     sampAddChatMessage('Время на сервере: {FFFFFF}'..tt, -255)
+    sampAddChatMessage('', -255)
 end
 
 function os.offset()
@@ -4488,4 +4629,52 @@ function os.offset()
    local datetime = os.date("*t",currenttime)
    datetime.isdst = true -- Флаг дневного времени суток
    return currenttime - os.time(datetime)
+end
+
+function findInIni(nick) for _,v in pairs(mainIni.orgs) do if v == nick then return _ end end return false end
+
+function co()
+    showorgs = not showorgs
+end
+
+function ss()
+    send = true
+end
+
+function coc()
+    showorg = not showorg
+end
+
+
+function switchMod()
+    isGoing = not isGoing
+    sampAddChatMessage(((isGoing and "{7FFFD4}Будем добавлять член организации") or "{7FFFD4}Больше не будем добавлять членов организации"),0x7FFFD4)
+end
+
+function neworg(arg)
+    local nick = arg
+    if type(tonumber(arg)) == 'number' then nick = sampGetPlayerNickname(arg) end
+    local found = findInIni(nick)
+    if not found then
+        sampAddChatMessage('{7FFFD4}Новый член организации! Это - {FFFFFF}'..nick,0x7FFFD4)
+        table.insert(mainIni.orgs, nick)
+        inicfg.save(mainIni)
+    else
+        sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..nick..' {7FFFD4}уже существует!',0x7FFFD4)
+    end
+end
+
+function delorg(arg)
+    if arg ~= '' then
+        local nick = arg
+        if type(tonumber(arg)) == 'number' then nick = sampGetPlayerNickname(arg) end
+        local found = findInIni(nick)
+        if not found then return sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..arg..' {7FFFD4}не найден!',0x7FFFD4) end
+        arg = found
+    else
+        arg = #mainIni.orgs
+    end
+    sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..mainIni.orgs[arg]..' {7FFFD4}удалён!',0x7FFFD4)
+    table.remove(mainIni.orgs, arg)
+    inicfg.save(mainIni)
 end
