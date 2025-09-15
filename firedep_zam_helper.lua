@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.15.09.A6")
+script_version("Ver.15.09.A7")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini' -- слеш перед названием файла обязателен
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini' -- прямая ссылка на файл
@@ -3889,7 +3889,7 @@ function main()
                         "\n\t{7CFC00}/stime {7FFFD4}- Сверка времени с сервером и времения на вашем компьютере"..
                         "\n\t{7CFC00}/new [id] {7FFFD4}- Добавить сотрудника в список отслеживания онлайн организации"..
                         "\n\t{7CFC00}/del [id] {7FFFD4}- Удалить сотрудника из списка отслеживания онлайн организации"..
-                        "\n\t{7CFC00}/afk {7FFFD4}- Моментально уйти в режим АФК до конца рабочего дня",
+                        "\n\t{7CFC00}/afk {7FFFD4}- Моментально уйти в режим АФК до конца рабочего дня"..
                         "\n\n\t{FFA07A}... дополнится в скором времени.",
                         "Закрыть", "", DIALOG_STYLE_MSGBOX)
                 end
