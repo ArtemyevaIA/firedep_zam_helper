@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.15.09.A8")
+script_version("Ver.15.09.A9")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini' -- слеш перед названием файла обязателен
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini' -- прямая ссылка на файл
@@ -137,56 +137,56 @@ function main()
             
     while true do wait(0)
 
-        if showorgs then
-            local resX, resY = getScreenResolution()
-            local ADM_POS_X = resX-(resX/27*3)
-            local ADM_POS_Y = resY/4
-            local ADM_POS_XX = resX-(resX/27*5)
-            local ADM_POS_YY = resY/4
-            local PLY_POS_Y = resY/3
-            local PLY_POS_X = resX/27
+        -- if showorgs then
+        --     local resX, resY = getScreenResolution()
+        --     local ADM_POS_X = resX-(resX/27*3)
+        --     local ADM_POS_Y = resY/4
+        --     local ADM_POS_XX = resX-(resX/27*5)
+        --     local ADM_POS_YY = resY/4
+        --     local PLY_POS_Y = resY/3
+        --     local PLY_POS_X = resX/27
 
-            local tbl_org = {}
-            local y_org, n_org = 0, 0
+        --     local tbl_org = {}
+        --     local y_org, n_org = 0, 0
 
-            for id_org = 0, sampGetMaxPlayerId() do
-                if sampIsPlayerConnected(id_org) then
-                    local name_org, id_org = sampGetPlayerNickname(id_org)
-                    if findInIni(name_org) then 
-                        table.insert(tbl_org,name_org)
-                    end
-                end
-            end
+        --     for id_org = 0, sampGetMaxPlayerId() do
+        --         if sampIsPlayerConnected(id_org) then
+        --             local name_org, id_org = sampGetPlayerNickname(id_org)
+        --             if findInIni(name_org) then 
+        --                 table.insert(tbl_org,name_org)
+        --             end
+        --         end
+        --     end
 
-            renderFontDrawText(my_font, "{f87858}Члены организации онлайн:", ADM_POS_X, ADM_POS_Y, -255)
+        --     renderFontDrawText(my_font, "{f87858}Члены организации онлайн:", ADM_POS_X, ADM_POS_Y, -255)
 
-            for cnt_org, v_org in pairs(tbl_org) do
-                id_org = sampGetPlayerIdByNickname(v_org)
-                color = sampGetPlayerColor(id_org)
+        --     for cnt_org, v_org in pairs(tbl_org) do
+        --         id_org = sampGetPlayerIdByNickname(v_org)
+        --         color = sampGetPlayerColor(id_org)
 
-                if showorg then
-                    for _, a in pairs(getAllChars()) do
-                        local result_org, uid_org = sampGetPlayerIdByCharHandle(a)
-                        if result_org and id_org == uid_org then
-                            y_org = y_org+1
-                            renderFontDrawText(my_font, "{f87858}Члены организации рядом:", ADM_POS_XX, ADM_POS_YY, -255)
+        --         if showorg then
+        --             for _, a in pairs(getAllChars()) do
+        --                 local result_org, uid_org = sampGetPlayerIdByCharHandle(a)
+        --                 if result_org and id_org == uid_org then
+        --                     y_org = y_org+1
+        --                     renderFontDrawText(my_font, "{f87858}Члены организации рядом:", ADM_POS_XX, ADM_POS_YY, -255)
                             
-                            if color == 2164212992 then
-                                renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
-                            else
-                                renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
-                            end
-                        end
-                    end
-                end
+        --                     if color == 2164212992 then
+        --                         renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
+        --                     else
+        --                         renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
+        --                     end
+        --                 end
+        --             end
+        --         end
 
-                if color == 2164212992 then
-                    renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
-                else
-                    renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
-                end
-            end
-        end
+        --         if color == 2164212992 then
+        --             renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
+        --         else
+        --             renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
+        --         end
+        --     end
+        -- end
 
         if afk and os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "19:55:00" then
             sampAddChatMessage("{90EE90}Время выходить из режима АФК",-1)
