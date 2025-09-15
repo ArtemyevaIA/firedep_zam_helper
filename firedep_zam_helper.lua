@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.15.09.A7")
+script_version("Ver.15.09.A8")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini' -- слеш перед названием файла обязателен
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini' -- прямая ссылка на файл
@@ -7,6 +7,7 @@ local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/ma
 local mysql                         = require "luasql.mysql"
 local env                           = assert(mysql.mysql())
 local conn                          = assert(env:connect("arizona", "longames", "q2w3e4r5", "92.63.71.249", 3306))
+assert(conn:execute("SET NAMES 'cp1251'"))
 
 local ffi                           = require('ffi')
 local ImGui                         = require 'imgui'
@@ -51,7 +52,8 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}2. {87CEFA}Добавлена функция отображения членов организации онлайн, и кто из оргнанизации рядом с вами.'..
                     '\n\t{00BFFF}3. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
                     '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/stime {87CEFA}для сверки часового пояса.'..
-                    '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
+                    '\n\t{00BFFF}5. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
+                    '\n\t{00BFFF}6. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.')
@@ -3888,7 +3890,7 @@ function main()
                         "\n\t{7CFC00}/new [id] {7FFFD4}- Добавить сотрудника в список отслеживания онлайн организации"..
                         "\n\t{7CFC00}/del [id] {7FFFD4}- Удалить сотрудника из списка отслеживания онлайн организации"..
                         "\n\t{7CFC00}/afk {7FFFD4}- Моментально уйти в режим АФК до конца рабочего дня"..
-                        "\n\n{FFA07A}Дополнится в скором времени.",
+                        "\n\n{FFA07A}... дополнится в скором времени.",
                         "Закрыть", "", DIALOG_STYLE_MSGBOX)
                 end
 
