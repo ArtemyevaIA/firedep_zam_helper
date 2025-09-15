@@ -1,6 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.15.09.A4")
-
+script_version("Ver.15.09.A5")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini' -- слеш перед названием файла обязателен
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini' -- прямая ссылка на файл
@@ -50,8 +49,7 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
                     '\n\t{00BFFF}2. {87CEFA}Добавлена функция отображения членов организации онлайн, и кто из оргнанизации рядом с вами.'..
-                    '\n\t{00BFFF}3. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
-                    '\n\t{00BFFF}4. {87CEFA}Исправлена ошибка с назначением быстрого собеседования на 05 минут сл. часа.'..
+                    '\n\t{00BFFF}2. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.'..
@@ -135,55 +133,55 @@ function main()
     sampRegisterChatCommand("cho", switchMod)
     sampRegisterChatCommand("coc", coc)
             
-    local resX, resY = getScreenResolution()
-    local ADM_POS_X = resX-(resX/27*3)
-    local ADM_POS_Y = resY/4
-    local ADM_POS_XX = resX-(resX/27*5)
-    local ADM_POS_YY = resY/4
-    local PLY_POS_Y = resY/3
-    local PLY_POS_X = resX/27
-
     while true do wait(0)
 
         if showorgs then
-            local tbl = {}
-            local y, n = 0, 0
+            local resX, resY = getScreenResolution()
+            local ADM_POS_X = resX-(resX/27*3)
+            local ADM_POS_Y = resY/4
+            local ADM_POS_XX = resX-(resX/27*5)
+            local ADM_POS_YY = resY/4
+            local PLY_POS_Y = resY/3
+            local PLY_POS_X = resX/27
 
-            for id = 0, sampGetMaxPlayerId() do
-                if sampIsPlayerConnected(id) then
-                    local name, id = sampGetPlayerNickname(id)
-                    if findInIni(name) then 
-                        table.insert(tbl,name)
+            local tbl_org = {}
+            local y_org, n_org = 0, 0
+
+            for id_org = 0, sampGetMaxPlayerId() do
+                if sampIsPlayerConnected(id_org) then
+                    local name_org, id_org = sampGetPlayerNickname(id_org)
+                    if findInIni(name_org) then 
+                        table.insert(tbl_org,name_org)
                     end
                 end
             end
 
             renderFontDrawText(my_font, "{f87858}Члены организации онлайн:", ADM_POS_X, ADM_POS_Y, -255)
 
-            for cnt, v in pairs(tbl) do
-                id = sampGetPlayerIdByNickname(v)
-                color = sampGetPlayerColor(id)
+            for cnt_org, v_org in pairs(tbl_org) do
+                id_org = sampGetPlayerIdByNickname(v_org)
+                color = sampGetPlayerColor(id_org)
 
                 if showorg then
                     for _, a in pairs(getAllChars()) do
-                        local result, uid = sampGetPlayerIdByCharHandle(a)
-                        if result and id == uid then
-                            y = y+1
+                        local result_org, uid_org = sampGetPlayerIdByCharHandle(a)
+                        if result_org and id_org == uid_org then
+                            y_org = y_org+1
                             renderFontDrawText(my_font, "{f87858}Члены организации рядом:", ADM_POS_XX, ADM_POS_YY, -255)
                             
                             if color == 2164212992 then
-                                renderFontDrawText(my_font, cnt..". {33ee66}"..v.." {ffffff}["..id.."]", ADM_POS_XX+n*150, ADM_POS_YY+y*13, ((findInIni(v[1]) and -255) or -255))
+                                renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
                             else
-                                renderFontDrawText(my_font, cnt..". {f87858}"..v.." {ffffff}["..id.."]", ADM_POS_XX+n*150, ADM_POS_YY+y*13, ((findInIni(v[1]) and -255) or -255))
+                                renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
                             end
                         end
                     end
                 end
 
                 if color == 2164212992 then
-                    renderFontDrawText(my_font, cnt..". {33ee66}"..v.." {ffffff}["..id.."]", ADM_POS_X, ADM_POS_Y+cnt*13, -255)
+                    renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
                 else
-                    renderFontDrawText(my_font, cnt..". {f87858}"..v.." {ffffff}["..id.."]", ADM_POS_X, ADM_POS_Y+cnt*13, -255)
+                    renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
                 end
             end
         end
@@ -204,8 +202,8 @@ function main()
             -----------------------------------------------------------------------------------
             -- Работа с составом --------------------------------------------------------------
             -----------------------------------------------------------------------------------
+            if button == 1 and list == 0 then lua_thread.create(function()
 
-            if button == 1 and list == 0 then
                 sostav()
                 while sampIsDialogActive(2000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2000)
@@ -2280,12 +2278,12 @@ function main()
                 end
 
                 if button == 0 then zammenu() end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Проверить работу сотрудника ----------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 1 then
+            if button == 1 and list == 1 then lua_thread.create(function()
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2310,13 +2308,12 @@ function main()
 
                     lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Статистики/'..date.. ' ' ..timed.. ' ' ..nick.. ' (jobprogress)')
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- РП отыгровки (лекции / тренировки / уведомления) -------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 2 then
-                lua_thread.create(function()
+            if button == 1 and list == 2 then lua_thread.create(function()
                     lec()
                     while sampIsDialogActive(2006) do wait(100) end
                     local result, button, list, input = sampHasDialogRespond(2006)
@@ -2703,14 +2700,12 @@ function main()
                     end
 
                     if button == 0 then zammenu() end
-
-                end)
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Руссификатор ника --------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 4 then
+            if button == 1 and list == 4 then lua_thread.create(function()
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2723,12 +2718,12 @@ function main()
                     setClipboardText(nm)
                     sampAddChatMessage('{78dbe2}Ник {ffa000}'..nm..' ['..id..'] {78dbe2}скопирован в буфер обмена', -1)
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Скопировать ник для проверки на ЧСП и ЧСГос ------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 5 then
+            if button == 1 and list == 5 then lua_thread.create(function()
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2740,12 +2735,12 @@ function main()
                     setClipboardText(nick)
                     sampAddChatMessage('{78dbe2}Ник {ffa000}'..nick..' ['..id..'] {78dbe2}скопирован в буфер обмена', -1)
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Проверка на НонРП ник ----------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 6 then
+            if button == 1 and list == 6 then lua_thread.create(function()
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2757,12 +2752,12 @@ function main()
                     setClipboardText(nick)
                     sampAddChatMessage('{78dbe2}Команда {ffa000}'..nick..' {78dbe2}скопирована в буфер обмена', -1)
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Таймеры ------------------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 7 then
+            if button == 1 and list == 7 then lua_thread.create(function()
                 timermenu()
                 while sampIsDialogActive(2017) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2017)
@@ -2948,12 +2943,12 @@ function main()
                 end
 
                 if button == 0 then zammenu() end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Заказать доставку ТС -----------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 9 then
+            if button == 1 and list == 9 then lua_thread.create(function()
                 sampProcessChatInput('/r Запрашиваю заправку служебного авто, просьба занять места.', -1)
                 wait(5000)
                 sampProcessChatInput('/r Заправка транспорта через 10 секунд.', -1)
@@ -2962,24 +2957,24 @@ function main()
                 wait(5000)
                 sampProcessChatInput('/r Заправка транспорта сейчас.', -1)
                 sampProcessChatInput('/lmenu', -1)
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Назначить собес на ближ. время -------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 10 then
+            if button == 1 and list == 10 then lua_thread.create(function()
                 start_sobes = true
                 local hour = os.date('%H', os.time() - ((UTC) * 3600) + 3600)
                 sobes = hour..',05,Пожарный департамент'
                 sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..sobes,-1)
                 --sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..h,-1)
                 sampProcessChatInput('/lmenu', -1)
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Установить отдел игроку --------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 11 then
+            if button == 1 and list == 11 then lua_thread.create(function()
                 settag()
                 while sampIsDialogActive(2020) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2020)
@@ -3039,12 +3034,12 @@ function main()
                         vkmsg(encodeUrl(text))
                     end
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Отправить сообщение в диалог вк ------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 12 then
+            if button == 1 and list == 12 then lua_thread.create(function()
                 inputmsg()
                 while sampIsDialogActive(2022) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2022)
@@ -3054,12 +3049,12 @@ function main()
                     local text = (nick..' ['..id..']: '..input)
                     vkmsg(encodeUrl(text))
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Сообщение в диалог рук-ва ВК ---------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 13 then
+            if button == 1 and list == 13 then lua_thread.create(function()
                 inputmsg()
                 while sampIsDialogActive(2022) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2022)
@@ -3070,12 +3065,12 @@ function main()
 
                     sendvkmsg(encodeUrl(text))
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Совместные задания -------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 15 then
+            if button == 1 and list == 15 then lua_thread.create(function()
                 zadmenu()
                 while sampIsDialogActive(1000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(1000)
@@ -3724,12 +3719,12 @@ function main()
                         zadmenu()
                     end
                 end
-            end
+            end) end
 
             -----------------------------------------------------------------------------------
             -- Сервисные функции --------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 16 then
+            if button == 1 and list == 16 then lua_thread.create(function()
                 zammenu_service()
                 while sampIsDialogActive(9000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(9000)
@@ -3899,7 +3894,7 @@ function main()
                 if button == 0 then
                     zammenu()
                 end
-            end
+            end) end
 
             if button == 0 then
                 sampCloseCurrentDialogWithButton(0)
