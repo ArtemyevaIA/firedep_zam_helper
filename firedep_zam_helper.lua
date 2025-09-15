@@ -4000,7 +4000,7 @@ function sampev.onServerMessage(color, text)
         if not nick then return sendCmdMsg('Что-то пошло не так! вот сообщение:'..msg) end
         local nick = string.match(nick,"%a+_%a+")
         if not findInIni(nick) then
-            sampAddChatMessage('Новый член организации! Это - "'..nick..'"',-255)
+            sampAddChatMessage('{7FFFD4}Новый член организации! Это - "'..nick..'"',0x7FFFD4)
             table.insert(mainIni.orgs, nick)
             inicfg.save(mainIni)
         end
@@ -4572,7 +4572,7 @@ end
 
 function switchMod()
     isGoing = not isGoing
-    sampAddChatMessage("[Скрипт] "..((isGoing and "Будет добавлять член организации") or "Больше не будет добавлять член организации"),-255)
+    sampAddChatMessage(((isGoing and "Будем добавлять член организации") or "Больше не будем добавлять членов организации"),-255)
 end
 
 function neworg(arg)
@@ -4580,11 +4580,11 @@ function neworg(arg)
     if type(tonumber(arg)) == 'number' then nick = sampGetPlayerNickname(arg) end
     local found = findInIni(nick)
     if not found then
-        sampAddChatMessage('Новый член организации! Это - "'..nick..'"',-255)
+        sampAddChatMessage('{7FFFD4}Новый член организации! Это - {FFFFFF}'..nick,-255)
         table.insert(mainIni.orgs, nick)
         inicfg.save(mainIni)
     else
-        sampAddChatMessage('Член организации "'..nick..'" уже существует!',-255)
+        sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..nick..' {7FFFD4}уже существует!',-255)
     end
 end
 
