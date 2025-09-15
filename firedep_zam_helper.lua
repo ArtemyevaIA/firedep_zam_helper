@@ -68,7 +68,6 @@ function main()
             Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
             Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
             Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
-            sampProcessChatInput('/me улыбнулся', -1)
         end
     end
     
@@ -4032,7 +4031,6 @@ function sampev.onServerMessage(color, text)
                     Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
                     Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
                     Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
-                    sampProcessChatInput('/me улыбнулся', -1)
                 end
 
             end
@@ -4461,7 +4459,6 @@ function upd()
            Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
            Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
            Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
-           sampProcessChatInput('/me улыбнулся', -1)
        end
 
    end
