@@ -1,6 +1,7 @@
 script_name("firedep_zam_helper")
 script_version("Ver.16.09.A2")
 
+
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini' -- слеш перед названием файла обязателен
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini' -- прямая ссылка на файл
 
@@ -33,10 +34,10 @@ local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т'
 local date = os.date('%d.%m.%Y')
 local fd_helper, fd_find_fire, autoupdate_loaded, afk, start_sobes, enable_autoupdate, Update = false, false, false, false, false, true, nil
 local sobes, next_fire, time_fire, time_end = ',05,Пожарный департамент', 'появится после пожара', '00:00:00', '00:00:00'
-local cnt, give, lvl, UTC = 0, 0, 0, 0
+local give, lvl, UTC = 0, 0, 0
 local config = {}
 local docs, inspect, img, inspect_1, inspect_2, inspect_3, inspect_4, inspect_5 = '','','','','', '', '', ''
-local showorgs, showorg, isGoing = true, true, true
+local cnt_org, showorgs, showorg, isGoing = 0, true, true, true
 
 local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
