@@ -4593,12 +4593,12 @@ function delorg(arg)
         local nick = arg
         if type(tonumber(arg)) == 'number' then nick = sampGetPlayerNickname(arg) end
         local found = findInIni(nick)
-        if not found then return sampAddChatMessage('член организации "'..arg..'" не найден!',-255) end
+        if not found then return sampAddChatMessage('{7FFFD4}„лен организации {FFFFFF}'..arg..' {7FFFD4}не найден!',-255) end
         arg = found
     else
         arg = #mainIni.orgs
     end
-    sampAddChatMessage('„лен организации "'..mainIni.orgs[arg]..'" удалЄн!',-255)
+    sampAddChatMessage('{7FFFD4}„лен организации {FFFFFF}'..mainIni.orgs[arg]..' {7FFFD4}удалЄн!',-255)
     table.remove(mainIni.orgs, arg)
     inicfg.save(mainIni)
 end
