@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.15.09.A1")
+script_version("Ver.15.09.A2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini' -- слеш перед названием файла обязателен
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini' -- прямая ссылка на файл
@@ -44,11 +44,12 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.'..
                     '\n\t{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.'..
                     '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/ftime {87CEFA}для просмотра времени следуюющего пожара.'..
-                    '\n\t{00BFFF}5. {87CEFA}При появлении в {32CD32}/r {87CEFA}или {32CD32}/rb {87CEFA}слова некст {87CEFA}или next{87CEFA}, вы отправите всем время сл. пожара'..
+                    '\n\t{00BFFF}5. {87CEFA}При появлении в {32CD32}/r {87CEFA}или {32CD32}/rb {87CEFA}слова некст {87CEFA}или next{87CEFA}, вы отправите всем время сл. пожара.'..
                     '\n\t{00BFFF}6. {87CEFA}Исправлены РП отыгровки на мужской пол.'..
                     '\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
                     '\n\t{00BFFF}2. {87CEFA}Добавлена функция отображения членов организации онлайн, и кто из оргнанизации рядом с вами.'..
+                    '\n\t{00BFFF}2. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.'..
@@ -109,7 +110,23 @@ function main()
     sampRegisterChatCommand('zam', zammenu)
     sampRegisterChatCommand('upd', upd)
     sampRegisterChatCommand('stime', stime)
-    sampRegisterChatCommand('ftime', function() sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4) end)
+    sampRegisterChatCommand('ftime', function() 
+        sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4) 
+    end)
+
+    sampRegisterChatCommand('afk', function()
+        afk = true
+        sampSetGamestate(GAMESTATE_DISCONNECTED)
+        sampDisconnectWithReason(0)
+        sampAddChatMessage('', 0x90EE90)
+        sampAddChatMessage('{90EE90}Выполнен уход в режим АФК. Ваша сессия завершена.', 0x90EE90)
+        sampAddChatMessage('{90EE90}За 5 минут до окончания рабочего дня будет выполнена команда /rec.', 0x90EE90)
+        sampAddChatMessage('{90EE90}После персонаж автоматически пойдет одеваться и встанет в угол фармить.', 0x90EE90)
+        sampAddChatMessage('', 0x90EE90)
+        sampAddChatMessage('{90EE90}Ожидаем {FFFFFF}19:55:00 {90EE90}для выхода из режима.', 0x90EE90)
+        sampAddChatMessage('', 0x90EE90)
+    end)
+
     sampRegisterChatCommand("co", co)
     sampRegisterChatCommand("new", neworg)
     sampRegisterChatCommand("del", delorg)
@@ -3818,6 +3835,65 @@ function main()
                     zammenu()
                 end
 
+                -----------------------------------------------------------------------------------
+                -- Быстрое восстановление льготы +10% ---------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 4 then
+                    sampProcessChatInput('/r Уважаемые сотрудники, прошу минуточку внимания...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Я хочу напомнить вам о том, что спать в раздевалке...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r В рабочее время запрещено.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Также запрещено разгуливать вне департамента...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r в рабочей форме. Если поймаем вас на этом...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Будут применены дисциплинарные меры.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Спать в раздевалке можно только не в рабочее время.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Во избежание получения дисциплинарных взысканий, рекомендую Вам ознакомится....',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r ... с полным уставом, находящегося на официальном портале департамента.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r С уважением, руководитель пожарного департамента - '..nick_fire..'.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Спасибо что прослушали эту информацию.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Хорошей службы!',-1)
+                    wait(3000)
+                    sampProcessChatInput('/d [FD] - [ALL]: Уважаемые коллеги, прошу минуточку внимания...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: В связи участившимися случаями пожаров, просьба довести до личного состава...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: правила обращения со средствами пожаротушения. ', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: Проверить актуальность планов пожарной эвакуации...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: а также проверить техническое состояние огнетушителей...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: и наличие средств оказания первой помощи.', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: У меня на этом всё, благодарю за внимание.', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: С уважением, руководитель Пожарного департамента - '..nick_fire, -1)
+                end
+
+                -----------------------------------------------------------------------------------
+                -- Описание и возможности ---------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 6 then
+                    sampShowDialog(0, "{FFA500}FAQ по работе с хелпером", "{ffa000}Доступные команды:"..
+                        "\n\t{7CFC00}/zam {7FFFD4}- Открыть хеплер руководителя пожарного департамента"..
+                        "\n\t{7CFC00}/ftime {7FFFD4}- Посмотреть время следующего пожара"..
+                        "\n\t{7CFC00}/stime {7FFFD4}- Сверка времени с сервером и времения на вашем компьютере"..
+                        "\n\t{7CFC00}/new [id] {7FFFD4}- Добавить сотрудника в список отслеживания онлайн организации"..
+                        "\n\t{7CFC00}/del [id] {7FFFD4}- Удалить сотрудника из списка отслеживания онлайн организации"..
+                        "\n\t{7CFC00}/afk {7FFFD4}- Моментально уйти в режим АФК до конца рабочего дня",
+                        "Закрыть", "", DIALOG_STYLE_MSGBOX)
+                end
+
                 if button == 0 then
                     zammenu()
                 end
@@ -3858,7 +3934,7 @@ function zammenu_service()
         fd_helper_status = '{FFA07A}[Выключен]'
     end
 
-    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\nРежим AFK до конца РД "..afk_status.."\nХелпер пожарника "..fd_helper_status, 'Выбрать', 'Назад', 2)
+    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\nРежим AFK до конца РД "..afk_status.."\nХелпер пожарника "..fd_helper_status.."\n{ffa000}[+10%] {FFFFFF}Быстрое восстановление льготы\n \n{7FFFD4}[FAQ] Описание и возможности", 'Выбрать', 'Назад', 2)
 end
 
 function zammenu()
@@ -3996,8 +4072,8 @@ local id = ''
 
 function sampev.onServerMessage(color, text)
     if isGoing and text:find("(%W)R(%W)") then
-        local nick = string.match(msg,"%a+_%a+")
-        if not nick then return sendCmdMsg('Что-то пошло не так! вот сообщение:'..msg) end
+        local nick = string.match(text,"%a+_%a+")
+        if not nick then return sendCmdMsg('Что-то пошло не так! вот сообщение:'..text) end
         local nick = string.match(nick,"%a+_%a+")
         if not findInIni(nick) then
             sampAddChatMessage('{7FFFD4}Новый член организации! Это - "'..nick..'"',0x7FFFD4)
@@ -4572,7 +4648,7 @@ end
 
 function switchMod()
     isGoing = not isGoing
-    sampAddChatMessage(((isGoing and "Будем добавлять член организации") or "Больше не будем добавлять членов организации"),-255)
+    sampAddChatMessage(((isGoing and "{7FFFD4}Будем добавлять член организации") or "{7FFFD4}Больше не будем добавлять членов организации"),0x7FFFD4)
 end
 
 function neworg(arg)
@@ -4580,11 +4656,11 @@ function neworg(arg)
     if type(tonumber(arg)) == 'number' then nick = sampGetPlayerNickname(arg) end
     local found = findInIni(nick)
     if not found then
-        sampAddChatMessage('{7FFFD4}Новый член организации! Это - {FFFFFF}'..nick,-255)
+        sampAddChatMessage('{7FFFD4}Новый член организации! Это - {FFFFFF}'..nick,0x7FFFD4)
         table.insert(mainIni.orgs, nick)
         inicfg.save(mainIni)
     else
-        sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..nick..' {7FFFD4}уже существует!',-255)
+        sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..nick..' {7FFFD4}уже существует!',0x7FFFD4)
     end
 end
 
@@ -4593,12 +4669,12 @@ function delorg(arg)
         local nick = arg
         if type(tonumber(arg)) == 'number' then nick = sampGetPlayerNickname(arg) end
         local found = findInIni(nick)
-        if not found then return sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..arg..' {7FFFD4}не найден!',-255) end
+        if not found then return sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..arg..' {7FFFD4}не найден!',0x7FFFD4) end
         arg = found
     else
         arg = #mainIni.orgs
     end
-    sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..mainIni.orgs[arg]..' {7FFFD4}удалён!',-255)
+    sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..mainIni.orgs[arg]..' {7FFFD4}удалён!',0x7FFFD4)
     table.remove(mainIni.orgs, arg)
     inicfg.save(mainIni)
 end
