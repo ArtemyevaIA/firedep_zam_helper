@@ -72,20 +72,20 @@ function main()
         end
     end
     
-    -- local spisok_org=io.open(download,"r")
-    -- if spisok_org~=nil then
-    --     io.close(spisok_org)
-    -- else 
-    --     sampAddChatMessage('Список сотрудников не найден. Сейчас подгрузим.', -255)
-    --     downloadUrlToFile(url, download)
-    --     wait(3000)
-    --     sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
-    --     while sampIsDialogActive(0) do wait(100) end
-    --     local result, button, _, input = sampHasDialogRespond(0)
-    --     if button == 1 then
-    --         sampProcessChatInput('/q', -1)
-    --     end
-    -- end
+    local spisok_org=io.open(download,"r")
+    if spisok_org~=nil then
+        io.close(spisok_org)
+    else 
+        sampAddChatMessage('Список сотрудников не найден. Сейчас подгрузим.', -255)
+        downloadUrlToFile(url, download)
+        wait(3000)
+        sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
+        while sampIsDialogActive(0) do wait(100) end
+        local result, button, _, input = sampHasDialogRespond(0)
+        if button == 1 then
+            sampProcessChatInput('/q', -1)
+        end
+    end
 
     if autoupdate_loaded and enable_autoupdate and Update then
         pcall(Update.check, Update.json_url, Update.prefix, Update.url)
