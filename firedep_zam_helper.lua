@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.16.09.A3")
+script_version("Ver.16.09.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -3105,7 +3105,7 @@ function main()
 
                                 if button == 1 then
                                     local reason = input
-                                    local zadanie = ('Выдать похвалу '..nick)
+                                    local zadanie = ('Выдать похвалу')
                                     for i = 1, prisecount do
                                         local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
                                         local rowd = test:fetch({}, "a")
@@ -3129,7 +3129,7 @@ function main()
 
                         if button == 1 then
                             local nick = input
-                            local zadanie = ('Выдать повышение '..nick)
+                            local zadanie = ('Выдать повышение')
 
                             ranklist()
                             while sampIsDialogActive(2007) do wait(100) end
@@ -3159,42 +3159,14 @@ function main()
                         end
                     end
 
-                    if button == 1 and list == 2 then                                                                                       -- задание: принять в организацию
+                    if button == 1 and list == 2 then                                                                                       -- задание: выдать отдел
                         inputnick()
                         while sampIsDialogActive(2008) do wait(100) end
                         local result, button, _, input = sampHasDialogRespond(2008)
 
                         if button == 1 then
                             local nick = input
-                            local zadanie = ('Принять в организацию '..nick..' на 4ый ранг')
-
-                            inputreason()
-                            while sampIsDialogActive(2005) do wait(100) end
-                            local result, button, _, input = sampHasDialogRespond(2005)
-                                
-                            if button == 1 then
-                                local reason = input
-                                local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
-                                local rowd = test:fetch({}, "a")
-                                local num = rowd.cnt
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local autor = sampGetPlayerNickname(who_id)
-                                local command = ('/invite '..nick)
-
-                                assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
-                                sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
-                            end
-                        end
-                    end
-
-                    if button == 1 and list == 3 then                                                                                       -- задание: выдать отдел
-                        inputnick()
-                        while sampIsDialogActive(2008) do wait(100) end
-                        local result, button, _, input = sampHasDialogRespond(2008)
-
-                        if button == 1 then
-                            local nick = input
-                            local zadanie = ('Выдать отдел '..nick)
+                            local zadanie = ('Выдать отдел')
 
                             inputreason()
                             while sampIsDialogActive(2005) do wait(100) end
@@ -3235,19 +3207,19 @@ function main()
                         end
                     end
 
-                    if button == 1 and list == 4 then                                                                                       -- задание: выдать выговор
+                    if button == 1 and list == 3 then                                                                                       -- задание: принять в организацию
                         inputnick()
                         while sampIsDialogActive(2008) do wait(100) end
                         local result, button, _, input = sampHasDialogRespond(2008)
 
                         if button == 1 then
                             local nick = input
-                            local zadanie = ('Выдать выговор '..nick)
+                            local zadanie = ('Принять в организацию по заявлению')
 
                             inputreason()
                             while sampIsDialogActive(2005) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(2005)
-
+                                
                             if button == 1 then
                                 local reason = input
                                 local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
@@ -3255,7 +3227,7 @@ function main()
                                 local num = rowd.cnt
                                 local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
                                 local autor = sampGetPlayerNickname(who_id)
-                                local command = ('/fwarn '..nick..' '..reason)
+                                local command = ('/invite '..nick)
 
                                 assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
                                 sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
@@ -3263,61 +3235,89 @@ function main()
                         end
                     end
 
-                    if button == 1 and list == 5 then                                                                                       -- задание: уволить из организации
-                        inputnick()
-                        while sampIsDialogActive(2008) do wait(100) end
-                        local result, button, _, input = sampHasDialogRespond(2008)
+                    -- if button == 1 and list == 4 then                                                                                       -- задание: выдать выговор
+                    --     inputnick()
+                    --     while sampIsDialogActive(2008) do wait(100) end
+                    --     local result, button, _, input = sampHasDialogRespond(2008)
 
-                        if button == 1 then
-                            local nick = input
-                            local zadanie = ('Уволить из организации '..nick)
+                    --     if button == 1 then
+                    --         local nick = input
+                    --         local zadanie = ('Выдать выговор')
 
-                            inputreason()
-                            while sampIsDialogActive(2005) do wait(100) end
-                            local result, button, _, input = sampHasDialogRespond(2005)
+                    --         inputreason()
+                    --         while sampIsDialogActive(2005) do wait(100) end
+                    --         local result, button, _, input = sampHasDialogRespond(2005)
 
-                            if button == 1 then
-                                local reason = input
-                                local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
-                                local rowd = test:fetch({}, "a")
-                                local num = rowd.cnt
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local autor = sampGetPlayerNickname(who_id)
-                                local command = ('/uninvite '..nick..' '..reason)
+                    --         if button == 1 then
+                    --             local reason = input
+                    --             local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
+                    --             local rowd = test:fetch({}, "a")
+                    --             local num = rowd.cnt
+                    --             local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                    --             local autor = sampGetPlayerNickname(who_id)
+                    --             local command = ('/fwarn '..nick..' '..reason)
 
-                                assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
-                                sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
-                            end
-                        end
-                    end
+                    --             assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
+                    --             sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
+                    --         end
+                    --     end
+                    -- end
 
-                    if button == 1 and list == 6 then                                                                                       -- задание: занести в черный список
-                        inputnick()
-                        while sampIsDialogActive(2008) do wait(100) end
-                        local result, button, _, input = sampHasDialogRespond(2008)
+                    -- if button == 1 and list == 5 then                                                                                       -- задание: уволить из организации
+                    --     inputnick()
+                    --     while sampIsDialogActive(2008) do wait(100) end
+                    --     local result, button, _, input = sampHasDialogRespond(2008)
 
-                        if button == 1 then
-                            local nick = input
-                            local zadanie = ('Занести в ЧС организации '..nick)
+                    --     if button == 1 then
+                    --         local nick = input
+                    --         local zadanie = ('Уволить из организации')
 
-                            inputreason()
-                            while sampIsDialogActive(2005) do wait(100) end
-                            local result, button, _, input = sampHasDialogRespond(2005)
+                    --         inputreason()
+                    --         while sampIsDialogActive(2005) do wait(100) end
+                    --         local result, button, _, input = sampHasDialogRespond(2005)
 
-                            if button == 1 then
-                                local reason = input
-                                local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
-                                local rowd = test:fetch({}, "a")
-                                local num = rowd.cnt
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local autor = sampGetPlayerNickname(who_id)
-                                local command = ('/blacklist '..nick..' '..reason)
+                    --         if button == 1 then
+                    --             local reason = input
+                    --             local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
+                    --             local rowd = test:fetch({}, "a")
+                    --             local num = rowd.cnt
+                    --             local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                    --             local autor = sampGetPlayerNickname(who_id)
+                    --             local command = ('/uninvite '..nick..' '..reason)
 
-                                assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
-                                sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
-                            end
-                        end
-                    end
+                    --             assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
+                    --             sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
+                    --         end
+                    --     end
+                    -- end
+
+                    -- if button == 1 and list == 6 then                                                                                       -- задание: занести в черный список
+                    --     inputnick()
+                    --     while sampIsDialogActive(2008) do wait(100) end
+                    --     local result, button, _, input = sampHasDialogRespond(2008)
+
+                    --     if button == 1 then
+                    --         local nick = input
+                    --         local zadanie = ('Занести в ЧС организации')
+
+                    --         inputreason()
+                    --         while sampIsDialogActive(2005) do wait(100) end
+                    --         local result, button, _, input = sampHasDialogRespond(2005)
+
+                    --         if button == 1 then
+                    --             local reason = input
+                    --             local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
+                    --             local rowd = test:fetch({}, "a")
+                    --             local num = rowd.cnt
+                    --             local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                    --             local autor = sampGetPlayerNickname(who_id)
+                    --             local command = ('/blacklist '..nick..' '..reason)
+
+                    --             assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
+                    --             sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
+                    --         end
+                    --     end
+                    -- end
 
                     local cursor = assert(conn:execute("SELECT * FROM zadlist ORDER by uid ASC"))
                     local row = cursor:fetch({}, "a")
@@ -3329,7 +3329,7 @@ function main()
                     end
 
                     if button == 0 then
-                        zadmenu()
+                        zammenu()
                     end
                 end
 
@@ -3344,7 +3344,7 @@ function main()
                     
                     while row do
                         cnt = cnt+1
-                        list = row.name..'\n'..list
+                        list = row.name..' {FF8C00}'..row.nick..' {FFD700}| '..row.autor..'\n'..list
                         row = cursor:fetch({}, "a")
                     end
 
@@ -3662,7 +3662,7 @@ function main()
                     
                     while row do                                                                                 
                         cnt = cnt+1
-                        list = row.name..'\n'..list
+                        list = row.name..' {FF8C00}'..row.nick..' {FFD700}| '..row.autor..'\n'..list
                         row = cursor:fetch({}, "a")
                     end
 
@@ -3695,7 +3695,7 @@ function main()
                     end
 
                     if button == 0 then
-                        zadmenu()
+                        zammenu()
                     end
                 end
 
@@ -3708,7 +3708,7 @@ function main()
                     info = ''
 
                     while row do
-                        info = '{87CEFA}'..row.datetime.. ' {FF8C00}' ..row.who_nick.. ' {87CEFA}выполнил задание: {FF8C00}'..row.zadanie..' {87CEFA}Причина: {FF8C00}'..row.reason..' {87CEFA}| {FF8C00}'..row.autor..' \n'..info
+                        info = '{87CEFA}'..row.datetime.. ' {FF8C00}' ..row.who_nick.. ' {87CEFA}выполнил задание: {FF8C00}'..row.zadanie..' '..row.nick..' {87CEFA}Причина: {FF8C00}'..row.reason..' {87CEFA}| {FF8C00}'..row.autor..' \n'..info
                         row = cursor:fetch({}, "a")
                     end
 
@@ -3717,7 +3717,7 @@ function main()
                     local result, button, _, input = sampHasDialogRespond(0)
 
                     if button == 0 or button == 1 then
-                        zadmenu()
+                        zammenu()
                     end
                 end
             end) end
