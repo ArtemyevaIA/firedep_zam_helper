@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.16.09.A1")
+script_version("Ver.16.09.A2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -3640,7 +3640,7 @@ function main()
                     end
 
                     if button == 0 then
-                        zadmenu()
+                        zammenu()
                     end
                 end
 
