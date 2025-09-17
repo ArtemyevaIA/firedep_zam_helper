@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.17.09.A5")
+script_version("Ver.17.09.A6")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -37,6 +37,7 @@ local give, lvl, UTC = 0, 0, 0
 local config = {}
 local docs, inspect, img, inspect_1, inspect_2, inspect_3, inspect_4, inspect_5 = '','','','','', '', '', ''
 local cnt_org, showorgs, showorg, isGoing = 0, true, true, true
+local fm = false
 
 local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
@@ -54,6 +55,7 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка быстрым собеседованием.'..
                     '\n\t{00BFFF}2. {FFD700}/ftime {87CEFA} Показывает статистику заработка за прошедший пожар.'..
+                    '\n\t{00BFFF}3. {87CEFA}Добавлена команда {FFD700}/fm {87CEFA}для быстрого сбора все битков с ферм (если есть флешка майнера).'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).'..
@@ -141,6 +143,7 @@ function main()
     sampRegisterChatCommand("del", delorg)
     sampRegisterChatCommand("cho", switchMod)
     sampRegisterChatCommand("coc", coc)
+    sampRegisterChatCommand("fm", function() fm = true sampProcessChatInput('/flashminer', -1) end)
             
     while true do wait(0)
 
@@ -4408,6 +4411,121 @@ function sampGetPlayerIdByNickname(nick)
 end
 
 function sampev.onShowDialog(id, style, title, button1, button2, text)
+    
+    if fm then
+        if id == 7238 then
+            lua_thread.create(function()
+            sampSendDialogResponse(7238, 1, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 1, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            
+            sampSendDialogResponse(25182, 1, 2, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            
+            sampSendDialogResponse(25182, 1, 3, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            
+            sampSendDialogResponse(25182, 1, 4, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            
+            wait(1000)
+
+            sampSendDialogResponse(25182, 1, 7, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            
+            sampSendDialogResponse(25182, 1, 8, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            
+            sampSendDialogResponse(25182, 1, 9, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            
+            sampSendDialogResponse(25182, 1, 10, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+
+            wait(1000)
+            
+            sampSendDialogResponse(25182, 1, 13, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 14, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 15, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 16, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            wait(1000)
+            
+            sampSendDialogResponse(25182, 1, 19, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 20, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 21, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 22, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            wait(1000)
+            
+            sampSendDialogResponse(25182, 1, 25, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 26, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 27, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            sampSendDialogResponse(25182, 1, 28, nil)
+            sampSendDialogResponse(25245, 1, 1, nil)
+            sampSendDialogResponse(25245, 0, 0, nil)
+            sampSendDialogResponse(25182, 0, 0, nil)
+
+            setVirtualKeyDown(VK_ESCAPE, true) -- зажать клавишу
+            wait(100)
+            setVirtualKeyDown(VK_ESCAPE, false) -- отжать клавишу   
+        end)
+            return 
+        end
+        fm = false
+    end
+
     if start_sobes then
         if id == 1214 then
             sampSendDialogResponse(1214, 1, 7, nil)
