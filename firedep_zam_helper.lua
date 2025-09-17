@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.17.09.A2")
+script_version("Ver.17.09.A3")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -205,7 +205,7 @@ function main()
             -----------------------------------------------------------------------------------
             -- Работа с составом --------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 0 then lua_thread.create(function()
+            if button == 1 and list == 0 then
 
                 sostav()
                 while sampIsDialogActive(2000) do wait(100) end
@@ -2285,12 +2285,12 @@ function main()
                 end
 
                 if button == 0 then zammenu() end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Проверить работу сотрудника ----------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 1 then lua_thread.create(function()
+            if button == 1 and list == 1 then
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2315,12 +2315,12 @@ function main()
 
                     lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Статистики/'..date.. ' ' ..timed.. ' ' ..nick.. ' (jobprogress)')
                 end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- РП отыгровки (лекции / тренировки / уведомления) -------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 2 then lua_thread.create(function()
+            if button == 1 and list == 2 then
                     lec()
                     while sampIsDialogActive(2006) do wait(100) end
                     local result, button, list, input = sampHasDialogRespond(2006)
@@ -2707,12 +2707,12 @@ function main()
                     end
 
                     if button == 0 then zammenu() end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Руссификатор ника --------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 4 then lua_thread.create(function()
+            if button == 1 and list == 4 then
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2725,12 +2725,12 @@ function main()
                     setClipboardText(nm)
                     sampAddChatMessage('{78dbe2}Ник {ffa000}'..nm..' ['..id..'] {78dbe2}скопирован в буфер обмена', -1)
                 end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Скопировать ник для проверки на ЧСП и ЧСГос ------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 5 then lua_thread.create(function()
+            if button == 1 and list == 5 then
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2742,12 +2742,12 @@ function main()
                     setClipboardText(nick)
                     sampAddChatMessage('{78dbe2}Ник {ffa000}'..nick..' ['..id..'] {78dbe2}скопирован в буфер обмена', -1)
                 end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Проверка на НонРП ник ----------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 6 then lua_thread.create(function()
+            if button == 1 and list == 6 then
                 inputid()
                 while sampIsDialogActive(2001) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2001)
@@ -2759,12 +2759,12 @@ function main()
                     setClipboardText(nick)
                     sampAddChatMessage('{78dbe2}Команда {ffa000}'..nick..' {78dbe2}скопирована в буфер обмена', -1)
                 end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Таймеры ------------------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 7 then lua_thread.create(function()
+            if button == 1 and list == 7 then
                 timermenu()
                 while sampIsDialogActive(2017) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2017)
@@ -2950,12 +2950,12 @@ function main()
                 end
 
                 if button == 0 then zammenu() end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Заказать доставку ТС -----------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 9 then lua_thread.create(function()
+            if button == 1 and list == 9 then
                 sampProcessChatInput('/r Запрашиваю заправку служебного авто, просьба занять места.', -1)
                 wait(5000)
                 sampProcessChatInput('/r Заправка транспорта через 10 секунд.', -1)
@@ -2964,12 +2964,12 @@ function main()
                 wait(5000)
                 sampProcessChatInput('/r Заправка транспорта сейчас.', -1)
                 sampProcessChatInput('/lmenu', -1)
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Назначить собес на ближ. время -------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 10 then lua_thread.create(function()
+            if button == 1 and list == 10 then
                 start_sobes = true
                 sobes_start = true
                 local hour = os.date('%H', os.time() - ((UTC) * 3600) + 3600)
@@ -2977,12 +2977,12 @@ function main()
                 sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..sobes,-1)
                 --sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..h,-1)
                 sampProcessChatInput('/lmenu', -1)
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Установить отдел игроку --------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 11 then lua_thread.create(function()
+            if button == 1 and list == 11 then
                 settag()
                 while sampIsDialogActive(2020) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2020)
@@ -3042,12 +3042,12 @@ function main()
                         vkmsg(encodeUrl(text))
                     end
                 end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Отправить сообщение в диалог вк ------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 12 then lua_thread.create(function()
+            if button == 1 and list == 12 then
                 inputmsg()
                 while sampIsDialogActive(2022) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2022)
@@ -3057,12 +3057,12 @@ function main()
                     local text = (nick..' ['..id..']: '..input)
                     vkmsg(encodeUrl(text))
                 end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Сообщение в диалог рук-ва ВК ---------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 13 then lua_thread.create(function()
+            if button == 1 and list == 13 then
                 inputmsg()
                 while sampIsDialogActive(2022) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2022)
@@ -3073,12 +3073,12 @@ function main()
 
                     sendvkmsg(encodeUrl(text))
                 end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Совместные задания -------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 15 then lua_thread.create(function()
+            if button == 1 and list == 15 then
                 zadmenu()
                 while sampIsDialogActive(1000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(1000)
@@ -3734,12 +3734,12 @@ function main()
                         zammenu()
                     end
                 end
-            end) end
+            end
 
             -----------------------------------------------------------------------------------
             -- Сервисные функции --------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 16 then lua_thread.create(function()
+            if button == 1 and list == 16 then
                 zammenu_service()
                 while sampIsDialogActive(9000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(9000)
@@ -3910,7 +3910,7 @@ function main()
                 if button == 0 then
                     zammenu()
                 end
-            end) end
+            end
 
             if button == 0 then
                 sampCloseCurrentDialogWithButton(0)

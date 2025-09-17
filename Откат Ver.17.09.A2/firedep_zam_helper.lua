@@ -1,8 +1,8 @@
 script_name("firedep_zam_helper")
-script_version("Ver.15.09.A9")
+script_version("Ver.17.09.A2")
 
-local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini' -- слеш перед названием файла обязателен
-local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini' -- прямая ссылка на файл
+local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
+local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
 
 local mysql                         = require "luasql.mysql"
 local env                           = assert(mysql.mysql())
@@ -31,14 +31,12 @@ local trstl = {['B'] = 'Б',['Z'] = 'З',['T'] = 'Т',['Y'] = 'Й',['P'] = 'П',['J']
 local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т',['th'] = 'т',['Sh'] = 'Ш',['sh'] = 'ш', ['ea'] = 'и',['Ae'] = 'Э',['ae'] = 'э',['size'] = 'сайз',['Jj'] = 'Джейджей',['Whi'] = 'Вай',['whi'] = 'вай',['Ck'] = 'К',['ck'] = 'к',['Kh'] = 'Х',['kh'] = 'х',['hn'] = 'н',['Hen'] = 'Ген',['Zh'] = 'Ж',['zh'] = 'ж',['Yu'] = 'Ю',['yu'] = 'ю',['Yo'] = 'Ё',['yo'] = 'ё',['Cz'] = 'Ц',['cz'] = 'ц', ['ia'] = 'я', ['ea'] = 'и',['Ya'] = 'Я', ['ya'] = 'я', ['ove'] = 'ав',['ay'] = 'эй', ['rise'] = 'райз',['oo'] = 'у', ['Oo'] = 'У'}
 
 local date = os.date('%d.%m.%Y')
-local fd_helper, fd_find_fire, autoupdate_loaded, afk, start_sobes, enable_autoupdate, Update = false, false, false, false, false, true, nil
+local fd_helper, fd_find_fire, autoupdate_loaded, afk, start_sobes, enable_autoupdate, Update, sobes_start = false, false, false, false, false, true, nil, false
 local sobes, next_fire, time_fire, time_end = ',05,Пожарный департамент', 'появится после пожара', '00:00:00', '00:00:00'
-local cnt, give, lvl, UTC = 0, 0, 0, 0
+local give, lvl, UTC = 0, 0, 0
 local config = {}
 local docs, inspect, img, inspect_1, inspect_2, inspect_3, inspect_4, inspect_5 = '','','','','', '', '', ''
-local showorgs, showorg, isGoing = true, true, true
-
-local spisok_org=io.open(download,"r")
+local cnt_org, showorgs, showorg, isGoing = 0, true, true, true
 
 local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
@@ -47,16 +45,18 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/ftime {87CEFA}для просмотра времени следуюющего пожара.'..
                     '\n\t{00BFFF}5. {87CEFA}При появлении в {32CD32}/r {87CEFA}или {32CD32}/rb {87CEFA}слова некст {87CEFA}или next{87CEFA}, вы отправите всем время сл. пожара.'..
                     '\n\t{00BFFF}6. {87CEFA}Исправлены РП отыгровки на мужской пол.'..
+                    '\n\t{00BFFF}7. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
+                    '\n\t{00BFFF}8. {87CEFA}Добавлена функция отображения членов организации онлайн, и кто из оргнанизации рядом с вами.'..
+                    '\n\t{00BFFF}9. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
+                    '\n\t{00BFFF}10. {87CEFA}Добавлена команда {FFD700}/stime {87CEFA}для сверки часового пояса.'..
+                    '\n\t{00BFFF}11. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
+                    '\n\t{00BFFF}12. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
                     '\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
-                    '\n\t{00BFFF}2. {87CEFA}Добавлена функция отображения членов организации онлайн, и кто из оргнанизации рядом с вами.'..
-                    '\n\t{00BFFF}3. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
-                    '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/stime {87CEFA}для сверки часового пояса.'..
-                    '\n\t{00BFFF}5. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
-                    '\n\t{00BFFF}6. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
+                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка быстрым собеседованием.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
-                    '\n\t{00BFFF}2. {87CEFA}Добавить пункт благодарность разработчику.')
+                    '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).'..
+                    '\n\t{00BFFF}3. {87CEFA}Добавить пункт благодарность разработчику.')
 
 local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
@@ -74,19 +74,20 @@ function main()
         end
     end
     
-    if spisok_org~=nil then
-        io.close(spisok_org)
-    else 
-        sampAddChatMessage('Список сотрудников не найден. Сейчас подгрузим.', -255)
-        downloadUrlToFile(url, download)
-        wait(3000)
-        sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
-        while sampIsDialogActive(0) do wait(100) end
-        local result, button, _, input = sampHasDialogRespond(0)
-        if button == 1 then
-            sampProcessChatInput('/q', -1)
-        end
-    end
+    -- local spisok_org=io.open(download,"r")
+    -- if spisok_org~=nil then
+    --     io.close(spisok_org)
+    -- else 
+    --     sampAddChatMessage('Список сотрудников не найден. Сейчас подгрузим.', -255)
+    --     downloadUrlToFile(url, download)
+    --     wait(3000)
+    --     sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
+    --     while sampIsDialogActive(0) do wait(100) end
+    --     local result, button, _, input = sampHasDialogRespond(0)
+    --     if button == 1 then
+    --         sampProcessChatInput('/q', -1)
+    --     end
+    -- end
 
     if autoupdate_loaded and enable_autoupdate and Update then
         pcall(Update.check, Update.json_url, Update.prefix, Update.url)
@@ -251,6 +252,9 @@ function main()
                             if button == 1 then
                                 local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
+                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                                local nick_eng = sampGetPlayerNickname(who_id)
+                                local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
 
                                 sampProcessChatInput('/fractionrp '..id,-1)
                                 wait(2000)
@@ -278,7 +282,8 @@ function main()
                                 file:write('[Принятие в организацию по собеседованию]. Сотрудник: '..nick.. ' ['..id..'] Дата принятия: '..date..' Время принятия: '..time..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..''..docs)
+
+                                info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..'\nПринял: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239037'
                                 sendvkimg(encodeUrl(info),img)
@@ -352,7 +357,7 @@ function main()
                                     file:write('[Принятие в организацию по заявке]. Сотрудник: '..nick.. ' ['..id..'] Новая должность: [4] Пожарный Дата принятия: '..date..' Время принятия: '..time..' Ссылка на заявку: '..url..'\n') --буфер откуда будет записывать инфу
                                     file:close()
 
-                                    info = ('Принятие в организацию по заявлению. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..''..docs)
+                                    info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..'\nПринял: '..autor..' ['..who_id..']'..docs)
                                     docs = ''
                                     
                                     img = 'photo-232454643_456239037'
@@ -418,7 +423,7 @@ function main()
                                     file:write('[Принятие в организацию по собеседованию]. Сотрудник: '..nick.. ' ['..id..'] Принял: '..nick_org..' ['..idorg..'] Дата принятия: '..date..' Время принятия: '..time..'\n') --буфер откуда будет записывать инфу
                                     file:close()
 
-                                    info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..'\nПроводил собеседвоание: '..nick_org..' ['..idorg..']'..docs)
+                                    info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..'\nПроводил собеседвоание: '..nick_org..' ['..idorg..']\nПринял: '..autor..' ['..who_id..']'..docs)
                                     docs = ''
 
                                     img = 'photo-232454643_456239037'                                    
@@ -2966,6 +2971,7 @@ function main()
             -----------------------------------------------------------------------------------
             if button == 1 and list == 10 then lua_thread.create(function()
                 start_sobes = true
+                sobes_start = true
                 local hour = os.date('%H', os.time() - ((UTC) * 3600) + 3600)
                 sobes = hour..',05,Пожарный департамент'
                 sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..sobes,-1)
@@ -3106,13 +3112,14 @@ function main()
 
                                 if button == 1 then
                                     local reason = input
-                                    local zadanie = ('Выдать похвалу '..nick)
+                                    local zadanie = ('Выдать похвалу')
                                     for i = 1, prisecount do
                                         local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
                                         local rowd = test:fetch({}, "a")
                                         local num = rowd.cnt
                                         local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                        local autor = sampGetPlayerNickname(who_id)
+                                        local nick_eng = sampGetPlayerNickname(who_id)
+                                        local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
                                         local command = ('/praise '..nick.. ' '..reason)
 
                                         assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
@@ -3130,7 +3137,7 @@ function main()
 
                         if button == 1 then
                             local nick = input
-                            local zadanie = ('Выдать повышение '..nick)
+                            local zadanie = ('Выдать повышение')
 
                             ranklist()
                             while sampIsDialogActive(2007) do wait(100) end
@@ -3150,7 +3157,8 @@ function main()
                                     local rowd = test:fetch({}, "a")
                                     local num = rowd.cnt
                                     local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                    local autor = sampGetPlayerNickname(who_id)
+                                    local nick_eng = sampGetPlayerNickname(who_id)
+                                    local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
                                     local command = ('/giverank '..nick.. ' '..rank)
 
                                     assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
@@ -3160,42 +3168,14 @@ function main()
                         end
                     end
 
-                    if button == 1 and list == 2 then                                                                                       -- задание: принять в организацию
+                    if button == 1 and list == 2 then                                                                                       -- задание: выдать отдел
                         inputnick()
                         while sampIsDialogActive(2008) do wait(100) end
                         local result, button, _, input = sampHasDialogRespond(2008)
 
                         if button == 1 then
                             local nick = input
-                            local zadanie = ('Принять в организацию '..nick..' на 4ый ранг')
-
-                            inputreason()
-                            while sampIsDialogActive(2005) do wait(100) end
-                            local result, button, _, input = sampHasDialogRespond(2005)
-                                
-                            if button == 1 then
-                                local reason = input
-                                local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
-                                local rowd = test:fetch({}, "a")
-                                local num = rowd.cnt
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local autor = sampGetPlayerNickname(who_id)
-                                local command = ('/invite '..nick)
-
-                                assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
-                                sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
-                            end
-                        end
-                    end
-
-                    if button == 1 and list == 3 then                                                                                       -- задание: выдать отдел
-                        inputnick()
-                        while sampIsDialogActive(2008) do wait(100) end
-                        local result, button, _, input = sampHasDialogRespond(2008)
-
-                        if button == 1 then
-                            local nick = input
-                            local zadanie = ('Выдать отдел '..nick)
+                            local zadanie = ('Выдать отдел')
 
                             inputreason()
                             while sampIsDialogActive(2005) do wait(100) end
@@ -3227,7 +3207,8 @@ function main()
                                 local rowd = test:fetch({}, "a")
                                 local num = rowd.cnt
                                 local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local autor = sampGetPlayerNickname(who_id)
+                                local nick_eng = sampGetPlayerNickname(who_id)
+                                local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
                                 local command = ('/settag '..nick..' '..tag)
 
                                 assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
@@ -3236,27 +3217,28 @@ function main()
                         end
                     end
 
-                    if button == 1 and list == 4 then                                                                                       -- задание: выдать выговор
+                    if button == 1 and list == 3 then                                                                                       -- задание: принять в организацию
                         inputnick()
                         while sampIsDialogActive(2008) do wait(100) end
                         local result, button, _, input = sampHasDialogRespond(2008)
 
                         if button == 1 then
                             local nick = input
-                            local zadanie = ('Выдать выговор '..nick)
+                            local zadanie = ('Принять в организацию по заявлению')
 
                             inputreason()
                             while sampIsDialogActive(2005) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(2005)
-
+                                
                             if button == 1 then
                                 local reason = input
                                 local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
                                 local rowd = test:fetch({}, "a")
                                 local num = rowd.cnt
                                 local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local autor = sampGetPlayerNickname(who_id)
-                                local command = ('/fwarn '..nick..' '..reason)
+                                local nick_eng = sampGetPlayerNickname(who_id)
+                                local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
+                                local command = ('/invite '..nick)
 
                                 assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
                                 sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
@@ -3264,61 +3246,92 @@ function main()
                         end
                     end
 
-                    if button == 1 and list == 5 then                                                                                       -- задание: уволить из организации
-                        inputnick()
-                        while sampIsDialogActive(2008) do wait(100) end
-                        local result, button, _, input = sampHasDialogRespond(2008)
+                    -- if button == 1 and list == 4 then                                                                                       -- задание: выдать выговор
+                    --     inputnick()
+                    --     while sampIsDialogActive(2008) do wait(100) end
+                    --     local result, button, _, input = sampHasDialogRespond(2008)
 
-                        if button == 1 then
-                            local nick = input
-                            local zadanie = ('Уволить из организации '..nick)
+                    --     if button == 1 then
+                    --         local nick = input
+                    --         local zadanie = ('Выдать выговор')
 
-                            inputreason()
-                            while sampIsDialogActive(2005) do wait(100) end
-                            local result, button, _, input = sampHasDialogRespond(2005)
+                    --         inputreason()
+                    --         while sampIsDialogActive(2005) do wait(100) end
+                    --         local result, button, _, input = sampHasDialogRespond(2005)
 
-                            if button == 1 then
-                                local reason = input
-                                local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
-                                local rowd = test:fetch({}, "a")
-                                local num = rowd.cnt
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local autor = sampGetPlayerNickname(who_id)
-                                local command = ('/uninvite '..nick..' '..reason)
+                    --         if button == 1 then
+                    --             local reason = input
+                    --             local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
+                    --             local rowd = test:fetch({}, "a")
+                    --             local num = rowd.cnt
+                                    -- local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                                    -- local nick_eng = sampGetPlayerNickname(who_id)
+                                    -- local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
+                    --             local command = ('/fwarn '..nick..' '..reason)
 
-                                assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
-                                sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
-                            end
-                        end
-                    end
+                    --             assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
+                    --             sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
+                    --         end
+                    --     end
+                    -- end
 
-                    if button == 1 and list == 6 then                                                                                       -- задание: занести в черный список
-                        inputnick()
-                        while sampIsDialogActive(2008) do wait(100) end
-                        local result, button, _, input = sampHasDialogRespond(2008)
+                    -- if button == 1 and list == 5 then                                                                                       -- задание: уволить из организации
+                    --     inputnick()
+                    --     while sampIsDialogActive(2008) do wait(100) end
+                    --     local result, button, _, input = sampHasDialogRespond(2008)
 
-                        if button == 1 then
-                            local nick = input
-                            local zadanie = ('Занести в ЧС организации '..nick)
+                    --     if button == 1 then
+                    --         local nick = input
+                    --         local zadanie = ('Уволить из организации')
 
-                            inputreason()
-                            while sampIsDialogActive(2005) do wait(100) end
-                            local result, button, _, input = sampHasDialogRespond(2005)
+                    --         inputreason()
+                    --         while sampIsDialogActive(2005) do wait(100) end
+                    --         local result, button, _, input = sampHasDialogRespond(2005)
 
-                            if button == 1 then
-                                local reason = input
-                                local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
-                                local rowd = test:fetch({}, "a")
-                                local num = rowd.cnt
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local autor = sampGetPlayerNickname(who_id)
-                                local command = ('/blacklist '..nick..' '..reason)
+                    --         if button == 1 then
+                    --             local reason = input
+                    --             local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
+                    --             local rowd = test:fetch({}, "a")
+                    --             local num = rowd.cnt
+                    --local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                    --local nick_eng = sampGetPlayerNickname(who_id)
+                    --local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
+                    --             local command = ('/uninvite '..nick..' '..reason)
 
-                                assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
-                                sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
-                            end
-                        end
-                    end
+                    --             assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
+                    --             sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
+                    --         end
+                    --     end
+                    -- end
+
+                    -- if button == 1 and list == 6 then                                                                                       -- задание: занести в черный список
+                    --     inputnick()
+                    --     while sampIsDialogActive(2008) do wait(100) end
+                    --     local result, button, _, input = sampHasDialogRespond(2008)
+
+                    --     if button == 1 then
+                    --         local nick = input
+                    --         local zadanie = ('Занести в ЧС организации')
+
+                    --         inputreason()
+                    --         while sampIsDialogActive(2005) do wait(100) end
+                    --         local result, button, _, input = sampHasDialogRespond(2005)
+
+                    --         if button == 1 then
+                    --             local reason = input
+                    --             local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
+                    --             local rowd = test:fetch({}, "a")
+                    --             local num = rowd.cnt
+                                    --local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                                    --local nick_eng = sampGetPlayerNickname(who_id)
+                                    --local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
+                    --             local command = ('/blacklist '..nick..' '..reason)
+
+                    --             assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
+                    --             sampAddChatMessage('Добавлено задание: {ffbf00}'..zadanie, -1)
+                    --         end
+                    --     end
+                    -- end
 
                     local cursor = assert(conn:execute("SELECT * FROM zadlist ORDER by uid ASC"))
                     local row = cursor:fetch({}, "a")
@@ -3330,7 +3343,7 @@ function main()
                     end
 
                     if button == 0 then
-                        zadmenu()
+                        zammenu()
                     end
                 end
 
@@ -3345,7 +3358,7 @@ function main()
                     
                     while row do
                         cnt = cnt+1
-                        list = row.name..'\n'..list
+                        list = row.name..' {FF8C00}'..row.nick..' {FFD700}| '..row.autor..'\n'..list
                         row = cursor:fetch({}, "a")
                     end
 
@@ -3641,7 +3654,7 @@ function main()
                     end
 
                     if button == 0 then
-                        zadmenu()
+                        zammenu()
                     end
                 end
 
@@ -3663,7 +3676,7 @@ function main()
                     
                     while row do                                                                                 
                         cnt = cnt+1
-                        list = row.name..'\n'..list
+                        list = row.name..' {FF8C00}'..row.nick..' {FFD700}| '..row.autor..'\n'..list
                         row = cursor:fetch({}, "a")
                     end
 
@@ -3696,7 +3709,7 @@ function main()
                     end
 
                     if button == 0 then
-                        zadmenu()
+                        zammenu()
                     end
                 end
 
@@ -3709,7 +3722,7 @@ function main()
                     info = ''
 
                     while row do
-                        info = '{87CEFA}'..row.datetime.. ' {FF8C00}' ..row.who_nick.. ' {87CEFA}выполнил задание: {FF8C00}'..row.zadanie..' {87CEFA}Причина: {FF8C00}'..row.reason..' {87CEFA}| {FF8C00}'..row.autor..' \n'..info
+                        info = '{87CEFA}'..row.datetime.. ' {FF8C00}' ..row.who_nick.. ' {87CEFA}выполнил задание: {FF8C00}'..row.zadanie..' '..row.nick..' {87CEFA}Причина: {FF8C00}'..row.reason..' {87CEFA}| {FF8C00}'..row.autor..' \n'..info
                         row = cursor:fetch({}, "a")
                     end
 
@@ -3718,7 +3731,7 @@ function main()
                     local result, button, _, input = sampHasDialogRespond(0)
 
                     if button == 0 or button == 1 then
-                        zadmenu()
+                        zammenu()
                     end
                 end
             end) end
@@ -3890,7 +3903,7 @@ function main()
                         "\n\t{7CFC00}/new [id] {7FFFD4}- Добавить сотрудника в список отслеживания онлайн организации"..
                         "\n\t{7CFC00}/del [id] {7FFFD4}- Удалить сотрудника из списка отслеживания онлайн организации"..
                         "\n\t{7CFC00}/afk {7FFFD4}- Моментально уйти в режим АФК до конца рабочего дня"..
-                        "\n\n{FFA07A}... дополнится в скором времени.",
+                        "\n\n{FFA07A}Дополнится в скором времени.",
                         "Закрыть", "", DIALOG_STYLE_MSGBOX)
                 end
 
@@ -4089,11 +4102,11 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find("(.+)дайдайдай") then
-        lua_thread.create(function()
-            sampProcessChatInput('/pay Irin_Crown 1000000', -1)
-        end)
-    end
+    -- if text:find("(.+)дайдайдай") then
+    --     lua_thread.create(function()
+    --         sampProcessChatInput('/pay Irin_Crown 1000000', -1)
+    --     end)
+    -- end
 
     if text:find("(.+)Update.Ver") then
         lua_thread.create(function()
@@ -4269,8 +4282,9 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find('прибыть в Пожарный департамент') then
+    if sobes_start and text:find('прибыть в Пожарный департамент') then
         lua_thread.create(function()
+            sobes_start = false
             wait(1000)
             sampProcessChatInput('/do Собеседование начато.',-1)
             wait(1000)
