@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.17.09.A6")
+script_version("Ver.17.09.A7")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -4095,6 +4095,19 @@ local nick = ''
 local id = ''
 
 function sampev.onServerMessage(color, text)
+    if text:find('__________Банковский чек__________') then
+        parse = true
+        message = (text:gsub("_", "")..'\n').."\nСтатистика игрока: "..autor
+    elseif text:find('__________________________________') then
+        parse = false
+        img = 'https://jobers.ru/wp-content/uploads/2024/02/d83cdef6bb49668eee2b55c4f6af1a42.png'
+        sendTelegramPhoto(img, message)
+        message = ''
+    elseif parse then           
+        message = ('%s\n%s'):format(message, text)
+        message = message:gsub("{......}", "")
+    end
+
     if isGoing and text:find("(%W)R(%W)") then
         local nick = string.match(text,"%a+_%a+")
         if not nick then return sendCmdMsg('Что-то пошло не так! вот сообщение:'..text) end
@@ -4817,4 +4830,12 @@ function delorg(arg)
     sampAddChatMessage('{7FFFD4}Член организации {FFFFFF}'..mainIni.orgs[arg]..' {7FFFD4}удалён!',0x7FFFD4)
     table.remove(mainIni.orgs, arg)
     inicfg.save(mainIni)
+end
+
+function sendTelegramPhoto(img, msg) -- функция для отправки сообщения юзеру
+   msg = msg:gsub('{......}', '') --тут типо убираем цвет
+   msg = encodeUrl(msg) -- ну тут мы закодируем строку
+   token = '8059436647:AAFSZNM3lfxxJ5E2jFkE_D_N9iWlLdBD-ss'
+   id = '5700686218'
+   async_http_request('https://api.telegram.org/bot'..token..'/sendPhoto?chat_id='..id..'&caption='..msg,'&photo='..img..'', function(result) end) -- а тут уже отправка
 end
