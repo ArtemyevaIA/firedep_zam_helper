@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.17.09.A4")
+script_version("Ver.17.09.A5")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -75,20 +75,20 @@ function main()
         end
     end
     
-    -- local spisok_org=io.open(download,"r")
-    -- if spisok_org~=nil then
-    --     io.close(spisok_org)
-    -- else 
-    --     sampAddChatMessage('Список сотрудников не найден. Сейчас подгрузим.', -255)
-    --     downloadUrlToFile(url, download)
-    --     wait(3000)
-    --     sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
-    --     while sampIsDialogActive(0) do wait(100) end
-    --     local result, button, _, input = sampHasDialogRespond(0)
-    --     if button == 1 then
-    --         sampProcessChatInput('/q', -1)
-    --     end
-    -- end
+    local spisok_org=io.open(download,"r")
+    if spisok_org~=nil then
+        io.close(spisok_org)
+    else 
+        sampAddChatMessage('Список сотрудников не найден. Сейчас подгрузим.', -255)
+        downloadUrlToFile(url, download)
+        wait(3000)
+        sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
+        while sampIsDialogActive(0) do wait(100) end
+        local result, button, _, input = sampHasDialogRespond(0)
+        if button == 1 then
+            sampProcessChatInput('/q', -1)
+        end
+    end
 
     if autoupdate_loaded and enable_autoupdate and Update then
         pcall(Update.check, Update.json_url, Update.prefix, Update.url)
@@ -102,6 +102,10 @@ function main()
     nick = sampGetPlayerNickname(id)
     nick_rus = trst(nick)
     nick_fire = nick_rus:match('(.)')..'.'..string.gsub(nick_rus, "(.+)(%s)", "")
+    
+    _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+    who_nick = sampGetPlayerNickname(who_id)
+    autor = nick:match('(.)')..'.'..string.gsub(nick, "(.+)_", "")
 
 
     sampAddChatMessage('', 0x7FFFD4)
@@ -254,9 +258,6 @@ function main()
                             if button == 1 then
                                 local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local nick_eng = sampGetPlayerNickname(who_id)
-                                local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
 
                                 sampProcessChatInput('/fractionrp '..id,-1)
                                 wait(2000)
@@ -265,6 +266,8 @@ function main()
                                 sampProcessChatInput('/new '..id,-1)
                                 sampProcessChatInput('/time ',-1)
                                 sampShowDialog(0, "{FFA500}Новый член организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."] {78dbe2}(по собеседованию)\n\nДата принятия: {ffa000}"..date.."\n{78dbe2}Время принятия: {ffa000}"..time.."{78dbe2}", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
+
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Принятие/'..date.. ' ' ..timed.. ' ' ..nick.. ' (invite)')
 
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
@@ -279,7 +282,6 @@ function main()
                                     end
                                 end
                                                                 
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Принятие/'..date.. ' ' ..timed.. ' ' ..nick.. ' (invite)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Принятие в организацию по собеседованию]. Сотрудник: '..nick.. ' ['..id..'] Дата принятия: '..date..' Время принятия: '..time..'\n') --буфер откуда будет записывать инфу
                                 file:close()
@@ -340,6 +342,8 @@ function main()
                                     sampProcessChatInput('/time', -1)
                                     wait(2000)
                                     sampShowDialog(0, "{FFA500}Новый член организации по заявлению.", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n{78dbe2}Новая должность: {ffa000}[4] Пожарный\n\n{78dbe2}Дата принятия: {ffa000}"..date.."\n{78dbe2}Время принятия: {ffa000}"..time.."\n\n{78dbe2}Ссылка на заявку: {ffa000}"..url, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
+                                    
+                                    lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Принятие/'..date.. ' ' ..timed.. ' ' ..nick.. ' (invite 4)')
 
                                     while sampIsDialogActive(0) do wait(100) end
                                     local result, button, _, input = sampHasDialogRespond(0)
@@ -354,7 +358,6 @@ function main()
                                         end
                                     end
                                                                         
-                                    lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Принятие/'..date.. ' ' ..timed.. ' ' ..nick.. ' (invite 4)')
                                     file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                     file:write('[Принятие в организацию по заявке]. Сотрудник: '..nick.. ' ['..id..'] Новая должность: [4] Пожарный Дата принятия: '..date..' Время принятия: '..time..' Ссылка на заявку: '..url..'\n') --буфер откуда будет записывать инфу
                                     file:close()
@@ -406,6 +409,8 @@ function main()
                                     sampProcessChatInput('/time ',-1)
                                     sampShowDialog(0, "{FFA500}Новый член организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."] {78dbe2}(по собеседованию)\n{78dbe2}Проводил собеседование: {ffa000}"..nick_org.." ["..idorg.."]\n\n{78dbe2}Дата принятия: {ffa000}"..date.."\n{78dbe2}Время принятия: {ffa000}"..time.."{78dbe2}", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                     
+                                    lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Принятие/'..date.. ' ' ..timed.. ' ' ..nick.. ' (invite)')
+
                                     while sampIsDialogActive(0) do wait(100) end
                                     local result, button, _, input = sampHasDialogRespond(0)
                                     if button == 1 then
@@ -418,9 +423,7 @@ function main()
                                             docs = ('\nДок-ва: '..docsi)
                                         end
                                     end
-
                                                                         
-                                    lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Принятие/'..date.. ' ' ..timed.. ' ' ..nick.. ' (invite)')
                                     file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                     file:write('[Принятие в организацию по собеседованию]. Сотрудник: '..nick.. ' ['..id..'] Принял: '..nick_org..' ['..idorg..'] Дата принятия: '..date..' Время принятия: '..time..'\n') --буфер откуда будет записывать инфу
                                     file:close()
@@ -494,7 +497,7 @@ function main()
                                 file:write('[Повышение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата повышения: '..date..' Время повышения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Ссылка на отчет: '..url..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url)
+                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url..'\nПовысил: '..autor..' ['..who_id..']')
                                 
                                 img = 'photo-232454643_456239038'
                                 sendvkimg(encodeUrl(info),img)
@@ -531,7 +534,7 @@ function main()
                                 file:write('[Повышение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата повышения: '..date..' Время повышения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Ссылка на отчет: '..url..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url)
+                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url..'\nПовысил: '..autor..' ['..who_id..']')
                                 
                                 img = 'photo-232454643_456239038'
                                 sendvkimg(encodeUrl(info),img)
@@ -569,7 +572,7 @@ function main()
                                 file:write('[Повышение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата повышения: '..date..' Время повышения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Ссылка на отчет: '..url..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url)
+                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url..'\nПовысил: '..autor..' ['..who_id..']')
                                 
                                 img = 'photo-232454643_456239038'
                                 sendvkimg(encodeUrl(info),img)
@@ -607,7 +610,7 @@ function main()
                                 file:write('[Повышение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата повышения: '..date..' Время повышения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Ссылка на отчет: '..url..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url)
+                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url..'\nПовысил: '..autor..' ['..who_id..']')
                                 
                                 img = 'photo-232454643_456239038'
                                 sendvkimg(encodeUrl(info),img)
@@ -645,7 +648,7 @@ function main()
                                 file:write('[Повышение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата повышения: '..date..' Время повышения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Ссылка на отчет: '..url..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url)
+                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url..'\nПовысил: '..autor..' ['..who_id..']')
                                 
                                 img = 'photo-232454643_456239038'
                                 sendvkimg(encodeUrl(info),img)
@@ -683,7 +686,7 @@ function main()
                                 file:write('[Повышение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата повышения: '..date..' Время повышения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Ссылка на отчет: '..url..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url)
+                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url..'\nПовысил: '..autor..' ['..who_id..']')
                                 
                                 img = 'photo-232454643_456239038'
                                 sendvkimg(encodeUrl(info),img)
@@ -721,7 +724,7 @@ function main()
                                 file:write('[Повышение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата повышения: '..date..' Время повышения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Ссылка на отчет: '..url..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url)
+                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url..'\nПовысил: '..autor..' ['..who_id..']')
                                 
                                 img = 'photo-232454643_456239038'
                                 sendvkimg(encodeUrl(info),img)
@@ -759,7 +762,7 @@ function main()
                                 file:write('[Повышение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата повышения: '..date..' Время повышения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Ссылка на отчет: '..url..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url)
+                                info = ('Повышение в должности. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата повышения: '..date..' \nВремя повышения: '..time..' \nНовая должность: ['..(list+1)..'] '..rank[list+1]..' \nСсылка на отчет: '..url..'\nПовысил: '..autor..' ['..who_id..']')
                                 
                                 img = 'photo-232454643_456239038'
                                 sendvkimg(encodeUrl(info),img)
@@ -817,6 +820,8 @@ function main()
                             sampProcessChatInput('/time ',-1)
                             wait(2000)
                             sampShowDialog(0, "{FFA500}Сняие сотруднику организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата снятия выговора: {ffa000}"..date.."\n{78dbe2}Время снятия выговора: {ffa000}"..time.."\n\n{78dbe2}Причина снятия выговора: {ffa000}"..reason, "Закрыть", "", DIALOG_STYLE_MSGBOX)
+                            
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Снятие наказаний/'..date.. ' ' ..timed.. ' ' ..nick.. ' (unfwarn)')
 
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
@@ -830,14 +835,12 @@ function main()
                                     docs = ('\nДок-ва: '..docsi)
                                 end
                             end
-
                             
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Снятие наказаний/'..date.. ' ' ..timed.. ' ' ..nick.. ' (unfwarn)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Снятие выговора]. Сотрудник: '..nick.. ' ['..id..'] Дата снятия: '..date..' Время снятия: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Снятие выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата снятия: '..date..' \nВремя снятия: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Снятие выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата снятия: '..date..' \nВремя снятия: '..time..' \nПричина: '..reason..'\nСнял: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239041'
                             sendvkimg(encodeUrl(info),img)
@@ -895,6 +898,8 @@ function main()
                             wait(2000)
                             sampShowDialog(0, "{FFA500}Выговор сотруднику организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата выговора: {ffa000}"..date.."\n{78dbe2}Время выговора: {ffa000}"..time.."\n\n{78dbe2}Причина выговора: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                             
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -909,12 +914,11 @@ function main()
                             end
 
                                                         
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Выдача выговора]. Сотрудник: '..nick.. ' ['..id..'] Дата выговора: '..date..' Время выговора: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
                             
-                            info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..'\nВыдал: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239035'
                             sendvkimg(encodeUrl(info),img)
@@ -953,6 +957,8 @@ function main()
                             wait(2000)
                             sampShowDialog(0, "{FFA500}Выговор сотруднику организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата выговора: {ffa000}"..date.."\n{78dbe2}Время выговора: {ffa000}"..time.."\n\n{78dbe2}Причина выговора: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
 
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -965,14 +971,12 @@ function main()
                                     docs = ('\nДок-ва: '..docsi)
                                 end
                             end
-
                                                         
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Выдача выговора]. Сотрудник: '..nick.. ' ['..id..'] Дата выговора: '..date..' Время выговора: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..'\nВыдал: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239035'
                             sendvkimg(encodeUrl(info),img)
@@ -1013,6 +1017,8 @@ function main()
 
                             sampShowDialog(0, "{FFA500}Выговор сотруднику организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата выговора: {ffa000}"..date.."\n{78dbe2}Время выговора: {ffa000}"..time.."\n\n{78dbe2}Причина выговора: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
 
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -1025,14 +1031,12 @@ function main()
                                     docs = ('\nДок-ва: '..docsi)
                                 end
                             end
-
                                                         
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Выдача выговора]. Сотрудник: '..nick.. ' ['..id..'] Дата выговора: '..date..' Время выговора: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..'\nВыдал: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239035'
                             sendvkimg(encodeUrl(info),img)
@@ -1072,6 +1076,8 @@ function main()
                             wait(2000)
                             sampShowDialog(0, "{FFA500}Выговор сотруднику организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата выговора: {ffa000}"..date.."\n{78dbe2}Время выговора: {ffa000}"..time.."\n\n{78dbe2}Причина выговора: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                             
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -1085,13 +1091,11 @@ function main()
                                 end
                             end
 
-                                                        
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Выдача выговора]. Сотрудник: '..nick.. ' ['..id..'] Дата выговора: '..date..' Время выговора: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..'\nВыдал: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239035'
                             sendvkimg(encodeUrl(info),img)
@@ -1136,6 +1140,8 @@ function main()
                                 wait(2000)
                                 sampShowDialog(0, "{FFA500}Выговор сотруднику организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата выговора: {ffa000}"..date.."\n{78dbe2}Время выговора: {ffa000}"..time.."\n\n{78dbe2}Причина выговора: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
+                                
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -1149,12 +1155,11 @@ function main()
                                     end
                                 end
                                                                 
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarn)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Выдача выговора]. Сотрудник: '..nick.. ' ['..id..'] Дата выговора: '..date..' Время выговора: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Выдача выговора. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..'\nВыдал: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239035'
                                 sendvkimg(encodeUrl(info),img)
@@ -1207,6 +1212,8 @@ function main()
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Выговор сотруднику организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." (офлайн)\n\n{78dbe2}Дата выговора: {ffa000}"..date.."\n{78dbe2}Время выговора: {ffa000}"..time.."\n\n{78dbe2}Причина выговора: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
 
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarnoff)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -1220,12 +1227,11 @@ function main()
                                 end
                             end
                             
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fwarnoff)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Выдача выговора офлайн]. Сотрудник: '..nick.. ' (офлайн) Дата принятия: '..date..' Время принятия: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Выдача выговора офлайн. \n\nСотрудник: '..nick.. ' (офлайн) \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Выдача выговора офлайн. \n\nСотрудник: '..nick.. ' (офлайн) \nДата выговора: '..date..' \nВремя выговора: '..time..' \nПричина: '..reason..'\nВыдал: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239035'
                             sendvkimg(encodeUrl(info),img)
@@ -1285,6 +1291,8 @@ function main()
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Увольнение сотрудника из организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата увольнения: {ffa000}"..date.."\n{78dbe2}Время увольнения: {ffa000}"..time.."\n\n{78dbe2}Причина увольнения: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                             
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (uninvite)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -1299,12 +1307,11 @@ function main()
                             end
 
                                                         
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (uninvite)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Увольнение сотрудника из организации]. Сотрудник: '..nick.. ' ['..id..'] Дата увольнения: '..date..' Время увольнения: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Увольнение сотрудника из организации. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата увольнения: '..date..' \nВремя увольнения: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Увольнение сотрудника из организации. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата увольнения: '..date..' \nВремя увольнения: '..time..' \nПричина: '..reason..'\nУволил: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239045'
                             sendvkimg(encodeUrl(info),img)
@@ -1357,6 +1364,8 @@ function main()
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Увольнение сотрудника из организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." (офлайн)\n\n{78dbe2}Дата увольнения: {ffa000}"..date.."\n{78dbe2}Время увольнения: {ffa000}"..time.."\n\n{78dbe2}Причина увольнения: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                             
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (uninviteoff)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -1370,12 +1379,11 @@ function main()
                                 end
                             end
                                                         
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (uninviteoff)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Увольнение сотрудника из организации офлайн]. Сотрудник: '..nick.. ' (офлайн) Дата увольнения: '..date..' Время увольнения: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Увольнение сотрудника из организации офлайн. \n\nСотрудник: '..nick.. ' (офлайн) \nДата увольнения: '..date..' \nВремя увольнения: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Увольнение сотрудника из организации офлайн. \n\nСотрудник: '..nick.. ' (офлайн) \nДата увольнения: '..date..' \nВремя увольнения: '..time..' \nПричина: '..reason..'\nУволил: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239045'
                             sendvkimg(encodeUrl(info),img)
@@ -1424,6 +1432,8 @@ function main()
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Блокировка радиочастоты", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата блокировки: {ffa000}"..date.."\n{78dbe2}Время блокировки: {ffa000}"..time.."\n\n{78dbe2}Причина блокировки: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
 
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fmute)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -1438,12 +1448,11 @@ function main()
                             end
 
                             
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fmute)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Блокировка канала радиостанции]. Сотрудник: '..nick.. ' ['..id..'] Дата блокировки: '..date..' Время блокировки: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Блокировка канала радиостанции. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата блокировки: '..date..' \nВремя блокировки: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Блокировка канала радиостанции. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата блокировки: '..date..' \nВремя блокировки: '..time..' \nПричина: '..reason..'\nЗаглушил: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239036'
                             sendvkimg(encodeUrl(info),img)
@@ -1472,6 +1481,8 @@ function main()
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Блокировка радиочастоты", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата блокировки: {ffa000}"..date.."\n{78dbe2}Время блокировки: {ffa000}"..time.."\n\n{78dbe2}Причина блокировки: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
 
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fmute)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -1484,14 +1495,12 @@ function main()
                                     docs = ('\nДок-ва: '..docsi)
                                 end
                             end
-
                             
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fmute)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Блокировка канала радиостанции]. Сотрудник: '..nick.. ' ['..id..'] Дата блокировки: '..date..' Время блокировки: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Блокировка канала радиостанции. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата блокировки: '..date..' \nВремя блокировки: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Блокировка канала радиостанции. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата блокировки: '..date..' \nВремя блокировки: '..time..' \nПричина: '..reason..'\nЗаглушил: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239036'
                             sendvkimg(encodeUrl(info),img)
@@ -1524,6 +1533,8 @@ function main()
                                 sampProcessChatInput('/time ',-1)
                                 sampShowDialog(0, "{FFA500}Блокировка радиочастоты", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата блокировки: {ffa000}"..date.."\n{78dbe2}Время блокировки: {ffa000}"..time.."\n\n{78dbe2}Причина блокировки: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fmute)')
+
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -1537,13 +1548,11 @@ function main()
                                     end
                                 end
 
-                                
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (fmute)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Блокировка канала радиостанции]. Сотрудник: '..nick.. ' ['..id..'] Дата блокировки: '..date..' Время блокировки: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Блокировка канала радиостанции. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата блокировки: '..date..' \nВремя блокировки: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Блокировка канала радиостанции. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата блокировки: '..date..' \nВремя блокировки: '..time..' \nПричина: '..reason..'\nЗаглушил: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239036'
                                 sendvkimg(encodeUrl(info),img)
@@ -1594,6 +1603,8 @@ function main()
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Занесение в ЧС ОРГ", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата занесения: {ffa000}"..date.."\n{78dbe2}Время Занесения: {ffa000}"..time.."\n\n{78dbe2}Причина блокировки: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
 
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (blacklist)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -1606,14 +1617,12 @@ function main()
                                     docs = ('\nДок-ва: '..docsi)
                                 end
                             end
-
                             
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (blacklist)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Занесение в ЧС орг]. Сотрудник: '..nick.. ' ['..id..'] Дата занесения: '..date..' Время занесения: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Занесение в ЧС орг. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата занесения: '..date..' \nВремя занесения: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Занесение в ЧС орг. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата занесения: '..date..' \nВремя занесения: '..time..' \nПричина: '..reason..'\nЗанес: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239046'
                             sendvkimg(encodeUrl(info),img)
@@ -1662,6 +1671,8 @@ function main()
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Занесение в ЧС ОРГ", "{78dbe2}Сотрудник: {ffa000}"..nick.." (офлайн)\n\n{78dbe2}Дата занесения: {ffa000}"..date.."\n{78dbe2}Время Занесения: {ffa000}"..time.."\n\n{78dbe2}Причина блокировки: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
 
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (blacklistoff)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -1674,14 +1685,12 @@ function main()
                                     docs = ('\nДок-ва: '..docsi)
                                 end
                             end
-
                             
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (blacklistoff)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Занесение в ЧС орг]. Сотрудник: '..nick.. ' (офлайн) Дата занесения: '..date..' Время занесения: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Занесение в ЧС орг. офлайн \n\nСотрудник: '..nick.. ' (офлайн) \nДата занесения: '..date..' \nВремя занесения: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Занесение в ЧС орг. офлайн \n\nСотрудник: '..nick.. ' (офлайн) \nДата занесения: '..date..' \nВремя занесения: '..time..' \nПричина: '..reason..'\nЗанес: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239046'
                             sendvkimg(encodeUrl(info),img)
@@ -1739,6 +1748,8 @@ function main()
                                 wait(2000)
                                 sampShowDialog(0, "{FFA500}Понижение сотрудника организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата понижения: {ffa000}"..date.."\n{78dbe2}Время понижения: {ffa000}"..time.."\n{78dbe2}Причина понижения: {ffa000}"..reason.."\n\n{78dbe2}Новая должность: {ffa000}["..(list+1).."] "..rank[list+1].."", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
+
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -1752,13 +1763,11 @@ function main()
                                     end
                                 end
 
-                                
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Понижение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата понижения: '..date..' Время понижения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Принина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..'\nПонизил: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239039'
                                 sendvkimg(encodeUrl(info),img)
@@ -1787,6 +1796,8 @@ function main()
                                 wait(2000)
                                 sampShowDialog(0, "{FFA500}Понижение сотрудника организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата понижения: {ffa000}"..date.."\n{78dbe2}Время понижения: {ffa000}"..time.."\n{78dbe2}Причина понижения: {ffa000}"..reason.."\n\n{78dbe2}Новая должность: {ffa000}["..(list+1).."] "..rank[list+1].."", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
+
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -1799,14 +1810,12 @@ function main()
                                         docs = ('\nДок-ва: '..docsi)
                                     end
                                 end
-
                                 
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Понижение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата понижения: '..date..' Время понижения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Принина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..'\nПонизил: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239039'
                                 sendvkimg(encodeUrl(info),img)
@@ -1835,6 +1844,8 @@ function main()
                                 wait(2000)
                                 sampShowDialog(0, "{FFA500}Понижение сотрудника организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата понижения: {ffa000}"..date.."\n{78dbe2}Время понижения: {ffa000}"..time.."\n{78dbe2}Причина понижения: {ffa000}"..reason.."\n\n{78dbe2}Новая должность: {ffa000}["..(list+1).."] "..rank[list+1].."", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
+
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -1848,13 +1859,11 @@ function main()
                                     end
                                 end
 
-                                
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Понижение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата понижения: '..date..' Время понижения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Принина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..'\nПонизил: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239039'
                                 sendvkimg(encodeUrl(info),img)
@@ -1883,6 +1892,8 @@ function main()
                                 wait(2000)
                                 sampShowDialog(0, "{FFA500}Понижение сотрудника организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата понижения: {ffa000}"..date.."\n{78dbe2}Время понижения: {ffa000}"..time.."\n{78dbe2}Причина понижения: {ffa000}"..reason.."\n\n{78dbe2}Новая должность: {ffa000}["..(list+1).."] "..rank[list+1].."", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
+
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -1896,13 +1907,11 @@ function main()
                                     end
                                 end
 
-                                
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Понижение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата понижения: '..date..' Время понижения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Принина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..'\nПонизил: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239039'
                                 sendvkimg(encodeUrl(info),img)
@@ -1931,6 +1940,8 @@ function main()
                                 wait(2000)
                                 sampShowDialog(0, "{FFA500}Понижение сотрудника организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата понижения: {ffa000}"..date.."\n{78dbe2}Время понижения: {ffa000}"..time.."\n{78dbe2}Причина понижения: {ffa000}"..reason.."\n\n{78dbe2}Новая должность: {ffa000}["..(list+1).."] "..rank[list+1].."", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
+
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -1944,13 +1955,11 @@ function main()
                                     end
                                 end
 
-                                
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Понижение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата понижения: '..date..' Время понижения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Принина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..'\nПонизил: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239039'
                                 sendvkimg(encodeUrl(info),img)
@@ -1979,6 +1988,8 @@ function main()
                                 wait(2000)
                                 sampShowDialog(0, "{FFA500}Понижение сотрудника организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата понижения: {ffa000}"..date.."\n{78dbe2}Время понижения: {ffa000}"..time.."\n{78dbe2}Причина понижения: {ffa000}"..reason.."\n\n{78dbe2}Новая должность: {ffa000}["..(list+1).."] "..rank[list+1].."", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
+
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -1992,13 +2003,11 @@ function main()
                                     end
                                 end
 
-                                
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Понижение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата понижения: '..date..' Время понижения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Принина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..'\nПонизил: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239039'
                                 sendvkimg(encodeUrl(info),img)
@@ -2027,6 +2036,8 @@ function main()
                                 wait(2000)
                                 sampShowDialog(0, "{FFA500}Понижение сотрудника организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата понижения: {ffa000}"..date.."\n{78dbe2}Время понижения: {ffa000}"..time.."\n{78dbe2}Причина понижения: {ffa000}"..reason.."\n\n{78dbe2}Новая должность: {ffa000}["..(list+1).."] "..rank[list+1].."", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
+
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -2040,13 +2051,11 @@ function main()
                                     end
                                 end
 
-                                
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Понижение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата понижения: '..date..' Время понижения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Принина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..'\nПонизил: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239039'
                                 sendvkimg(encodeUrl(info),img)
@@ -2075,6 +2084,8 @@ function main()
                                 wait(2000)
                                 sampShowDialog(0, "{FFA500}Понижение сотрудника организации", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата понижения: {ffa000}"..date.."\n{78dbe2}Время понижения: {ffa000}"..time.."\n{78dbe2}Причина понижения: {ffa000}"..reason.."\n\n{78dbe2}Новая должность: {ffa000}["..(list+1).."] "..rank[list+1].."", "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
                                 
+                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
+
                                 while sampIsDialogActive(0) do wait(100) end
                                 local result, button, _, input = sampHasDialogRespond(0)
                                 if button == 1 then
@@ -2088,13 +2099,11 @@ function main()
                                     end
                                 end
 
-                                
-                                lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (giverank-)')
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Понижение в должности]. Сотрудник: '..nick.. ' ['..id..'] Дата понижения: '..date..' Время понижения: '..time..' Новая должность: ['..(list+1)..'] '..rank[list+1]..' Принина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..''..docs)
+                                info = ('Понижение сотрудника. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата понижения: '..date..' \nВремя понижения: '..time..' \nПричина: '..reason..'\nПонизил: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239039'
                                 sendvkimg(encodeUrl(info),img)
@@ -2140,11 +2149,12 @@ function main()
 
                                 
                                 lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Похвалы/'..date.. ' ' ..timed.. ' ' ..nick.. ' (praise)')
+
                                 file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                                 file:write('[Выдача похвалы]. Сотрудник: '..nick.. ' ['..id..'] Дата выдачи: '..date..' Время выдачи: '..time..' Количество похвал: '..prisecount..' Принина: '..reason..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Выдача похвалы. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выдачи: '..date..' \nВремя выдачи: '..time..'\nКоличество похвалы: '..prisecount..'\nПринина: '..reason)
+                                info = ('Выдача похвалы. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата выдачи: '..date..' \nВремя выдачи: '..time..'\nКоличество похвалы: '..prisecount..'\nПринина: '..reason..'\nВыдал: '..autor..' ['..who_id..']')
                                 img = 'photo-232454643_456239040'
                                 sendvkimg(encodeUrl(info),img)
                             end
@@ -2192,6 +2202,8 @@ function main()
                             wait(2000)
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Вынесение из ЧС ОРГ", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата вынесения: {ffa000}"..date.."\n{78dbe2}Время вынесения: {ffa000}"..time.."\n\n{78dbe2}Причина блокировки: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
+                            
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (unblacklist)')
 
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
@@ -2206,12 +2218,11 @@ function main()
                                 end
                             end
                             
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (unblacklist)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Вынесение из ЧС орг]. Сотрудник: '..nick.. ' ['..id..'] Дата вынесения: '..date..' Время вынесения: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Вынесение из ЧС орг. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата вынесения: '..date..' \nВремя вынесения: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Вынесение из ЧС орг. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата вынесения: '..date..' \nВремя вынесения: '..time..' \nПричина: '..reason..'\nВынес: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239047'
                             sendvkimg(encodeUrl(info),img)
@@ -2259,6 +2270,8 @@ function main()
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Вынесение из ЧС ОРГ", "{78dbe2}Сотрудник: {ffa000}"..nick.." (офлайн)\n\n{78dbe2}Дата вынесения: {ffa000}"..date.."\n{78dbe2}Время вынесения: {ffa000}"..time.."\n\n{78dbe2}Причина вынесения: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
 
+                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (unblacklistoff)')
+
                             while sampIsDialogActive(0) do wait(100) end
                             local result, button, _, input = sampHasDialogRespond(0)
                             if button == 1 then
@@ -2272,12 +2285,11 @@ function main()
                                 end
                             end
 
-                            lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (unblacklistoff)')
                             file = io.open("moonloader/firedep_zam_helper/history.txt", "a")
                             file:write('[Вынсение из ЧС орг]. Сотрудник: '..nick.. ' (офлайн) Дата вынесения: '..date..' Время вынесения: '..time..' Причина: '..reason..'\n') --буфер откуда будет записывать инфу
                             file:close()
 
-                            info = ('Вынсение из ЧС орг. офлайн \n\nСотрудник: '..nick.. ' (офлайн) \nДата вынесения: '..date..' \nВремя вынесения: '..time..' \nПричина: '..reason..''..docs)
+                            info = ('Вынсение из ЧС орг. офлайн \n\nСотрудник: '..nick.. ' (офлайн) \nДата вынесения: '..date..' \nВремя вынесения: '..time..' \nПричина: '..reason..'\nВынес: '..autor..' ['..who_id..']'..docs)
                             docs = ''
                             img = 'photo-232454643_456239047'
                             sendvkimg(encodeUrl(info),img)
@@ -3208,9 +3220,6 @@ function main()
                                 local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
                                 local rowd = test:fetch({}, "a")
                                 local num = rowd.cnt
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local nick_eng = sampGetPlayerNickname(who_id)
-                                local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
                                 local command = ('/settag '..nick..' '..tag)
 
                                 assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
@@ -3237,9 +3246,6 @@ function main()
                                 local test = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM zadlist"))
                                 local rowd = test:fetch({}, "a")
                                 local num = rowd.cnt
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local nick_eng = sampGetPlayerNickname(who_id)
-                                local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
                                 local command = ('/invite '..nick)
 
                                 assert(conn:execute("INSERT INTO zadlist (id,name,nick,command,reason,status,autor) VALUES ('"..num.."','"..zadanie.."', '"..nick.."', '"..command.."','"..reason.."','1','"..autor.."')"))
@@ -4222,45 +4228,6 @@ function sampev.onServerMessage(color, text)
         sendvkimg(encodeUrl('Назначено собеседование на '..time_sobes.. '\n\nСобеседование продлится 15 минут. У Вас есть возможность приссоединиться и сформировать отчет, необходимый для повышения или получения похвалы.\n\nСобеседование назначил: Irin_Crown ['..id..']'),img)
     end
 
-    if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)псж(.+)') then
-        lua_thread.create(function()
-            code_check = math.random(100000,999999)
-            nick = string.match(text,"%a+_%a+")
-            id = sampGetPlayerIdByNickname(nick)
-            local nm = trst(nick)
-            wait(1000)
-            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
-            wait(1000)
-            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
-        end)
-    end
-
-    if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)ПСЖ(.+)') then
-        lua_thread.create(function()
-            code_check = math.random(100000,999999)
-            nick = string.match(text,"%a+_%a+")
-            id = sampGetPlayerIdByNickname(nick)
-            local nm = trst(nick)
-            wait(1000)
-            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
-            wait(1000)
-            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
-        end)
-    end
-
-    if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)Псж(.+)') then
-        lua_thread.create(function()
-            code_check = math.random(100000,999999)
-            nick = string.match(text,"%a+_%a+")
-            id = sampGetPlayerIdByNickname(nick)
-            local nm = trst(nick)
-            wait(1000)
-            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
-            wait(1000)
-            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
-        end)
-    end
-
     if text:find('Удачно') then
         lua_thread.create(function()
             inspect = 1
@@ -4312,6 +4279,45 @@ function sampev.onServerMessage(color, text)
                 img = 'photo-232454643_456239044'
                sendvkimg(encodeUrl('Время проведения собеседования окончено.'),img)
             end
+        end)
+    end
+
+    if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)псж(.+)') then
+        lua_thread.create(function()
+            code_check = math.random(100000,999999)
+            nick = string.match(text,"%a+_%a+")
+            id = sampGetPlayerIdByNickname(nick)
+            local nm = trst(nick)
+            wait(1000)
+            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
+            wait(1000)
+            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+        end)
+    end
+
+    if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)ПСЖ(.+)') then
+        lua_thread.create(function()
+            code_check = math.random(100000,999999)
+            nick = string.match(text,"%a+_%a+")
+            id = sampGetPlayerIdByNickname(nick)
+            local nm = trst(nick)
+            wait(1000)
+            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
+            wait(1000)
+            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+        end)
+    end
+
+    if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)Псж(.+)') then
+        lua_thread.create(function()
+            code_check = math.random(100000,999999)
+            nick = string.match(text,"%a+_%a+")
+            id = sampGetPlayerIdByNickname(nick)
+            local nm = trst(nick)
+            wait(1000)
+            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
+            wait(1000)
+            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
         end)
     end
 
