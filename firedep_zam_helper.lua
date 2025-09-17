@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.17.09.A3")
+script_version("Ver.17.09.A4")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -53,6 +53,7 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}12. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
                     '\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка быстрым собеседованием.'..
+                    '\n\t{00BFFF}2. {FFD700}/ftime {87CEFA} Показывает статистику заработка за прошедший пожар.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).'..
@@ -115,6 +116,7 @@ function main()
     sampRegisterChatCommand('stime', stime)
     sampRegisterChatCommand('ftime', function() 
         sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4) 
+        sampAddChatMessage('{7FFFD4}Заработано за предыдущий пожар: {FFFFFF}$'..give.. ' ['..string.format("%2.1f", give/1000000)..'М]', 0x7FFFD4)
     end)
 
     sampRegisterChatCommand('afk', function()
@@ -200,7 +202,7 @@ function main()
         end
         
         local result, button, list, input = sampHasDialogRespond(1999)
-        if result then
+        if result then 
 
             -----------------------------------------------------------------------------------
             -- Работа с составом --------------------------------------------------------------
@@ -3917,7 +3919,7 @@ function main()
             end
         end
 
-        if os.date('%M:%S') == "05:00" or os.date('%M:%S') == "15:00" or os.date('%M:%S') == "25:00" or os.date('%M:%S') == "35:00" or os.date('%M:%S') == "45:00" or os.date('%M:%S') == "55:00" then
+        if os.date('%M:%S') == "05:00" or os.date('%M:%S') == "25:00" or os.date('%M:%S') == "45:00" then
             upd()
             wait(1000)
         end
