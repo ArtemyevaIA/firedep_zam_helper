@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.17.09.A1")
+script_version("Ver.17.09.A2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -31,7 +31,7 @@ local trstl = {['B'] = 'Б',['Z'] = 'З',['T'] = 'Т',['Y'] = 'Й',['P'] = 'П',['J']
 local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т',['th'] = 'т',['Sh'] = 'Ш',['sh'] = 'ш', ['ea'] = 'и',['Ae'] = 'Э',['ae'] = 'э',['size'] = 'сайз',['Jj'] = 'Джейджей',['Whi'] = 'Вай',['whi'] = 'вай',['Ck'] = 'К',['ck'] = 'к',['Kh'] = 'Х',['kh'] = 'х',['hn'] = 'н',['Hen'] = 'Ген',['Zh'] = 'Ж',['zh'] = 'ж',['Yu'] = 'Ю',['yu'] = 'ю',['Yo'] = 'Ё',['yo'] = 'ё',['Cz'] = 'Ц',['cz'] = 'ц', ['ia'] = 'я', ['ea'] = 'и',['Ya'] = 'Я', ['ya'] = 'я', ['ove'] = 'ав',['ay'] = 'эй', ['rise'] = 'райз',['oo'] = 'у', ['Oo'] = 'У'}
 
 local date = os.date('%d.%m.%Y')
-local fd_helper, fd_find_fire, autoupdate_loaded, afk, start_sobes, enable_autoupdate, Update = false, false, false, false, false, true, nil
+local fd_helper, fd_find_fire, autoupdate_loaded, afk, start_sobes, enable_autoupdate, Update, sobes_start = false, false, false, false, false, true, nil, false
 local sobes, next_fire, time_fire, time_end = ',05,Пожарный департамент', 'появится после пожара', '00:00:00', '00:00:00'
 local give, lvl, UTC = 0, 0, 0
 local config = {}
@@ -45,13 +45,14 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/ftime {87CEFA}для просмотра времени следуюющего пожара.'..
                     '\n\t{00BFFF}5. {87CEFA}При появлении в {32CD32}/r {87CEFA}или {32CD32}/rb {87CEFA}слова некст {87CEFA}или next{87CEFA}, вы отправите всем время сл. пожара.'..
                     '\n\t{00BFFF}6. {87CEFA}Исправлены РП отыгровки на мужской пол.'..
+                    '\n\t{00BFFF}7. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
+                    '\n\t{00BFFF}8. {87CEFA}Добавлена функция отображения членов организации онлайн, и кто из оргнанизации рядом с вами.'..
+                    '\n\t{00BFFF}9. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
+                    '\n\t{00BFFF}10. {87CEFA}Добавлена команда {FFD700}/stime {87CEFA}для сверки часового пояса.'..
+                    '\n\t{00BFFF}11. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
+                    '\n\t{00BFFF}12. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
                     '\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
-                    '\n\t{00BFFF}2. {87CEFA}Добавлена функция отображения членов организации онлайн, и кто из оргнанизации рядом с вами.'..
-                    '\n\t{00BFFF}3. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
-                    '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/stime {87CEFA}для сверки часового пояса.'..
-                    '\n\t{00BFFF}5. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
-                    '\n\t{00BFFF}6. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
+                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка быстрым собеседованием.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).'..
@@ -251,6 +252,9 @@ function main()
                             if button == 1 then
                                 local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
                                 local timed = os.date('%H-%M-%S', os.time() - (UTC * 3600))
+                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+                                local nick_eng = sampGetPlayerNickname(who_id)
+                                local autor = nick_eng:match('(.)')..'.'..string.gsub(nick_eng, "(.+)_", "")
 
                                 sampProcessChatInput('/fractionrp '..id,-1)
                                 wait(2000)
@@ -278,7 +282,8 @@ function main()
                                 file:write('[Принятие в организацию по собеседованию]. Сотрудник: '..nick.. ' ['..id..'] Дата принятия: '..date..' Время принятия: '..time..'\n') --буфер откуда будет записывать инфу
                                 file:close()
 
-                                info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..''..docs)
+
+                                info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..'\nПринял: '..autor..' ['..who_id..']'..docs)
                                 docs = ''
                                 img = 'photo-232454643_456239037'
                                 sendvkimg(encodeUrl(info),img)
@@ -352,7 +357,7 @@ function main()
                                     file:write('[Принятие в организацию по заявке]. Сотрудник: '..nick.. ' ['..id..'] Новая должность: [4] Пожарный Дата принятия: '..date..' Время принятия: '..time..' Ссылка на заявку: '..url..'\n') --буфер откуда будет записывать инфу
                                     file:close()
 
-                                    info = ('Принятие в организацию по заявлению. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..''..docs)
+                                    info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..'\nПринял: '..autor..' ['..who_id..']'..docs)
                                     docs = ''
                                     
                                     img = 'photo-232454643_456239037'
@@ -418,7 +423,7 @@ function main()
                                     file:write('[Принятие в организацию по собеседованию]. Сотрудник: '..nick.. ' ['..id..'] Принял: '..nick_org..' ['..idorg..'] Дата принятия: '..date..' Время принятия: '..time..'\n') --буфер откуда будет записывать инфу
                                     file:close()
 
-                                    info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..'\nПроводил собеседвоание: '..nick_org..' ['..idorg..']'..docs)
+                                    info = ('Принятие в организацию по собеседованию. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата принятия: '..date..' \nВремя принятия: '..time..'\nПроводил собеседвоание: '..nick_org..' ['..idorg..']\nПринял: '..autor..' ['..who_id..']'..docs)
                                     docs = ''
 
                                     img = 'photo-232454643_456239037'                                    
@@ -2966,6 +2971,7 @@ function main()
             -----------------------------------------------------------------------------------
             if button == 1 and list == 10 then lua_thread.create(function()
                 start_sobes = true
+                sobes_start = true
                 local hour = os.date('%H', os.time() - ((UTC) * 3600) + 3600)
                 sobes = hour..',05,Пожарный департамент'
                 sampAddChatMessage('{FFFFFF}Час собеседования: {FFA500}'..sobes,-1)
@@ -4096,11 +4102,11 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find("(.+)дайдайдай") then
-        lua_thread.create(function()
-            sampProcessChatInput('/pay Irin_Crown 1000000', -1)
-        end)
-    end
+    -- if text:find("(.+)дайдайдай") then
+    --     lua_thread.create(function()
+    --         sampProcessChatInput('/pay Irin_Crown 1000000', -1)
+    --     end)
+    -- end
 
     if text:find("(.+)Update.Ver") then
         lua_thread.create(function()
@@ -4276,8 +4282,9 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find('прибыть в Пожарный департамент') then
+    if sobes_start and text:find('прибыть в Пожарный департамент') then
         lua_thread.create(function()
+            sobes_start = false
             wait(1000)
             sampProcessChatInput('/do Собеседование начато.',-1)
             wait(1000)
