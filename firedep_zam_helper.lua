@@ -4097,7 +4097,7 @@ local id = ''
 function sampev.onServerMessage(color, text)
     if text:find('__________Банковский чек__________') then
         parse = true
-        message = (text:gsub("_", "")..'\n').."\nСтатистика игрока: "..autor
+        message = (text:gsub("_", "")..'\n')
     elseif text:find('__________________________________') then
         parse = false
         img = 'https://jobers.ru/wp-content/uploads/2024/02/d83cdef6bb49668eee2b55c4f6af1a42.png'
