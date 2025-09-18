@@ -41,7 +41,7 @@ local fm = false
 local tlg_send = false
 local flashminer = false
 
-local update_list = ('{FA8072}Ver.12.09.A3'..
+local update_list = ('{FA8072}Ver.18.09.A1'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
                     '\n\t{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.'..
                     '\n\t{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.'..
