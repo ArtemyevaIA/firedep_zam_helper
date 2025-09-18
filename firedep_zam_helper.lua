@@ -1,5 +1,6 @@
 script_name("firedep_zam_helper")
-script_version("Ver.18.09.A3")
+script_version("Ver.18.09.A4")
+
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -41,7 +42,7 @@ local fm = false
 local tlg_send = false
 local flashminer = false
 
-local update_list = ('{FA8072}Ver.18.09.A1'..
+local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
                     '\n\t{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.'..
                     '\n\t{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.'..
@@ -73,14 +74,14 @@ local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,
 function main()
     if not isSampfuncsLoaded() or not isSampLoaded() then return end
 
-    if updater_loaded then
-        autoupdate_loaded, Update = pcall(Updater)
-        if autoupdate_loaded then
-            Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
-            Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
-            Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
-        end
-    end
+    -- if updater_loaded then
+    --     autoupdate_loaded, Update = pcall(Updater)
+    --     if autoupdate_loaded then
+    --         Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
+    --         Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
+    --         Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
+    --     end
+    -- end
     
     local spisok_org=io.open(download,"r")
     if spisok_org~=nil then
@@ -176,7 +177,6 @@ function main()
     sampRegisterChatCommand("1", function() lvl = 1 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('1', '"..x.."','"..y.."','"..z.."')")) end)
     sampRegisterChatCommand("2", function() lvl = 2 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('2', '"..x.."','"..y.."','"..z.."')")) end)
     sampRegisterChatCommand("3", function() lvl = 3 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('3', '"..x.."','"..y.."','"..z.."')")) end)
-    
     -- sampRegisterChatCommand("tt", function() 
     --     count = 0
     --     local fires_list = {{0,1,2},{3,4,5}}
@@ -185,14 +185,33 @@ function main()
     --         sampAddChatMessage('Координата: '..count.." X: "..fires_list[count][1].." Y: "..fires_list[count][2].." Z: "..fires_list[count][3], -255)
     --     end
 
-    --     -- local x,y,z = getCharCoordinates(PLAYER_PED)
-    --     -- local dist = getDistanceBetweenCoords3d(x, y, z, -1295.7589, -66.9884, 18.2803)
-    --     -- if dist <=100 then
-    --     --     sampAddChatMessage('Вы находитесь возле точки.', -255)
-    --     --     sampAddChatMessage(dist, -255)
-    --     -- end
+    --     local x,y,z = getCharCoordinates(PLAYER_PED)
+    --     local dist = getDistanceBetweenCoords3d(x, y, z, -1295.7589, -66.9884, 18.2803)
+    --     if dist <=100 then
+    --         sampAddChatMessage('Вы находитесь возле точки.', -255)
+    --         sampAddChatMessage(dist, -255)
+    --     end
 
-    -- end)
+    end)
+
+    sampRegisterChatCommand("tt", function() 
+        count = 0
+        local fires_list = {{1105.5765, 1884.7687, 11.0221, 2},
+                             {1642.4234, 2180.4091, 11.0258, 1},
+                             {-2427.1535, 39.5095, 35.2162, 1},
+                             {89.8577, -262.6102, 1.7802, 3},
+                             {370.7560, -1990.4370, 7.8739, 2},
+                             {514.8258, -1411.5212, 16.1686, 1}}
+
+        local x,y,z = getCharCoordinates(PLAYER_PED)
+        for _ in pairs(fires_list) do 
+            count = count + 1
+            dist = getDistanceBetweenCoords3d(x, y, z, fires_list[count][1], fires_list[count][2], fires_list[count][3])
+            if dist <= 100 then
+                sampAddChatMessage("Вы находитесь в зоне пожара "..fires_list[count][4].. " степени опасности", -255)
+            end
+        end
+    end)
             
     while true do wait(0)
 
@@ -4275,8 +4294,9 @@ function sampev.onServerMessage(color, text)
             sampAddChatMessage('Время происшествия: {FFFFFF}'..time_fire, 0x7FFFD4)
             sampAddChatMessage('Следующее происшествие в: {FFFFFF}'..next_fire, 0x7FFFD4)
             sampAddChatMessage('', 0x7FFFD4)
+            sampProcessChatInput('/time',-1)
             sampProcessChatInput('/fires',-1)
-            wait(500)
+            wait(2000)
             setVirtualKeyDown(VK_RETURN, true) -- зажать клавишу
             wait(100)
             setVirtualKeyDown(VK_RETURN, false) -- отжать клавишу
@@ -4290,6 +4310,9 @@ function sampev.onServerMessage(color, text)
     if text:find("Вы прибыли на место пожара") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': прыбыл на место происшествия.',-1)
+
+            local x,y,z = getCharCoordinates(PLAYER_PED) 
+            assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('"..lvl.."', '"..x.."','"..y.."','"..z.."')"))
         end)
     end
 
