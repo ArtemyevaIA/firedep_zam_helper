@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.18.09.A4")
+script_version("Ver.18.09.A5")
 
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
@@ -192,7 +192,7 @@ function main()
     --         sampAddChatMessage(dist, -255)
     --     end
 
-    end)
+    -- end)
 
     sampRegisterChatCommand("tt", function() 
         count = 0
@@ -4559,58 +4559,6 @@ function sampGetPlayerIdByNickname(nick)
 end
 
 function sampev.onShowDialog(id, style, title, button1, button2, text)
-    
-    -- if fm then
-    --     if id == 7238 then
-    --         lua_thread.create(function()
-    --         sampSendDialogResponse(7238, 1, 0, nil)
-
-    --         ----------------------------------------
-    --         -- Стойка №1 ---------------------------
-    --         -- Видеокарта №1 -----------------------
-    --         ----------------------------------------
-    --         sampSendDialogResponse(25182, 1, 1, nil)
-    --         --if id == 25245 then
-    --             sampSendDialogResponse(25245, 1, 1, nil) sampSendDialogResponse(25245, 0, 0, nil)
-    --         --end
-            
-    --         ----------------------------------------
-    --         -- Видеокарта №2 -----------------------
-    --         ----------------------------------------
-    --         sampSendDialogResponse(25182, 1, 2, nil)
-    --         --if id == 25245 then
-    --             sampSendDialogResponse(25245, 1, 1, nil) sampSendDialogResponse(25245, 0, 0, nil)
-    --         --end
-            
-    --         ----------------------------------------
-    --         -- Видеокарта №3 -----------------------
-    --         ----------------------------------------
-    --         sampSendDialogResponse(25182, 1, 3, nil)
-    --         --if id == 25245 then
-    --             sampSendDialogResponse(25245, 1, 1, nil) sampSendDialogResponse(25245, 0, 0, nil)
-    --         --end
-            
-    --         ----------------------------------------
-    --         -- Видеокарта №4 -----------------------
-    --         ----------------------------------------
-    --         sampSendDialogResponse(25182, 1, 4, nil)
-    --         --if id == 25245 then
-    --             sampSendDialogResponse(25245, 1, 1, nil) sampSendDialogResponse(25245, 0, 0, nil)
-    --         --end
-
-    --         sampSendDialogResponse(25245, 0, 0, nil)
-    --         sampSendDialogResponse(25182, 0, 0, nil)
-    --         wait(1000)
-
-    --         setVirtualKeyDown(VK_ESCAPE, true) -- зажать клавишу
-    --         wait(100)
-    --         setVirtualKeyDown(VK_ESCAPE, false) -- отжать клавишу   
-    --     end)
-    --         return 
-    --     end
-    --     fm = false
-    -- end
-
     if start_sobes then
         if id == 1214 then
             sampSendDialogResponse(1214, 1, 7, nil)
