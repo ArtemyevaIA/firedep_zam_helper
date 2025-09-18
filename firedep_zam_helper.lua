@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.17.09.A7")
+script_version("Ver.18.09.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -38,6 +38,7 @@ local config = {}
 local docs, inspect, img, inspect_1, inspect_2, inspect_3, inspect_4, inspect_5 = '','','','','', '', '', ''
 local cnt_org, showorgs, showorg, isGoing = 0, true, true, true
 local fm = false
+local tlg_send = false
 
 local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
@@ -52,10 +53,10 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}10. {87CEFA}Добавлена команда {FFD700}/stime {87CEFA}для сверки часового пояса.'..
                     '\n\t{00BFFF}11. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
                     '\n\t{00BFFF}12. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
+                    '\n\t{00BFFF}13. {87CEFA}Исправлена ошибка быстрым собеседованием.'..
+                    '\n\t{00BFFF}14. {FFD700}/ftime {87CEFA} Показывает статистику заработка за прошедший пожар.'..
                     '\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка быстрым собеседованием.'..
-                    '\n\t{00BFFF}2. {FFD700}/ftime {87CEFA} Показывает статистику заработка за прошедший пожар.'..
-                    '\n\t{00BFFF}3. {87CEFA}Добавлена команда {FFD700}/fm {87CEFA}для быстрого сбора все битков с ферм (если есть флешка майнера).'..
+                    '\n\t{00BFFF}14. {87CEFA} Добавлена сервисная функция подключения оповещения и статистики PAYDAY в телеграм.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).'..
@@ -109,6 +110,18 @@ function main()
     who_nick = sampGetPlayerNickname(who_id)
     autor = nick:match('(.)')..'.'..string.gsub(nick, "(.+)_", "")
 
+    local check_client = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM clients WHERE nick = '"..who_nick.."'"))
+    local cnt_client = check_client:fetch({}, "a")
+    if cnt_client['cnt'] == '0' then
+        sampAddChatMessage('Клиент не был найден в базе данных. Вносим: {ffbf00}'..who_nick, -1)
+        assert(conn:execute("INSERT INTO clients (nick, tlg_id) VALUES ('"..who_nick.."', '0')"))
+    else
+        local client = assert(conn:execute("SELECT * FROM clients WHERE nick = '"..who_nick.."'"))
+        local row = client:fetch({}, "a")
+        tlg_id = row['tlg_id']
+        if tlg_id ~= '0' then tlg_send = true end
+    end
+
 
     sampAddChatMessage('', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
@@ -143,7 +156,7 @@ function main()
     sampRegisterChatCommand("del", delorg)
     sampRegisterChatCommand("cho", switchMod)
     sampRegisterChatCommand("coc", coc)
-    sampRegisterChatCommand("fm", function() fm = true sampProcessChatInput('/flashminer', -1) end)
+    --sampRegisterChatCommand("fm", function() fm = true sampProcessChatInput('/flashminer', -1) end)
             
     while true do wait(0)
 
@@ -3859,9 +3872,34 @@ function main()
                 end
 
                 -----------------------------------------------------------------------------------
+                -- PAYDAY в телеграм --------------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 5 then
+                    if tlg_send then
+                        tlg_send = false
+                        assert(conn:execute("UPDATE clients SET tlg_id = 0 WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Уведомление в телеграм о получении PAYDAY {FFA07A}выключено.', 0x90EE90)
+                    else
+                        idtlg()
+                        while sampIsDialogActive(3000) do wait(100) end
+                        local result, button, _, input = sampHasDialogRespond(3000)
+
+                        if button == 1 then
+                            tlg_send = true
+                            tlg_id = input
+                            assert(conn:execute("UPDATE clients SET tlg_id = '"..tlg_id.."' WHERE nick = '"..who_nick.."'"))
+                            sampAddChatMessage('{90EE90}Уведомление в телеграм о получении PAYDAY {7CFC00}включено..', 0x90EE90)
+                            sampAddChatMessage('{90EE90}Уведомления будут приходить по {ffa000}id'..tlg_id, 0x90EE90)
+                        end
+
+                    end
+                    zammenu()
+                end
+
+                -----------------------------------------------------------------------------------
                 -- Быстрое восстановление льготы +10% ---------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 6 then
+                if button == 1 and list == 7 then
                     sampProcessChatInput('/r Уважаемые сотрудники, прошу минуточку внимания...',-1)
                     wait(1000)
                     sampProcessChatInput('/r Я хочу напомнить вам о том, что спать в раздевалке...',-1)
@@ -3906,7 +3944,7 @@ function main()
                 -----------------------------------------------------------------------------------
                 -- Описание и возможности ---------------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 8 then
+                if button == 1 and list == 9 then
                     sampShowDialog(0, "{FFA500}FAQ по работе с хелпером", "{ffa000}Доступные команды:"..
                         "\n\t{7CFC00}/zam {7FFFD4}- Открыть хеплер руководителя пожарного департамента"..
                         "\n\t{7CFC00}/ftime {7FFFD4}- Посмотреть время следующего пожара"..
@@ -3946,19 +3984,11 @@ end
 
 function zammenu_service()
     
-    if afk then
-        afk_status = '{00FF7F}[Включен]'
-    else
-        afk_status = '{FFA07A}[Выключен]'
-    end
+    if afk then afk_status = '{00FF7F}[Включен]' else afk_status = '{FFA07A}[Выключен]' end
+    if fd_helper then fd_helper_status = '{00FF7F}[Включен]' else fd_helper_status = '{FFA07A}[Выключен]' end
+    if tlg_send then tlg_status = '{00FF7F}[Подключен]' else tlg_status = '{FFA07A}[Не подключен]' end
 
-    if fd_helper then
-        fd_helper_status = '{00FF7F}[Включен]'
-    else
-        fd_helper_status = '{FFA07A}[Выключен]'
-    end
-
-    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\n \nРежим AFK до конца РД "..afk_status.."\nХелпер пожарника "..fd_helper_status.."\n \n{ffa000}[+10%] {FFFFFF}Быстрое восстановление льготы\n \n{7FFFD4}[FAQ] Описание и возможности", 'Выбрать', 'Назад', 2)
+    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\n \nРежим AFK до конца РД "..afk_status.."\nХелпер пожарника "..fd_helper_status.."\nPAYDAY в телеграм "..tlg_status.."\n \n{ffa000}[+10%] {FFFFFF}Быстрое восстановление льготы\n \n{7FFFD4}[FAQ] Описание и возможности", 'Выбрать', 'Назад', 2)
 end
 
 function zammenu()
@@ -3991,6 +4021,10 @@ end
 
 function inputid()
     sampShowDialog(2001, "{FFA500}Id игрока для взаимодействия", "Введите id игрока", "Ввести", "Отмена", 1)
+end
+
+function idtlg()
+    sampShowDialog(3000, "{FFA500}Подключение PAYDAY в телегу", "{7ce9b1}Введите свой id телеграмм.\nКаждый PAYDAY Вам будет приходить статистика заработка.\n\nПосле того, как Вы укажете свой id, \nнапишите что-нибудь боту {FFA500}@longamesbot {7ce9b1}в телеграмме для активации.", "Ввести", "Отмена", 1)
 end
 
 function invitereason()
@@ -4076,7 +4110,6 @@ end
 function inputmsg()
     sampShowDialog(2022, "{00EAFF}Отправить сообщение ВК", "Введите сообщение для отправки: ", "Отправить", "Отмена", 1)
 end
-
 function trst(name)
 if name:match('%a+') then
         for k, v in pairs(trstl1) do
@@ -4095,15 +4128,15 @@ local nick = ''
 local id = ''
 
 function sampev.onServerMessage(color, text)
-    if text:find('__________Банковский чек__________') then
+    if tlg_send and text:find('__________Банковский чек__________') then
         parse = true
         message = (text:gsub("_", "")..'\n')
-    elseif text:find('__________________________________') then
+    elseif tlg_send and text:find('__________________________________') then
         parse = false
         img = 'https://jobers.ru/wp-content/uploads/2024/02/d83cdef6bb49668eee2b55c4f6af1a42.png'
         sendTelegramPhoto(img, message)
         message = ''
-    elseif parse then           
+    elseif tlg_send and parse then           
         message = ('%s\n%s'):format(message, text)
         message = message:gsub("{......}", "")
     end
@@ -4425,119 +4458,56 @@ end
 
 function sampev.onShowDialog(id, style, title, button1, button2, text)
     
-    if fm then
-        if id == 7238 then
-            lua_thread.create(function()
-            sampSendDialogResponse(7238, 1, 0, nil)
+    -- if fm then
+    --     if id == 7238 then
+    --         lua_thread.create(function()
+    --         sampSendDialogResponse(7238, 1, 0, nil)
 
-            sampSendDialogResponse(25182, 1, 1, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
+    --         ----------------------------------------
+    --         -- Стойка №1 ---------------------------
+    --         -- Видеокарта №1 -----------------------
+    --         ----------------------------------------
+    --         sampSendDialogResponse(25182, 1, 1, nil)
+    --         --if id == 25245 then
+    --             sampSendDialogResponse(25245, 1, 1, nil) sampSendDialogResponse(25245, 0, 0, nil)
+    --         --end
             
-            sampSendDialogResponse(25182, 1, 2, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
+    --         ----------------------------------------
+    --         -- Видеокарта №2 -----------------------
+    --         ----------------------------------------
+    --         sampSendDialogResponse(25182, 1, 2, nil)
+    --         --if id == 25245 then
+    --             sampSendDialogResponse(25245, 1, 1, nil) sampSendDialogResponse(25245, 0, 0, nil)
+    --         --end
             
-            sampSendDialogResponse(25182, 1, 3, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
+    --         ----------------------------------------
+    --         -- Видеокарта №3 -----------------------
+    --         ----------------------------------------
+    --         sampSendDialogResponse(25182, 1, 3, nil)
+    --         --if id == 25245 then
+    --             sampSendDialogResponse(25245, 1, 1, nil) sampSendDialogResponse(25245, 0, 0, nil)
+    --         --end
             
-            sampSendDialogResponse(25182, 1, 4, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            
-            wait(1000)
+    --         ----------------------------------------
+    --         -- Видеокарта №4 -----------------------
+    --         ----------------------------------------
+    --         sampSendDialogResponse(25182, 1, 4, nil)
+    --         --if id == 25245 then
+    --             sampSendDialogResponse(25245, 1, 1, nil) sampSendDialogResponse(25245, 0, 0, nil)
+    --         --end
 
-            sampSendDialogResponse(25182, 1, 7, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            
-            sampSendDialogResponse(25182, 1, 8, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            
-            sampSendDialogResponse(25182, 1, 9, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            
-            sampSendDialogResponse(25182, 1, 10, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
+    --         sampSendDialogResponse(25245, 0, 0, nil)
+    --         sampSendDialogResponse(25182, 0, 0, nil)
+    --         wait(1000)
 
-            wait(1000)
-            
-            sampSendDialogResponse(25182, 1, 13, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            sampSendDialogResponse(25182, 1, 14, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            sampSendDialogResponse(25182, 1, 15, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            sampSendDialogResponse(25182, 1, 16, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            wait(1000)
-            
-            sampSendDialogResponse(25182, 1, 19, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            sampSendDialogResponse(25182, 1, 20, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            sampSendDialogResponse(25182, 1, 21, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            sampSendDialogResponse(25182, 1, 22, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            wait(1000)
-            
-            sampSendDialogResponse(25182, 1, 25, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            sampSendDialogResponse(25182, 1, 26, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            sampSendDialogResponse(25182, 1, 27, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            sampSendDialogResponse(25182, 1, 28, nil)
-            sampSendDialogResponse(25245, 1, 1, nil)
-            sampSendDialogResponse(25245, 0, 0, nil)
-            sampSendDialogResponse(25182, 0, 0, nil)
-
-            setVirtualKeyDown(VK_ESCAPE, true) -- зажать клавишу
-            wait(100)
-            setVirtualKeyDown(VK_ESCAPE, false) -- отжать клавишу   
-        end)
-            return 
-        end
-        fm = false
-    end
+    --         setVirtualKeyDown(VK_ESCAPE, true) -- зажать клавишу
+    --         wait(100)
+    --         setVirtualKeyDown(VK_ESCAPE, false) -- отжать клавишу   
+    --     end)
+    --         return 
+    --     end
+    --     fm = false
+    -- end
 
     if start_sobes then
         if id == 1214 then
@@ -4836,6 +4806,6 @@ function sendTelegramPhoto(img, msg) -- функция для отправки сообщения юзеру
    msg = msg:gsub('{......}', '') --тут типо убираем цвет
    msg = encodeUrl(msg) -- ну тут мы закодируем строку
    token = '8059436647:AAFSZNM3lfxxJ5E2jFkE_D_N9iWlLdBD-ss'
-   id = '5700686218'
-   async_http_request('https://api.telegram.org/bot'..token..'/sendPhoto?chat_id='..id..'&caption='..msg,'&photo='..img..'', function(result) end) -- а тут уже отправка
+   --id = '5700686218'
+   async_http_request('https://api.telegram.org/bot'..token..'/sendPhoto?chat_id='..tlg_id..'&caption='..msg,'&photo='..img..'', function(result) end) -- а тут уже отправка
 end
