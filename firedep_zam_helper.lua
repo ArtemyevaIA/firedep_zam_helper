@@ -39,6 +39,7 @@ local docs, inspect, img, inspect_1, inspect_2, inspect_3, inspect_4, inspect_5 
 local cnt_org, showorgs, showorg, isGoing = 0, true, true, true
 local fm = false
 local tlg_send = false
+local flashminer = false
 
 local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
@@ -54,9 +55,12 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}11. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
                     '\n\t{00BFFF}12. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
                     '\n\t{00BFFF}13. {87CEFA}Исправлена ошибка быстрым собеседованием.'..
-                    '\n\t{00BFFF}14. {FFD700}/ftime {87CEFA} Показывает статистику заработка за прошедший пожар.'..
                     '\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}14. {87CEFA} Добавлена сервисная функция подключения оповещения и статистики PAYDAY в телеграм.'..
+                    '\n\t{00BFFF}1. {FFD700}/ftime {87CEFA}теперь показывает общую статистику заработка и доход за прошедний пожар.'..
+                    '\n\t{00BFFF}2. {87CEFA}В сервисном меню появилась развернутая статистика по пожарам.'..
+                    '\n\t{00BFFF}3. {87CEFA}Добавлена команда {FFD700}/fclean {87CEFA}для обнуления статистики по пожарам.'..
+                    '\n\t{00BFFF}4. {87CEFA}Добавлена сервисная функция подключения оповещения и статистики PAYDAY в телеграм.'..
+                    '\n\t{00BFFF}5. {87CEFA}Если у Вас есть манинг ферма и флешка майнера, то по команде {FFD700}/fmn {87CEFA}Вы сможете собрать сразу все битки.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).'..
@@ -113,11 +117,15 @@ function main()
     local check_client = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM clients WHERE nick = '"..who_nick.."'"))
     local cnt_client = check_client:fetch({}, "a")
     if cnt_client['cnt'] == '0' then
+        sampAddChatMessage('Клиент не был найден в базе данных. Вносим: {ffbf00}'..who_nick, -1)
         assert(conn:execute("INSERT INTO clients (nick, tlg_id) VALUES ('"..who_nick.."', '0')"))
+        assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
-        local client = assert(conn:execute("SELECT * FROM clients WHERE nick = '"..who_nick.."'"))
+        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats from clients c join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
         local row = client:fetch({}, "a")
         tlg_id = row['tlg_id']
+        give = row['give']
+        stats = row['stats']
         if tlg_id ~= '0' then tlg_send = true end
     end
 
@@ -135,6 +143,15 @@ function main()
     sampRegisterChatCommand('ftime', function() 
         sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4) 
         sampAddChatMessage('{7FFFD4}Заработано за предыдущий пожар: {FFFFFF}$'..give.. ' ['..string.format("%2.1f", give/1000000)..'М]', 0x7FFFD4)
+        sampAddChatMessage('{7FFFD4}Заработано за всё время: {FFFFFF}$'..stats.. ' ['..string.format("%2.1f", stats/1000000)..'М]', 0x7FFFD4)
+        sampAddChatMessage('{20B2AA}Для очистки статистики введите {E9967A}/fclean', 0x20B2AA) 
+
+    end)
+    sampRegisterChatCommand('fclean', function()
+        sampAddChatMessage('{E9967A}Статистика заработка была очищена.', 0xE9967A) 
+        give = 0
+        stats = 0
+        assert(conn:execute("UPDATE firehelp SET give = 0, stats = 0 WHERE nick = '"..who_nick.."'"))
     end)
 
     sampRegisterChatCommand('afk', function()
@@ -155,7 +172,27 @@ function main()
     sampRegisterChatCommand("del", delorg)
     sampRegisterChatCommand("cho", switchMod)
     sampRegisterChatCommand("coc", coc)
-    --sampRegisterChatCommand("fm", function() fm = true sampProcessChatInput('/flashminer', -1) end)
+    sampRegisterChatCommand("fmn", flashmine)
+    sampRegisterChatCommand("1", function() lvl = 1 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('1', '"..x.."','"..y.."','"..z.."')")) end)
+    sampRegisterChatCommand("2", function() lvl = 2 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('2', '"..x.."','"..y.."','"..z.."')")) end)
+    sampRegisterChatCommand("3", function() lvl = 3 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('3', '"..x.."','"..y.."','"..z.."')")) end)
+    
+    -- sampRegisterChatCommand("tt", function() 
+    --     count = 0
+    --     local fires_list = {{0,1,2},{3,4,5}}
+    --     for _ in pairs(fires_list) do 
+    --         count = count + 1
+    --         sampAddChatMessage('Координата: '..count.." X: "..fires_list[count][1].." Y: "..fires_list[count][2].." Z: "..fires_list[count][3], -255)
+    --     end
+
+    --     -- local x,y,z = getCharCoordinates(PLAYER_PED)
+    --     -- local dist = getDistanceBetweenCoords3d(x, y, z, -1295.7589, -66.9884, 18.2803)
+    --     -- if dist <=100 then
+    --     --     sampAddChatMessage('Вы находитесь возле точки.', -255)
+    --     --     sampAddChatMessage(dist, -255)
+    --     -- end
+
+    -- end)
             
     while true do wait(0)
 
@@ -3887,7 +3924,7 @@ function main()
                             tlg_send = true
                             tlg_id = input
                             assert(conn:execute("UPDATE clients SET tlg_id = '"..tlg_id.."' WHERE nick = '"..who_nick.."'"))
-                            sampAddChatMessage('{90EE90}Уведомление в телеграм о получении PAYDAY {7CFC00}включено..', 0x90EE90)
+                            sampAddChatMessage('{90EE90}Уведомление в телеграм о получении PAYDAY {7CFC00}включено.', 0x90EE90)
                             sampAddChatMessage('{90EE90}Уведомления будут приходить по {ffa000}id'..tlg_id, 0x90EE90)
                         end
 
@@ -3941,9 +3978,38 @@ function main()
                 end
 
                 -----------------------------------------------------------------------------------
+                -- Развернутая статистика по пожарам ----------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 8 then
+                    local give_firestats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' ORDER by id ASC LIMIT 20"))
+                    local row = give_firestats:fetch({}, "a")
+                    local list = ''
+                    local cnt = 0
+                    
+                    while row do
+                        cnt = cnt+1
+
+                        if row.lvl == '0' then lvl_fire = ('{FFFFFF}'..row.lvl..' cтепени{20B2AA}') end
+                        if row.lvl == '1' then lvl_fire = ('{FFA500}'..row.lvl..' cтепени{20B2AA}') end
+                        if row.lvl == '2' then lvl_fire = ('{FF7F50}'..row.lvl..' cтепени{20B2AA}') end
+                        if row.lvl == '3' then lvl_fire = ('{CD5C5C}'..row.lvl..' cтепени{20B2AA}') end
+
+                        list = "{20B2AA}Пожар в "..row.time_start..' '..lvl_fire..' потушен в '..row.time_end..'. Доход: {F0E68C}+ $'..give.. ' ['..string.format("%2.1f", give/1000000)..'М]'..'\n'..list
+                        row = give_firestats:fetch({}, "a")
+                    end
+
+                    sampShowDialog(0, "{FFA500}Статистика по пожарам", "{d5a044}Заработано за последний пожар: {FFFFFF}+ $"..give.. " ["..string.format("%2.1f", give/1000000).."М]"..
+                                                                       "\n{d5a044}Заработано всего: {FFFFFF}$"..stats.. " ["..string.format("%2.1f", stats/1000000).."М]"..
+                                                                       "\n"..
+                                                                       "\n{40E0D0}Статистика за последние 20 пожаров:"..
+                                                                       "\n"..list, 
+                                      "Закрыть", "")
+                end
+
+                -----------------------------------------------------------------------------------
                 -- Описание и возможности ---------------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 9 then
+                if button == 1 and list == 10 then
                     sampShowDialog(0, "{FFA500}FAQ по работе с хелпером", "{ffa000}Доступные команды:"..
                         "\n\t{7CFC00}/zam {7FFFD4}- Открыть хеплер руководителя пожарного департамента"..
                         "\n\t{7CFC00}/ftime {7FFFD4}- Посмотреть время следующего пожара"..
@@ -3987,7 +4053,17 @@ function zammenu_service()
     if fd_helper then fd_helper_status = '{00FF7F}[Включен]' else fd_helper_status = '{FFA07A}[Выключен]' end
     if tlg_send then tlg_status = '{00FF7F}[Подключен]' else tlg_status = '{FFA07A}[Не подключен]' end
 
-    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную\nСписок изменений в обновлении {7CFC00}"..thisScript().version.."\n \nРежим AFK до конца РД "..afk_status.."\nХелпер пожарника "..fd_helper_status.."\nPAYDAY в телеграм "..tlg_status.."\n \n{ffa000}[+10%] {FFFFFF}Быстрое восстановление льготы\n \n{7FFFD4}[FAQ] Описание и возможности", 'Выбрать', 'Назад', 2)
+    sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную"..
+                                           "\nСписок изменений в обновлении {7CFC00}"..thisScript().version..
+                                           "\n "..
+                                           "\nРежим AFK до конца РД "..afk_status..
+                                           "\nХелпер пожарника "..fd_helper_status..
+                                           "\nPAYDAY в телеграм "..tlg_status..
+                                           "\n "..
+                                           "\n{ffa000}[+10%] {FFFFFF}Быстрое восстановление льготы"..
+                                           "\n{FFE4B5}Развернутая статистика по пожарам"..
+                                           "\n "..
+                                           "\n{7FFFD4}[FAQ] Описание и возможности", 'Выбрать', 'Назад', 2)
 end
 
 function zammenu()
@@ -4158,12 +4234,6 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    -- if text:find("(.+)дайдайдай") then
-    --     lua_thread.create(function()
-    --         sampProcessChatInput('/pay Irin_Crown 1000000', -1)
-    --     end)
-    -- end
-
     if text:find("(.+)Update.Ver") then
         lua_thread.create(function()
             local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
@@ -4216,31 +4286,36 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if fd_find_fire and fd_helper and text:find("Вы прибыли на место пожара") then
+    -- if fd_find_fire and fd_helper and text:find("Вы прибыли на место пожара") then
+    if text:find("Вы прибыли на место пожара") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': прыбыл на место происшествия.',-1)
         end)
     end
 
-    if fd_find_fire and fd_helper and text:find("Отнесите пострадавшего в палатку") then
+    -- if fd_find_fire and fd_helper and text:find("Отнесите пострадавшего в палатку") then
+    if fd_helper and text:find("Отнесите пострадавшего в палатку") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': оказываю помощь пострадавшему.',-1)
         end)
     end
 
-    if fd_find_fire and fd_helper and text:find("Отлично! Вы спасли пострадавшего!") then
+    -- if fd_find_fire and fd_helper and text:find("Отлично! Вы спасли пострадавшего!") then
+    if fd_helper and text:find("Отлично! Вы спасли пострадавшего!") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': пострадавшему оказана первая помощь.',-1)
         end)
     end
 
-    if fd_find_fire and fd_helper and text:find("Все очаги возгорания ликвидированы.") then
+    -- if fd_find_fire and fd_helper and text:find("Все очаги возгорания ликвидированы.") then
+    if fd_helper and text:find("Все очаги возгорания ликвидированы.") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': все очаги возгарания ликвидированы.',-1)
         end)
     end
 
-    if fd_find_fire and fd_helper and text:find("Вы заработали на происшествие {90EE90}$(%d+)") then
+    -- if fd_find_fire and fd_helper and text:find("Вы заработали на происшествие {90EE90}$(%d+)") then
+    if fd_helper and text:find("Вы заработали на происшествие {90EE90}$(%d+)") then
         lua_thread.create(function()
             wait(1000)
             sampProcessChatInput('/r Докладывает '..nick_fire..': пожар успешно ликвидирован. Возвращаюсь на базу.',-1)
@@ -4255,6 +4330,11 @@ function sampev.onServerMessage(color, text)
             sampProcessChatInput('/time',-1)
             sampShowDialog(0, "{FFA500}Завершение пожара", "{8eeaf0}Пожар {d54447}" ..lvl.. " степени {8eeaf0}был ликвидирован.\n\n{8eeaf0}Время начала: {d5a044}" ..time_fire.. "\n{8eeaf0}Время ликвидации: {d5a044}" ..time_end.. "\n{8eeaf0}Доход: {d5a044}+ $"..give.. " ["..string.format("%2.1f", give/1000000).."М]", "Закрыть", "", DIALOG_STYLE_MSGBOX)
             fd_find_fire = false
+
+            assert(conn:execute("INSERT INTO firehelp_history (lvl, nick, give, time_start, time_end) VALUES ('"..lvl.."', '"..who_nick.."', '"..give.."', '"..time_fire.."', '"..time_end.."')"))
+            assert(conn:execute("UPDATE firehelp SET give = '"..give.."', stats = stats+'"..give.."' WHERE nick = '"..who_nick.."'"))
+            stats = stats+give
+
         end)
     end
 
@@ -4807,4 +4887,75 @@ function sendTelegramPhoto(img, msg) -- функция для отправки сообщения юзеру
    token = '8059436647:AAFSZNM3lfxxJ5E2jFkE_D_N9iWlLdBD-ss'
    --id = '5700686218'
    async_http_request('https://api.telegram.org/bot'..token..'/sendPhoto?chat_id='..tlg_id..'&caption='..msg,'&photo='..img..'', function(result) end) -- а тут уже отправка
+end
+
+function flashmine ()
+    flashminer = true 
+    sampAddChatMessage('Начинаю собирать биткойны', -255)
+    sampProcessChatInput('/flashminer', -1)
+
+    function sampev.onShowDialog(id, style, title, button1, button2, text)
+        
+        if flashminer then
+            if id == 7238 then
+                lua_thread.create(function()
+                    wait(2000)
+                    sampSendDialogResponse(7238, 1, 0, nil)
+                    
+                        ----------------------------------------
+                        -- Стойка №1 ---------------------------
+                        -- Видеокарта №1-4 ---------------------
+                        ----------------------------------------
+                        wait(100) sampSendDialogResponse(25182, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 2, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 3, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 4, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                        ----------------------------------------
+                        -- Стойка №2 ---------------------------
+                        -- Видеокарта №5-8 ---------------------
+                        ----------------------------------------
+                        wait(100) sampSendDialogResponse(25182, 1, 7, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 8, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 9, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 10, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                        ----------------------------------------
+                        -- Стойка №3 ---------------------------
+                        -- Видеокарта №9-12 --------------------
+                        ----------------------------------------
+                        wait(100) sampSendDialogResponse(25182, 1, 13, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 14, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 15, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 16, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                        ----------------------------------------
+                        -- Стойка №4 ---------------------------
+                        -- Видеокарта №13-16 -------------------
+                        ----------------------------------------
+                        wait(100) sampSendDialogResponse(25182, 1, 19, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 20, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 21, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 22, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        
+                        ----------------------------------------
+                        -- Стойка №5 ---------------------------
+                        -- Видеокарта №17-20 -------------------
+                        ----------------------------------------
+                        wait(100) sampSendDialogResponse(25182, 1, 25, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 26, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 27, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                        wait(100) sampSendDialogResponse(25182, 1, 28, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                        -- закрытие
+                        wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
+                        wait(1000) sampSendDialogResponse(7238, 0, 0, nil)
+                        wait(500) setVirtualKeyDown(VK_ESCAPE, true)
+                        wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+                end)
+                return 
+            end
+            flashminer = false
+        end
+    end
 end
