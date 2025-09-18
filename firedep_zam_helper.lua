@@ -113,7 +113,6 @@ function main()
     local check_client = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM clients WHERE nick = '"..who_nick.."'"))
     local cnt_client = check_client:fetch({}, "a")
     if cnt_client['cnt'] == '0' then
-        sampAddChatMessage('Клиент не был найден в базе данных. Вносим: {ffbf00}'..who_nick, -1)
         assert(conn:execute("INSERT INTO clients (nick, tlg_id) VALUES ('"..who_nick.."', '0')"))
     else
         local client = assert(conn:execute("SELECT * FROM clients WHERE nick = '"..who_nick.."'"))
