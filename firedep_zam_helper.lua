@@ -3994,7 +3994,7 @@ function main()
                         if row.lvl == '2' then lvl_fire = ('{FF7F50}'..row.lvl..' cтепени{20B2AA}') end
                         if row.lvl == '3' then lvl_fire = ('{CD5C5C}'..row.lvl..' cтепени{20B2AA}') end
 
-                        list = "{20B2AA}Пожар в "..row.time_start..' '..lvl_fire..' потушен в '..row.time_end..'. Доход: {F0E68C}+ $'..give.. ' ['..string.format("%2.1f", give/1000000)..'М]'..'\n'..list
+                        list = "{20B2AA}Пожар в "..row.time_start..' '..lvl_fire..' потушен в '..row.time_end..'. Доход: {F0E68C}+ $'..row.give.. ' ['..string.format("%2.1f", row.give/1000000)..'М]'..'\n'..list
                         row = give_firestats:fetch({}, "a")
                     end
 
