@@ -1,7 +1,6 @@
 script_name("firedep_zam_helper")
 script_version("Ver.18.09.A5")
 
-
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
 
@@ -4593,6 +4592,68 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
             return false -- Убираем рисовку окон
         end
     end
+
+    if flashminer then
+        if id == 7238 then
+            lua_thread.create(function()
+                wait(2000)
+                sampSendDialogResponse(7238, 1, 0, nil)
+                
+                    ----------------------------------------
+                    -- Стойка №1 ---------------------------
+                    -- Видеокарта №1-4 ---------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 2, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 3, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 4, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    ----------------------------------------
+                    -- Стойка №2 ---------------------------
+                    -- Видеокарта №5-8 ---------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 7, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 8, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 9, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 10, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    ----------------------------------------
+                    -- Стойка №3 ---------------------------
+                    -- Видеокарта №9-12 --------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 13, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 14, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 15, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 16, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    ----------------------------------------
+                    -- Стойка №4 ---------------------------
+                    -- Видеокарта №13-16 -------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 19, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 20, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 21, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 22, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    
+                    ----------------------------------------
+                    -- Стойка №5 ---------------------------
+                    -- Видеокарта №17-20 -------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 25, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 26, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 27, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 28, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    -- закрытие
+                    wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
+                    wait(1000) sampSendDialogResponse(7238, 0, 0, nil)
+                    wait(500) setVirtualKeyDown(VK_ESCAPE, true)
+                    wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+            end)
+            return 
+        end
+        flashminer = false
+    end
 end
 
 function encodeUrl(str)
@@ -4864,69 +4925,4 @@ function flashmine ()
     flashminer = true 
     sampAddChatMessage('Начинаю собирать биткойны', -255)
     sampProcessChatInput('/flashminer', -1)
-
-    function sampev.onShowDialog(id, style, title, button1, button2, text)
-        
-        if flashminer then
-            if id == 7238 then
-                lua_thread.create(function()
-                    wait(2000)
-                    sampSendDialogResponse(7238, 1, 0, nil)
-                    
-                        ----------------------------------------
-                        -- Стойка №1 ---------------------------
-                        -- Видеокарта №1-4 ---------------------
-                        ----------------------------------------
-                        wait(100) sampSendDialogResponse(25182, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 2, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 3, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 4, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-
-                        ----------------------------------------
-                        -- Стойка №2 ---------------------------
-                        -- Видеокарта №5-8 ---------------------
-                        ----------------------------------------
-                        wait(100) sampSendDialogResponse(25182, 1, 7, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 8, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 9, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 10, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-
-                        ----------------------------------------
-                        -- Стойка №3 ---------------------------
-                        -- Видеокарта №9-12 --------------------
-                        ----------------------------------------
-                        wait(100) sampSendDialogResponse(25182, 1, 13, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 14, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 15, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 16, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-
-                        ----------------------------------------
-                        -- Стойка №4 ---------------------------
-                        -- Видеокарта №13-16 -------------------
-                        ----------------------------------------
-                        wait(100) sampSendDialogResponse(25182, 1, 19, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 20, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 21, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 22, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        
-                        ----------------------------------------
-                        -- Стойка №5 ---------------------------
-                        -- Видеокарта №17-20 -------------------
-                        ----------------------------------------
-                        wait(100) sampSendDialogResponse(25182, 1, 25, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 26, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 27, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-                        wait(100) sampSendDialogResponse(25182, 1, 28, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-
-                        -- закрытие
-                        wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
-                        wait(1000) sampSendDialogResponse(7238, 0, 0, nil)
-                        wait(500) setVirtualKeyDown(VK_ESCAPE, true)
-                        wait(100) setVirtualKeyDown(VK_ESCAPE, false)
-                end)
-                return 
-            end
-            flashminer = false
-        end
-    end
 end
