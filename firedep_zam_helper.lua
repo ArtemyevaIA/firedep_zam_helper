@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.18.09.A5")
+script_version("Ver.19.09.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -41,7 +41,17 @@ local fm = false
 local tlg_send = false
 local flashminer = false
 
-local update_list = ('{FA8072}Ver.12.09.A3'..
+local fires_list = {{1105.5765, 1884.7687, 11.0221, 2},
+                    {1642.4234, 2180.4091, 11.0258, 1},
+                    {-2427.1535, 39.5095, 35.2162, 1},
+                    {89.8577, -262.6102, 1.7802, 3},
+                    {370.7560, -1990.4370, 7.8739, 2},
+                    {514.8258, -1411.5212, 16.1686, 1},
+                    {370.7560, -1990.4370, 7.8739, 2},
+                    {2316.7211, -1749.2310, 13.5672, 2},
+                    {-100.9319, -55.0312, 3.1171, 2}}
+
+local update_list = ('{FA8072}Ver.18.09.A5'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
                     '\n\t{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.'..
                     '\n\t{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.'..
@@ -55,16 +65,17 @@ local update_list = ('{FA8072}Ver.12.09.A3'..
                     '\n\t{00BFFF}11. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
                     '\n\t{00BFFF}12. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
                     '\n\t{00BFFF}13. {87CEFA}Исправлена ошибка быстрым собеседованием.'..
-                    '\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {FFD700}/ftime {87CEFA}теперь показывает общую статистику заработка и доход за прошедний пожар.'..
                     '\n\t{00BFFF}2. {87CEFA}В сервисном меню появилась развернутая статистика по пожарам.'..
                     '\n\t{00BFFF}3. {87CEFA}Добавлена команда {FFD700}/fclean {87CEFA}для обнуления статистики по пожарам.'..
                     '\n\t{00BFFF}4. {87CEFA}Добавлена сервисная функция подключения оповещения и статистики PAYDAY в телеграм.'..
                     '\n\t{00BFFF}5. {87CEFA}Если у Вас есть манинг ферма и флешка майнера, то по команде {FFD700}/fmn {87CEFA}Вы сможете собрать сразу все битки.'..
+                    '\n{7CFC00}'..thisScript().version..
+                    '\n\t{00BFFF}1. {87CEFA}Дополнены пункты статистики за пожары.'..
+                    '\n\t{00BFFF}2. {87CEFA}Подключен сбор данных степеней пожаров по прибытию на пожар.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
-                    '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).'..
-                    '\n\t{00BFFF}3. {87CEFA}Добавить пункт благодарность разработчику.')
+                    '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
 local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
@@ -73,14 +84,14 @@ local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,
 function main()
     if not isSampfuncsLoaded() or not isSampLoaded() then return end
 
-    -- if updater_loaded then
-    --     autoupdate_loaded, Update = pcall(Updater)
-    --     if autoupdate_loaded then
-    --         Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
-    --         Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
-    --         Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
-    --     end
-    -- end
+    if updater_loaded then
+        autoupdate_loaded, Update = pcall(Updater)
+        if autoupdate_loaded then
+            Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
+            Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
+            Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
+        end
+    end
     
     local spisok_org=io.open(download,"r")
     if spisok_org~=nil then
@@ -152,6 +163,7 @@ function main()
         give = 0
         stats = 0
         assert(conn:execute("UPDATE firehelp SET give = 0, stats = 0 WHERE nick = '"..who_nick.."'"))
+        assert(conn:execute("UPDATE firehelp_history SET active = 0 WHERE nick = '"..who_nick.."'"))
     end)
 
     sampRegisterChatCommand('afk', function()
@@ -193,15 +205,8 @@ function main()
 
     -- end)
 
-    sampRegisterChatCommand("tt", function() 
+    sampRegisterChatCommand("fcor", function() 
         count = 0
-        local fires_list = {{1105.5765, 1884.7687, 11.0221, 2},
-                             {1642.4234, 2180.4091, 11.0258, 1},
-                             {-2427.1535, 39.5095, 35.2162, 1},
-                             {89.8577, -262.6102, 1.7802, 3},
-                             {370.7560, -1990.4370, 7.8739, 2},
-                             {514.8258, -1411.5212, 16.1686, 1}}
-
         local x,y,z = getCharCoordinates(PLAYER_PED)
         for _ in pairs(fires_list) do 
             count = count + 1
@@ -3999,10 +4004,32 @@ function main()
                 -- Развернутая статистика по пожарам ----------------------------------------------
                 -----------------------------------------------------------------------------------
                 if button == 1 and list == 8 then
-                    local give_firestats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' ORDER by id ASC LIMIT 20"))
-                    local row = give_firestats:fetch({}, "a")
                     local list = ''
                     local cnt = 0
+                    local week_stats = 0
+                    local day_stats = 0
+                    local week_number = os.date("%W")+1
+                    local day_number = os.date("%d")
+
+                    local give_firestats = assert(conn:execute("SELECT *, DATE_FORMAT(date, '%d.%m.%Y') AS date, WEEK(date,1) AS week FROM firehelp_history WHERE nick = '"..who_nick.."' AND active = 1 ORDER by id ASC LIMIT 20"))
+                    local row = give_firestats:fetch({}, "a")
+
+                    local give_day_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND DATE_FORMAT(date, '%d') = '"..day_number.."' AND active = 1"))
+                    local rown = give_day_stats:fetch({}, "a")
+
+                    local give_week_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1"))
+                    local rowt = give_week_stats:fetch({}, "a")
+
+                    while rowt do
+                        week_stats = week_stats + rowt.give
+                        rowt = give_week_stats:fetch({}, "a")
+                    end
+
+                    while rown do
+                        day_stats = day_stats + rown.give
+                        rown = give_day_stats:fetch({}, "a")
+                    end
+
                     
                     while row do
                         cnt = cnt+1
@@ -4012,14 +4039,19 @@ function main()
                         if row.lvl == '2' then lvl_fire = ('{FF7F50}'..row.lvl..' cтепени{20B2AA}') end
                         if row.lvl == '3' then lvl_fire = ('{CD5C5C}'..row.lvl..' cтепени{20B2AA}') end
 
-                        list = "{20B2AA}Пожар в "..row.time_start..' '..lvl_fire..' потушен в '..row.time_end..'. Доход: {F0E68C}+ $'..row.give.. ' ['..string.format("%2.1f", row.give/1000000)..'М]'..'\n'..list
+                        list = "{20B2AA}Пожар "..row.date.." в "..row.time_start..' '..lvl_fire..' {FFFFFF}| {20B2AA}Потушен в '..row.time_end..' {FFFFFF}| {20B2AA}Доход: {F0E68C}+$'..row.give.. ' ['..string.format("%2.1f", row.give/1000000)..'М]'..'\n'..list
                         row = give_firestats:fetch({}, "a")
                     end
 
-                    sampShowDialog(0, "{FFA500}Статистика по пожарам", "{d5a044}Заработано за последний пожар: {FFFFFF}+ $"..give.. " ["..string.format("%2.1f", give/1000000).."М]"..
-                                                                       "\n{d5a044}Заработано всего: {FFFFFF}$"..stats.. " ["..string.format("%2.1f", stats/1000000).."М]"..
+                    sampShowDialog(0, "{FFA500}Статистика по пожарам", "{d5a044}Заработано за последний пожар: {FFFFFF}+$"..give.. " ["..string.format("%2.1f", give/1000000).."М]"..
                                                                        "\n"..
-                                                                       "\n{40E0D0}Статистика за последние 20 пожаров:"..
+                                                                       "\n{d5a044}Заработано за сегодня: {FFFFFF}+$"..day_stats.. " ["..string.format("%2.1f", day_stats/1000000).."М] "..
+                                                                       "\n{d5a044}Заработано за неделю: {FFFFFF}+$"..week_stats.. " ["..string.format("%2.1f", week_stats/1000000).."М] "..
+                                                                       "\n{d5a044}Заработано всего: {FFFFFF}+$"..stats.. " ["..string.format("%2.1f", stats/1000000).."М]"..
+                                                                       "\n"..
+                                                                       "\n{d5a044}Для очистки всей статистики введите команду {FF6347}/fclean {E9967A}(вся статистика будет сброшена)"..
+                                                                       "\n"..
+                                                                       "\n{AFEEEE}Статистика за последние 20 пожаров:"..
                                                                        "\n"..list, 
                                       "Закрыть", "")
                 end
@@ -4312,6 +4344,15 @@ function sampev.onServerMessage(color, text)
 
             local x,y,z = getCharCoordinates(PLAYER_PED) 
             assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('"..lvl.."', '"..x.."','"..y.."','"..z.."')"))
+
+            count = 0
+            for _ in pairs(fires_list) do 
+                count = count + 1
+                dist = getDistanceBetweenCoords3d(x, y, z, fires_list[count][1], fires_list[count][2], fires_list[count][3])
+                if dist <= 100 then
+                    sampAddChatMessage("Вы прибыли на пожар "..fires_list[count][4].. " степени опасности", -255)
+                end
+            end
         end)
     end
 
@@ -4343,6 +4384,7 @@ function sampev.onServerMessage(color, text)
             sampProcessChatInput('/r Докладывает '..nick_fire..': пожар успешно ликвидирован. Возвращаюсь на базу.',-1)
             time_end = os.date('%H:%M:%S', os.time() - (UTC * 3600))
             give = text:match('Вы заработали на происшествие {90EE90}$(%d+)')
+            date = os.date('%Y-%m-%d')
             wait(2000)
             sampAddChatMessage('', 0x7FFFD4)
             sampAddChatMessage('{7FFFD4}Происшествие {DC143C}'..lvl..' степени {7FFFD4}ликвидировано', 0x7FFFD4)
@@ -4353,7 +4395,7 @@ function sampev.onServerMessage(color, text)
             sampShowDialog(0, "{FFA500}Завершение пожара", "{8eeaf0}Пожар {d54447}" ..lvl.. " степени {8eeaf0}был ликвидирован.\n\n{8eeaf0}Время начала: {d5a044}" ..time_fire.. "\n{8eeaf0}Время ликвидации: {d5a044}" ..time_end.. "\n{8eeaf0}Доход: {d5a044}+ $"..give.. " ["..string.format("%2.1f", give/1000000).."М]", "Закрыть", "", DIALOG_STYLE_MSGBOX)
             fd_find_fire = false
 
-            assert(conn:execute("INSERT INTO firehelp_history (lvl, nick, give, time_start, time_end) VALUES ('"..lvl.."', '"..who_nick.."', '"..give.."', '"..time_fire.."', '"..time_end.."')"))
+            assert(conn:execute("INSERT INTO firehelp_history (lvl, nick, give, time_start, time_end) VALUES ('"..lvl.."', '"..who_nick.."', '"..give.."', '"..time_fire.."', '"..time_end.."', '"..date.."')"))
             assert(conn:execute("UPDATE firehelp SET give = '"..give.."', stats = stats+'"..give.."' WHERE nick = '"..who_nick.."'"))
             stats = stats+give
 
