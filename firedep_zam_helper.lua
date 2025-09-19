@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.19.09.A1")
+script_version("Ver.19.09.A2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -40,16 +40,20 @@ local cnt_org, showorgs, showorg, isGoing = 0, true, true, true
 local fm = false
 local tlg_send = false
 local flashminer = false
+local fire_place = ''
 
-local fires_list = {{1105.5765, 1884.7687, 11.0221, 2},
+local fires_list = {
                     {1642.4234, 2180.4091, 11.0258, 1},
+                    {-871.1054, 1494.5131, 22.9384, 1},
                     {-2427.1535, 39.5095, 35.2162, 1},
-                    {89.8577, -262.6102, 1.7802, 3},
-                    {370.7560, -1990.4370, 7.8739, 2},
                     {514.8258, -1411.5212, 16.1686, 1},
+                    {1105.5765, 1884.7687, 11.0221, 2},
                     {370.7560, -1990.4370, 7.8739, 2},
                     {2316.7211, -1749.2310, 13.5672, 2},
-                    {-100.9319, -55.0312, 3.1171, 2}}
+                    {-100.9319, -55.0312, 3.1171, 2},
+                    {89.8577, -262.6102, 1.7802, 3},
+                    {2011.6634, -1954.3240, 13.7767, 3}
+                }
 
 local update_list = ('{FA8072}Ver.18.09.A5'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
@@ -152,11 +156,9 @@ function main()
     sampRegisterChatCommand('upd', upd)
     sampRegisterChatCommand('stime', stime)
     sampRegisterChatCommand('ftime', function() 
-        sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4) 
-        sampAddChatMessage('{7FFFD4}Заработано за предыдущий пожар: {FFFFFF}$'..give.. ' ['..string.format("%2.1f", give/1000000)..'М]', 0x7FFFD4)
-        sampAddChatMessage('{7FFFD4}Заработано за всё время: {FFFFFF}$'..stats.. ' ['..string.format("%2.1f", stats/1000000)..'М]', 0x7FFFD4)
-        sampAddChatMessage('{20B2AA}Для очистки статистики введите {E9967A}/fclean', 0x20B2AA) 
-
+        sampAddChatMessage('', 0x7FFFD4) 
+        sampAddChatMessage('{7FFFD4}Следующий пожар в: {FFFFFF}'..next_fire, 0x7FFFD4)
+        sampAddChatMessage('', 0x7FFFD4) 
     end)
     sampRegisterChatCommand('fclean', function()
         sampAddChatMessage('{E9967A}Статистика заработка была очищена.', 0xE9967A) 
@@ -188,26 +190,14 @@ function main()
     sampRegisterChatCommand("1", function() lvl = 1 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('1', '"..x.."','"..y.."','"..z.."')")) end)
     sampRegisterChatCommand("2", function() lvl = 2 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('2', '"..x.."','"..y.."','"..z.."')")) end)
     sampRegisterChatCommand("3", function() lvl = 3 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('3', '"..x.."','"..y.."','"..z.."')")) end)
-    -- sampRegisterChatCommand("tt", function() 
-    --     count = 0
-    --     local fires_list = {{0,1,2},{3,4,5}}
-    --     for _ in pairs(fires_list) do 
-    --         count = count + 1
-    --         sampAddChatMessage('Координата: '..count.." X: "..fires_list[count][1].." Y: "..fires_list[count][2].." Z: "..fires_list[count][3], -255)
-    --     end
-
-    --     local x,y,z = getCharCoordinates(PLAYER_PED)
-    --     local dist = getDistanceBetweenCoords3d(x, y, z, -1295.7589, -66.9884, 18.2803)
-    --     if dist <=100 then
-    --         sampAddChatMessage('Вы находитесь возле точки.', -255)
-    --         sampAddChatMessage(dist, -255)
-    --     end
-
-    -- end)
+    sampRegisterChatCommand("tt", function()
+        -- date = os.date('%Y-%m-%d')
+        -- assert(conn:execute("INSERT INTO firehelp_history (date, active) VALUES ('"..date.."', '1')"))
+    end)
 
     sampRegisterChatCommand("fcor", function() 
-        count = 0
         local x,y,z = getCharCoordinates(PLAYER_PED)
+        count = 0
         for _ in pairs(fires_list) do 
             count = count + 1
             dist = getDistanceBetweenCoords3d(x, y, z, fires_list[count][1], fires_list[count][2], fires_list[count][3])
@@ -4343,7 +4333,7 @@ function sampev.onServerMessage(color, text)
             sampProcessChatInput('/r Докладывает '..nick_fire..': прыбыл на место происшествия.',-1)
 
             local x,y,z = getCharCoordinates(PLAYER_PED) 
-            assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('"..lvl.."', '"..x.."','"..y.."','"..z.."')"))
+            assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('"..lvl.."', '"..x.."','"..y.."','"..z.."', '"..who_nick.."', '"..fire_place.."')"))
 
             count = 0
             for _ in pairs(fires_list) do 
@@ -4384,7 +4374,7 @@ function sampev.onServerMessage(color, text)
             sampProcessChatInput('/r Докладывает '..nick_fire..': пожар успешно ликвидирован. Возвращаюсь на базу.',-1)
             time_end = os.date('%H:%M:%S', os.time() - (UTC * 3600))
             give = text:match('Вы заработали на происшествие {90EE90}$(%d+)')
-            date = os.date('%Y-%m-%d')
+            firedate = os.date('%Y-%m-%d')
             wait(2000)
             sampAddChatMessage('', 0x7FFFD4)
             sampAddChatMessage('{7FFFD4}Происшествие {DC143C}'..lvl..' степени {7FFFD4}ликвидировано', 0x7FFFD4)
@@ -4395,7 +4385,7 @@ function sampev.onServerMessage(color, text)
             sampShowDialog(0, "{FFA500}Завершение пожара", "{8eeaf0}Пожар {d54447}" ..lvl.. " степени {8eeaf0}был ликвидирован.\n\n{8eeaf0}Время начала: {d5a044}" ..time_fire.. "\n{8eeaf0}Время ликвидации: {d5a044}" ..time_end.. "\n{8eeaf0}Доход: {d5a044}+ $"..give.. " ["..string.format("%2.1f", give/1000000).."М]", "Закрыть", "", DIALOG_STYLE_MSGBOX)
             fd_find_fire = false
 
-            assert(conn:execute("INSERT INTO firehelp_history (lvl, nick, give, time_start, time_end) VALUES ('"..lvl.."', '"..who_nick.."', '"..give.."', '"..time_fire.."', '"..time_end.."', '"..date.."')"))
+            assert(conn:execute("INSERT INTO firehelp_history (lvl, nick, give, time_start, time_end, date, active) VALUES ('"..lvl.."', '"..who_nick.."', '"..give.."', '"..time_fire.."', '"..time_end.."', '"..firedate.."', '1')"))
             assert(conn:execute("UPDATE firehelp SET give = '"..give.."', stats = stats+'"..give.."' WHERE nick = '"..who_nick.."'"))
             stats = stats+give
 
@@ -4695,6 +4685,18 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
             return 
         end
         flashminer = false
+    end
+
+    if id == 25959 then
+        title = title:gsub('{......}', '')
+        setClipboardText(title)
+        sampAddChatMessage("Ник скопирован для взаимодействия в буфер обмена: {FFFFFF}"..title, -255)
+    end 
+
+    if dialogId == 27259 then
+        text = text:match('* ](%A+)')
+        place = text:gsub('{(.+)', '')
+        fire_place = place:gsub('{', '')
     end
 end
 
