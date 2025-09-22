@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.22.09.A7")
+script_version("Ver.22.09.A8")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -79,6 +79,7 @@ local update_list = ('{FA8072}Ver.18.09.A5'..
                     '\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {87CEFA}Исправление багов.'..
                     '\n\t{00BFFF}2. {87CEFA}Автообновление проверяется в 25 минут каждый час.'..
+                    '\n\t{00BFFF}3. {87CEFA}Добавлена статистика за месяц.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
@@ -4003,26 +4004,36 @@ function main()
                     local cnt = 0
                     local week_stats = 0
                     local day_stats = 0
-                    local week_number = os.date("%W")+1
+                    local month_stats = 0
                     local day_number = os.date("%d")
+                    local week_number = os.date("%W")+1
+                    local month_number = os.date("%m")
 
                     local give_firestats = assert(conn:execute("SELECT *, DATE_FORMAT(date, '%d.%m.%Y') AS date, WEEK(date,1) AS week FROM firehelp_history WHERE nick = '"..who_nick.."' AND active = 1 ORDER by id ASC LIMIT 20"))
                     local row = give_firestats:fetch({}, "a")
 
                     local give_day_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND DATE_FORMAT(date, '%d') = '"..day_number.."' AND active = 1"))
-                    local rown = give_day_stats:fetch({}, "a")
+                    local rowb = give_day_stats:fetch({}, "a")
 
                     local give_week_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1"))
-                    local rowt = give_week_stats:fetch({}, "a")
+                    local rowa = give_week_stats:fetch({}, "a")
 
-                    while rowt do
-                        week_stats = week_stats + rowt.give
-                        rowt = give_week_stats:fetch({}, "a")
+                    local give_month_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND month(date) = '"..month_number.."' AND active = 1"))
+                    local rowc = give_month_stats:fetch({}, "a")
+
+                    while rowa do
+                        week_stats = week_stats + rowa.give
+                        rowa = give_week_stats:fetch({}, "a")
                     end
 
-                    while rown do
-                        day_stats = day_stats + rown.give
-                        rown = give_day_stats:fetch({}, "a")
+                    while rowb do
+                        day_stats = day_stats + rowb.give
+                        rowb = give_day_stats:fetch({}, "a")
+                    end
+
+                    while rowc do
+                        month_stats = month_stats + rowc.give
+                        rowc = give_month_stats:fetch({}, "a")
                     end
 
                     
@@ -4042,6 +4053,7 @@ function main()
                                                                        "\n"..
                                                                        "\n{d5a044}Заработано за сегодня: {FFFFFF}+$"..day_stats.. " ["..string.format("%2.1f", day_stats/1000000).."М] "..
                                                                        "\n{d5a044}Заработано за неделю: {FFFFFF}+$"..week_stats.. " ["..string.format("%2.1f", week_stats/1000000).."М] "..
+                                                                       "\n{d5a044}Заработано за месяц: {FFFFFF}+$"..month_stats.. " ["..string.format("%2.1f", month_stats/1000000).."М] "..
                                                                        "\n{d5a044}Заработано всего: {FFFFFF}+$"..stats.. " ["..string.format("%2.1f", stats/1000000).."М]"..
                                                                        "\n"..
                                                                        "\n{d5a044}Для очистки всей статистики введите команду {FF6347}/fclean {E9967A}(вся статистика будет сброшена)"..
@@ -4378,7 +4390,12 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-
+    -- if text:find('Воспользуйтесь трудовой книжкой через инвентарь') then
+    --     wait(5000)
+    --     sampAddChatMessage('ЗАПУСКАЮ', -255)
+    --     sampProcessChatInput('/fires', -1)
+    -- end
+    
     if afk and text:find('(.+)Список не доступен пока Вы не на смене/дежурстве(.+)') then
         lua_thread.create(function()
             wait(1000)
