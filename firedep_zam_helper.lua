@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.22.09.A8")
+script_version("Ver.22.09.A9")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -52,7 +52,10 @@ local fires_list = {
                     {2316.7211, -1749.2310, 13.5672, 2},
                     {-100.9319, -55.0312, 3.1171, 2},
                     {89.8577, -262.6102, 1.7802, 3},
-                    {2011.6634, -1954.3240, 13.7767, 3}
+                    {2011.6634, -1954.3240, 13.7767, 3},
+                    {-1419.5426,-1471.6375,101.1161,3},
+                    {1541.0775, -1672.4488, 13.0568, 3},
+                    {-1030.7767, -669.1055, 31.5134, 3}
                 }
 
 local update_list = ('{FA8072}Ver.18.09.A5'..
@@ -4696,7 +4699,7 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
         sampAddChatMessage("Ник скопирован для взаимодействия в буфер обмена: {FFFFFF}"..title, -255)
     end 
 
-    if dialogId == 27259 then
+    if id == 27259 then
         text = text:match('* ](%A+)')
         place = text:gsub('{(.+)', '')
         fire_place = place:gsub('{', '')
