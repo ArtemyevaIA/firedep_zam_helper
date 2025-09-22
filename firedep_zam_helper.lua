@@ -4274,6 +4274,26 @@ function sampev.onServerMessage(color, text)
             lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
             time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
             next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
+
+            if lvl == 3 then 
+                img = 'https://png.pngtree.com/png-vector/20231017/ourmid/pngtree-level-3-3d-achievement-png-image_10277442.png'
+                message = 'ВНИМАНИЕ!\n\nВ штате произошёл пожар 3 уровня!'
+                sendTelegramFire(img, message)
+            end
+        end)
+    end
+
+    if text:find("Тест (%d+)") then
+        lua_thread.create(function()
+            lvl = text:match('Тест (%d+)')
+            time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+            next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
+
+            if lvl == 3 then 
+                img = 'https://png.pngtree.com/png-vector/20231017/ourmid/pngtree-level-3-3d-achievement-png-image_10277442.png'
+                message = 'ВНИМАНИЕ!\n\nВ штате произошёл пожар 3 уровня!'
+                sendTelegramFire(img, message)
+            end
         end)
     end
 
@@ -4938,6 +4958,14 @@ function sendTelegramPhoto(img, msg) -- функция для отправки сообщения юзеру
    token = '8059436647:AAFSZNM3lfxxJ5E2jFkE_D_N9iWlLdBD-ss'
    --id = '5700686218'
    async_http_request('https://api.telegram.org/bot'..token..'/sendPhoto?chat_id='..tlg_id..'&caption='..msg,'&photo='..img..'', function(result) end) -- а тут уже отправка
+end
+
+function sendTelegramFire(img, msg) -- функция для отправки сообщения юзеру
+   msg = msg:gsub('{......}', '') --тут типо убираем цвет
+   msg = encodeUrl(msg) -- ну тут мы закодируем строку
+   token = '8059436647:AAFSZNM3lfxxJ5E2jFkE_D_N9iWlLdBD-ss'
+   id = '-1002627836325'
+   async_http_request('https://api.telegram.org/bot'..token..'/sendPhoto?chat_id='..id..'&caption='..msg,'&photo='..img..'', function(result) end) -- а тут уже отправка
 end
 
 function flashmine ()
