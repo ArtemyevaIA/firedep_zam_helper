@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.22.09.A9")
+script_version("Ver.22.09.A10")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -41,9 +41,12 @@ local fm = false
 local tlg_send = false
 local flashminer = false
 local fire_place = ''
+local light = false
 
 local fires_list = {
                     {1642.4234, 2180.4091, 11.0258, 1},
+                    {2423.3774, 2055.4594, 10.9864, 1},
+                    {2529.2770, 1149.7951, 10.8733, 1},
                     {-871.1054, 1494.5131, 22.9384, 1},
                     {-2427.1535, 39.5095, 35.2162, 1},
                     {514.8258, -1411.5212, 16.1686, 1},
@@ -199,10 +202,6 @@ function main()
     sampRegisterChatCommand("1", function() lvl = 1 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('1', '"..x.."','"..y.."','"..z.."')")) end)
     sampRegisterChatCommand("2", function() lvl = 2 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('2', '"..x.."','"..y.."','"..z.."')")) end)
     sampRegisterChatCommand("3", function() lvl = 3 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('3', '"..x.."','"..y.."','"..z.."')")) end)
-    sampRegisterChatCommand("tt", function()
-        -- date = os.date('%Y-%m-%d')
-        -- assert(conn:execute("INSERT INTO firehelp_history (date, active) VALUES ('"..date.."', '1')"))
-    end)
 
     sampRegisterChatCommand("fcor", function() 
         local x,y,z = getCharCoordinates(PLAYER_PED)
@@ -4312,22 +4311,31 @@ function sampev.onServerMessage(color, text)
     if not fd_find_fire and fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
         lua_thread.create(function()
             fd_find_fire = true
+            light = true
             lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
             time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
             next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
-            sampAddChatMessage('', 0x7FFFD4)
+
+            sampProcessChatInput('/time',-1)
+            sampProcessChatInput('/engine',-1)
+            
+            sampAddChatMessage('', 0x7FFFD4) 
             sampAddChatMessage('ВНИМАНИЕ!!!', 0xDC143C)
-            sampAddChatMessage('В штате произошлоа происшествие. Степень опасности: {DC143C}'..lvl, 0x7FFFD4)
+            sampAddChatMessage('В штате произошло происшествие. {DC143C}'..lvl.. 'степень опасности.', 0x7FFFD4)
             sampAddChatMessage('Время происшествия: {FFFFFF}'..time_fire, 0x7FFFD4)
             sampAddChatMessage('Следующее происшествие в: {FFFFFF}'..next_fire, 0x7FFFD4)
             sampAddChatMessage('', 0x7FFFD4)
-            sampProcessChatInput('/time',-1)
             sampProcessChatInput('/fires',-1)
-            wait(2000)
+            wait(1500)
+            
             setVirtualKeyDown(VK_RETURN, true) -- зажать клавишу
             wait(100)
             setVirtualKeyDown(VK_RETURN, false) -- отжать клавишу
-            sampProcessChatInput('/engine',-1)
+
+            wait(1000)
+            setVirtualKeyDown(VK_2, true) -- зажать клавишу
+            wait(100)
+            setVirtualKeyDown(VK_2, false) -- отжать клавишу
 
             sampProcessChatInput('/r Докладывает '..nick_fire..': выезжаю на происшествие '..lvl.. ' степени опасности!',-1)             
         end)
@@ -4336,9 +4344,21 @@ function sampev.onServerMessage(color, text)
     if text:find("Вы прибыли на место пожара") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': прыбыл на место происшествия.',-1)
+            
+            wait(1000)
+            setVirtualKeyDown(VK_KEY2, true) -- зажать клавишу
+            wait(100)
+            setVirtualKeyDown(VK_KEY2, false) -- отжать клавишу
+            sampSendDialogResponse(27258, 1, 2, nil)
 
             local x,y,z = getCharCoordinates(PLAYER_PED) 
             assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('"..lvl.."', '"..x.."','"..y.."','"..z.."', '"..who_nick.."', '"..fire_place.."')"))
+
+            setVirtualKeyDown(VK_2, true) -- зажать клавишу
+            wait(100)
+            setVirtualKeyDown(VK_2, false) -- отжать клавишу
+            wait(1000)
+            light = false
 
             count = 0
             for _ in pairs(fires_list) do 
@@ -4393,12 +4413,6 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    -- if text:find('Воспользуйтесь трудовой книжкой через инвентарь') then
-    --     wait(5000)
-    --     sampAddChatMessage('ЗАПУСКАЮ', -255)
-    --     sampProcessChatInput('/fires', -1)
-    -- end
-    
     if afk and text:find('(.+)Список не доступен пока Вы не на смене/дежурстве(.+)') then
         lua_thread.create(function()
             wait(1000)
@@ -4703,6 +4717,11 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
         text = text:match('* ](%A+)')
         place = text:gsub('{(.+)', '')
         fire_place = place:gsub('{', '')
+    end
+
+    if light and id == 27258 then
+        sampSendDialogResponse(27258, 1, 2, nil)
+        return false
     end
 end
 
