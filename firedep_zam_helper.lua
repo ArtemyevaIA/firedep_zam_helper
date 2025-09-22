@@ -133,7 +133,7 @@ function main()
     local cnt_client = check_client:fetch({}, "a")
     if cnt_client['cnt'] == '0' then
         sampAddChatMessage('Клиент не был найден в базе данных. Вносим: {ffbf00}'..who_nick, -1)
-        assert(conn:execute("INSERT INTO clients (nick, tlg_id) VALUES ('"..who_nick.."', '0')"))
+        assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper) VALUES ('"..who_nick.."', '0', '0')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
         local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats from clients c join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
