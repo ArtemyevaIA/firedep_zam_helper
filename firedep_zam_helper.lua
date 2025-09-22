@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.22.09.A6")
+script_version("Ver.22.09.A7")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -135,7 +135,7 @@ function main()
     local cnt_client = check_client:fetch({}, "a")
     if cnt_client['cnt'] == '0' then
         sampAddChatMessage('Клиент не был найден в базе данных. Вносим: {ffbf00}'..who_nick, -1)
-        assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper) VALUES ('"..who_nick.."', '0', '0')"))
+        assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
         local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats from clients c join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
@@ -144,6 +144,9 @@ function main()
         give = row['give']
         stats = row['stats']
         if tlg_id ~= '0' then tlg_send = true end
+
+        lastlogin = os.date('%d.%m.%Y %H:%M:%S')
+        assert(conn:execute("UPDATE clients SET lastlogin = '"..lastlogin.."' WHERE nick = '"..who_nick.."'"))
     end
 
 
@@ -4328,6 +4331,7 @@ function sampev.onServerMessage(color, text)
                 dist = getDistanceBetweenCoords3d(x, y, z, fires_list[count][1], fires_list[count][2], fires_list[count][3])
                 if dist <= 100 then
                     sampAddChatMessage("Вы прибыли на пожар "..fires_list[count][4].. " степени опасности", -255)
+                    lvl = fires_list[count][4]
                 end
             end
         end)
