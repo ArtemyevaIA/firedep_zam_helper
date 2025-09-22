@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.19.09.A2")
+script_version("Ver.22.09.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -33,7 +33,7 @@ local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т'
 local date = os.date('%d.%m.%Y')
 local fd_helper, fd_find_fire, autoupdate_loaded, afk, start_sobes, enable_autoupdate, Update, sobes_start = false, false, false, false, false, true, nil, false
 local sobes, next_fire, time_fire, time_end = ',05,Пожарный департамент', 'появится после пожара', '00:00:00', '00:00:00'
-local give, lvl, UTC = 0, 0, 0
+local give, stats, lvl, UTC = 0, 0, 0, 0
 local config = {}
 local docs, inspect, img, inspect_1, inspect_2, inspect_3, inspect_4, inspect_5 = '','','','','', '', '', ''
 local cnt_org, showorgs, showorg, isGoing = 0, true, true, true
