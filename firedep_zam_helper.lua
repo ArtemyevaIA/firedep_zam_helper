@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.22.09.A3")
+script_version("Ver.22.09.A4")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -78,6 +78,7 @@ local update_list = ('{FA8072}Ver.18.09.A5'..
                     '\n\t{00BFFF}20. {87CEFA}Подключен сбор данных степеней пожаров по прибытию на пожар.'..
                     '\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {87CEFA}Исправление багов.'..
+                    '\n\t{00BFFF}2. {87CEFA}Автообновление проверяется в 25 минут каждый час.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
@@ -4072,7 +4073,7 @@ function main()
             end
         end
 
-        if os.date('%M:%S') == "05:00" or os.date('%M:%S') == "25:00" or os.date('%M:%S') == "45:00" then
+        if os.date('%M:%S') == "25:00" then
             upd()
             wait(1000)
         end
@@ -4275,27 +4276,6 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find("(.+)Update.Ver") then
-        lua_thread.create(function()
-            local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
-                                                                    sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
-                                                                                                                            sampShowDialog(0, "{FFA500}Вышло обновление", "{FFA500}Помощник руководителя пожарного департамента\n{78dbe2}был автоматически обновлен на новую версию.\nПосмотреть изменения можно в Меню -> Сервисные функции -> Изменения", "Закрыть", "", DIALOG_STYLE_MSGBOX)
-                                                                    print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
-            if updater_loaded then
-                autoupdate_loaded, Update = pcall(Updater)
-                if autoupdate_loaded then
-                    Update.json_url = "https://raw.githubusercontent.com/ArtemyevaIA/firedep_zam_helper/refs/heads/main/firedep_zam_helper.json?" .. tostring(os.clock())
-                    Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
-                    Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
-                end
-
-            end
-            if autoupdate_loaded and Update then
-                pcall(Update.check, Update.json_url, Update.prefix, Update.url)
-            end 
-        end)
-    end
-
     if (text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)некст") or text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)next") or text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)Next") or text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)Некст")) then
             lua_thread.create(function()
                 wait(1000)
@@ -4303,8 +4283,7 @@ function sampev.onServerMessage(color, text)
             end)
         end
 
-    --if not fd_find_fire and fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
-    if fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
+    if not fd_find_fire and fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
         lua_thread.create(function()
             fd_find_fire = true
             lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
@@ -4328,7 +4307,6 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    -- if fd_find_fire and fd_helper and text:find("Вы прибыли на место пожара") then
     if text:find("Вы прибыли на место пожара") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': прыбыл на место происшествия.',-1)
@@ -4347,29 +4325,25 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    -- if fd_find_fire and fd_helper and text:find("Отнесите пострадавшего в палатку") then
-    if fd_helper and text:find("Отнесите пострадавшего в палатку") then
+    if text:find("Отнесите пострадавшего в палатку") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': оказываю помощь пострадавшему.',-1)
         end)
     end
 
-    -- if fd_find_fire and fd_helper and text:find("Отлично! Вы спасли пострадавшего!") then
-    if fd_helper and text:find("Отлично! Вы спасли пострадавшего!") then
+    if text:find("Отлично! Вы спасли пострадавшего!") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': пострадавшему оказана первая помощь.',-1)
         end)
     end
 
-    -- if fd_find_fire and fd_helper and text:find("Все очаги возгорания ликвидированы.") then
-    if fd_helper and text:find("Все очаги возгорания ликвидированы.") then
+    if text:find("Все очаги возгорания ликвидированы.") then
         lua_thread.create(function()
             sampProcessChatInput('/r Докладывает '..nick_fire..': все очаги возгарания ликвидированы.',-1)
         end)
     end
 
-    -- if fd_find_fire and fd_helper and text:find("Вы заработали на происшествие {90EE90}$(%d+)") then
-    if fd_helper and text:find("Вы заработали на происшествие {90EE90}$(%d+)") then
+    if text:find("Вы заработали на происшествие {90EE90}$(%d+)") then
         lua_thread.create(function()
             wait(1000)
             sampProcessChatInput('/r Докладывает '..nick_fire..': пожар успешно ликвидирован. Возвращаюсь на базу.',-1)
@@ -4389,7 +4363,6 @@ function sampev.onServerMessage(color, text)
             assert(conn:execute("INSERT INTO firehelp_history (lvl, nick, give, time_start, time_end, date, active) VALUES ('"..lvl.."', '"..who_nick.."', '"..give.."', '"..time_fire.."', '"..time_end.."', '"..firedate.."', '1')"))
             assert(conn:execute("UPDATE firehelp SET give = '"..give.."', stats = stats+'"..give.."' WHERE nick = '"..who_nick.."'"))
             stats = stats+give
-
         end)
     end
 
