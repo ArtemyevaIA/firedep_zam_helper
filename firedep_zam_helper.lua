@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.22.09.A4")
+script_version("Ver.22.09.A5")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -4271,6 +4271,7 @@ function sampev.onServerMessage(color, text)
 
     if text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
         lua_thread.create(function()
+            lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
             time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
             next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
         end)
