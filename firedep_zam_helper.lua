@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.23.09.A1")
+script_version("Ver.23.09.A2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -42,6 +42,7 @@ local tlg_send = false
 local flashminer = false
 local fire_place = ''
 local light = false
+local balls, time_post, help, fires = 0, 0, 0, 0
 
 local fires_list = {
                     {1642.4234, 2180.4091, 11.0258, 1},
@@ -141,6 +142,7 @@ function main()
     local check_client = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM clients WHERE nick = '"..who_nick.."'"))
     local cnt_client = check_client:fetch({}, "a")
     if cnt_client['cnt'] == '0' then
+        lastlogin = os.date('%d.%m.%Y %H:%M:%S')
         sampAddChatMessage('Клиент не был найден в базе данных. Вносим: {ffbf00}'..who_nick, -1)
         assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
@@ -199,9 +201,9 @@ function main()
     sampRegisterChatCommand("cho", switchMod)
     sampRegisterChatCommand("coc", coc)
     sampRegisterChatCommand("fmn", flashmine)
-    sampRegisterChatCommand("1", function() lvl = 1 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('1', '"..x.."','"..y.."','"..z.."')")) end)
-    sampRegisterChatCommand("2", function() lvl = 2 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('2', '"..x.."','"..y.."','"..z.."')")) end)
-    sampRegisterChatCommand("3", function() lvl = 3 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z) VALUES ('3', '"..x.."','"..y.."','"..z.."')")) end)
+    sampRegisterChatCommand("1", function() lvl = 1 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('1', '"..x.."','"..y.."','"..z.."', 'ARM_1', '"..fire_place.."')")) end)
+    sampRegisterChatCommand("2", function() lvl = 2 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('2', '"..x.."','"..y.."','"..z.."', 'ARM_2', '"..fire_place.."')")) end)
+    sampRegisterChatCommand("3", function() lvl = 3 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('3', '"..x.."','"..y.."','"..z.."', 'ARM_3', '"..fire_place.."')")) end)
 
     sampRegisterChatCommand("fcor", function() 
         local x,y,z = getCharCoordinates(PLAYER_PED)
@@ -4007,6 +4009,7 @@ function main()
                     local week_stats = 0
                     local day_stats = 0
                     local month_stats = 0
+                    local g_balls = 0
                     local day_number = os.date("%d")
                     local week_number = os.date("%W")+1
                     local month_number = os.date("%m")
@@ -4023,6 +4026,9 @@ function main()
                     local give_month_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND month(date) = '"..month_number.."' AND active = 1"))
                     local rowc = give_month_stats:fetch({}, "a")
 
+                    local give_balls = assert(conn:execute("SELECT COUNT(*)*5 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 1 UNION ALL SELECT COUNT(*)*10 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 2 UNION ALL SELECT COUNT(*)*15 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 3 "))
+                    local rowd = give_balls:fetch({}, "a")
+
                     while rowa do
                         week_stats = week_stats + rowa.give
                         rowa = give_week_stats:fetch({}, "a")
@@ -4036,6 +4042,11 @@ function main()
                     while rowc do
                         month_stats = month_stats + rowc.give
                         rowc = give_month_stats:fetch({}, "a")
+                    end
+
+                    while rowd do
+                        g_balls = g_balls + rowd.cnt
+                        rowd = give_balls:fetch({}, "a")
                     end
 
                     
@@ -4057,6 +4068,8 @@ function main()
                                                                        "\n{d5a044}Заработано за неделю: {FFFFFF}+$"..week_stats.. " ["..string.format("%2.1f", week_stats/1000000).."М] "..
                                                                        "\n{d5a044}Заработано за месяц: {FFFFFF}+$"..month_stats.. " ["..string.format("%2.1f", month_stats/1000000).."М] "..
                                                                        "\n{d5a044}Заработано всего: {FFFFFF}+$"..stats.. " ["..string.format("%2.1f", stats/1000000).."М]"..
+                                                                       --"\n"..
+                                                                       "\n{d5a044}Предварительные баллы руководителяля: {FFFFFF}+"..g_balls+balls..
                                                                        "\n"..
                                                                        "\n{d5a044}Для очистки всей статистики введите команду {FF6347}/fclean {E9967A}(вся статистика будет сброшена)"..
                                                                        "\n"..
@@ -4244,6 +4257,7 @@ end
 function inputmsg()
     sampShowDialog(2022, "{00EAFF}Отправить сообщение ВК", "Введите сообщение для отправки: ", "Отправить", "Отмена", 1)
 end
+
 function trst(name)
 if name:match('%a+') then
         for k, v in pairs(trstl1) do
@@ -4609,9 +4623,9 @@ function sampGetPlayerIdByNickname(nick)
         return -1
 end
 
-function sampev.onShowDialog(id, style, title, button1, button2, text)
+function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     if start_sobes then
-        if id == 1214 then
+        if dialogId == 1214 then
             sampSendDialogResponse(1214, 1, 7, nil)
             sampSendDialogResponse(1336, 1, 0, nil)
             sampSendDialogResponse(1335, 1 , nil, sobes)
@@ -4620,7 +4634,7 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
         start_sobes = false
     end
 
-    if afk and id == 25527 then
+    if afk and dialogId == 25527 then
         if title:find("Выбор места спавна") then 
             if text:find("Последнее место выхода") then
                 sampSendDialogResponse(id, 1, 4, nil)
@@ -4637,7 +4651,7 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
         end
     end
 
-    if afk and id == 27263 then
+    if afk and dialogId == 27263 then
         if title:find("Раздевалка") then
             changedesk = false
             sampSendDialogResponse(id, 1, 0, nil)
@@ -4646,7 +4660,7 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
     end
 
     if flashminer then
-        if id == 7238 then
+        if dialogId == 7238 then
             lua_thread.create(function()
                 wait(2000)
                 sampSendDialogResponse(7238, 1, 0, nil)
@@ -4707,21 +4721,33 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
         flashminer = false
     end
 
-    if id == 25959 then
+    if dialogId == 25959 then
         title = title:gsub('{......}', '')
         setClipboardText(title)
         sampAddChatMessage("Ник скопирован для взаимодействия в буфер обмена: {FFFFFF}"..title, -255)
     end 
 
-    -- if id == 27259 then
-    --     fire_text = text:match('* ](%A+)')
-    --     place = fire_text:gsub('{(.+)', '')
-    --     fire_place = place:gsub('{', '')
-    -- end
+    if dialogId == 27259 then
+        fire_place = text:gsub('(.+){......}', '')
+        sampAddChatMessage(fire_place, -255)
+    end
 
-    if light and id == 27258 then
+    if light and dialogId == 27258 then
         sampSendDialogResponse(27258, 1, 2, nil)
         return false
+    end
+
+     if dialogId == 0 then
+        post = text:gsub('(.+)Статистика успеваемости за неделю:(.-)', '')
+        post = post:gsub('Статистика успеваемости за сегодня(.+)', '')
+        time_post = post:gsub('(.+)Времени на постах: {F9FF23}', '')
+        time_post = time_post:match('(%d+)')
+        help = post:gsub('(.+)Спасено пострадавших: {F9FF23}', '')
+        help = help:match('(%d+)')
+        fires = post:gsub('(.+)Потушено очагов: {F9FF23}', '')
+        fires = fires:match('(%d+)')
+        balls = math.floor(time_post/10) + math.floor(help/5) + math.floor(fires/10)
+        sampAddChatMessage('Предварительные баллы по статистике: {FFFFFF}'..balls, 0x7FFFD4)
     end
 end
 
