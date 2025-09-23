@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.23.09.A3")
+script_version("Ver.23.09.A4")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -44,6 +44,7 @@ local fire_place = ''
 local light = false
 local balls, time_post, help, fires = 0, 0, 0, 0
 
+
 local fires_list = {
                     {1642.4234, 2180.4091, 11.0258, 1},
                     {2423.3774, 2055.4594, 10.9864, 1},
@@ -55,11 +56,13 @@ local fires_list = {
                     {370.7560, -1990.4370, 7.8739, 2},
                     {2316.7211, -1749.2310, 13.5672, 2},
                     {-100.9319, -55.0312, 3.1171, 2},
+                    {1681.2165, 725.3811, 11.0256, 2},
                     {89.8577, -262.6102, 1.7802, 3},
                     {2011.6634, -1954.3240, 13.7767, 3},
                     {-1419.5426,-1471.6375,101.1161,3},
                     {1541.0775, -1672.4488, 13.0568, 3},
-                    {-1030.7767, -669.1055, 31.5134, 3}
+                    {-1030.7767, -669.1055, 31.5134, 3},
+                    {2444.8303, 1930.0216, 7.9141, 3 }
                 }
 
 local update_list = ('{FA8072}Ver.18.09.A5'..
@@ -257,7 +260,6 @@ function main()
     end)
             
     while true do wait(0)
-
         if showorgs then
             local resX, resY = getScreenResolution()
             local ADM_POS_X = resX-(resX/27*3)
@@ -4341,6 +4343,7 @@ function sampev.onServerMessage(color, text)
 
     if text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
         lua_thread.create(function()
+            wait(100)
             lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
             time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
             next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
