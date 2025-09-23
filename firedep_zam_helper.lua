@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.23.09.A2")
+script_version("Ver.23.09.A3")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -95,6 +95,8 @@ local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
                                                         sampShowDialog(0, "{FFA500}Вышло обновление", "{FFA500}Помощник руководителя пожарного департамента\n{78dbe2}был автоматически обновлен на новую версию.\nПосмотреть изменения можно в Меню -> Сервисные функции -> Изменения", "Закрыть", "", DIALOG_STYLE_MSGBOX)
                                                         print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
+local templist = ''
+
 function main()
     if not isSampfuncsLoaded() or not isSampLoaded() then return end
 
@@ -204,6 +206,43 @@ function main()
     sampRegisterChatCommand("1", function() lvl = 1 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('1', '"..x.."','"..y.."','"..z.."', 'ARM_1', '"..fire_place.."')")) end)
     sampRegisterChatCommand("2", function() lvl = 2 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('2', '"..x.."','"..y.."','"..z.."', 'ARM_2', '"..fire_place.."')")) end)
     sampRegisterChatCommand("3", function() lvl = 3 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('3', '"..x.."','"..y.."','"..z.."', 'ARM_3', '"..fire_place.."')")) end)
+    
+    sampRegisterChatCommand("tt", function() 
+            local resX, resY = getScreenResolution()
+            local ADM_POS_X = resX-(resX/27*3)
+            local ADM_POS_Y = resY/4
+            local ADM_POS_XX = resX-(resX/27*5)
+            local ADM_POS_YY = resY/4
+            local PLY_POS_Y = resY/3
+            local PLY_POS_X = resX/27
+
+            local tbl_org = {}
+            local y_org, n_org = 0, 0
+
+            for id_org = 0, sampGetMaxPlayerId() do
+                if sampIsPlayerConnected(id_org) then
+                    local name_org, id_org = sampGetPlayerNickname(id_org)
+                    if findInIni(name_org) then 
+                        table.insert(tbl_org,name_org)
+                    end
+                end
+            end
+
+            for cnt_org, v_org in pairs(tbl_org) do
+                id_org = sampGetPlayerIdByNickname(v_org)
+                color = sampGetPlayerColor(id_org)
+                for _, a in pairs(getAllChars()) do
+                    local result_org, uid_org = sampGetPlayerIdByCharHandle(a)
+                    if result_org and id_org == uid_org then
+                        y_org = y_org+1
+                        templist = "{FFFFFF}- {FFA500}"..v_org.." ["..id_org.."]\n"..templist
+                    end
+                end
+            end
+
+        sampShowDialog(0, "{FFA500}Карточка пожара", "{D2691E}Состав экипажа на происшествии:\n"..templist, "Закрыть","", DIALOG_STYLE_MSGBOX)
+        templist = ''
+    end)
 
     sampRegisterChatCommand("fcor", function() 
         local x,y,z = getCharCoordinates(PLAYER_PED)
@@ -4014,7 +4053,7 @@ function main()
                     local week_number = os.date("%W")+1
                     local month_number = os.date("%m")
 
-                    local give_firestats = assert(conn:execute("SELECT *, DATE_FORMAT(date, '%d.%m.%Y') AS date, WEEK(date,1) AS week FROM firehelp_history WHERE nick = '"..who_nick.."' AND active = 1 ORDER by id ASC LIMIT 20"))
+                    local give_firestats = assert(conn:execute("SELECT *, DATE_FORMAT(date, '%d.%m.%Y') AS date, WEEK(date,1) AS week FROM firehelp_history WHERE nick = '"..who_nick.."' AND active = 1 ORDER by id DESC LIMIT 20"))
                     local row = give_firestats:fetch({}, "a")
 
                     local give_day_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND DATE_FORMAT(date, '%d') = '"..day_number.."' AND active = 1"))
@@ -4058,7 +4097,7 @@ function main()
                         if row.lvl == '2' then lvl_fire = ('{FF7F50}'..row.lvl..' cтепени{20B2AA}') end
                         if row.lvl == '3' then lvl_fire = ('{CD5C5C}'..row.lvl..' cтепени{20B2AA}') end
 
-                        list = "{20B2AA}Пожар "..row.date.." в "..row.time_start..' '..lvl_fire..' {FFFFFF}| {20B2AA}Потушен в '..row.time_end..' {FFFFFF}| {20B2AA}Доход: {F0E68C}+$'..row.give.. ' ['..string.format("%2.1f", row.give/1000000)..'М]'..'\n'..list
+                        list = list.."{20B2AA}Пожар "..row.date.." в "..row.time_start..' '..lvl_fire..' {FFFFFF}| {20B2AA}Потушен в '..row.time_end..' {FFFFFF}| {20B2AA}Доход: {F0E68C}+$'..row.give.. ' ['..string.format("%2.1f", row.give/1000000)..'М]\n'
                         row = give_firestats:fetch({}, "a")
                     end
 
@@ -4069,7 +4108,7 @@ function main()
                                                                        "\n{d5a044}Заработано за месяц: {FFFFFF}+$"..month_stats.. " ["..string.format("%2.1f", month_stats/1000000).."М] "..
                                                                        "\n{d5a044}Заработано всего: {FFFFFF}+$"..stats.. " ["..string.format("%2.1f", stats/1000000).."М]"..
                                                                        --"\n"..
-                                                                       "\n{d5a044}Предварительные баллы руководителяля: {FFFFFF}+"..g_balls+balls..
+                                                                       "\n{d5a044}Предварительные баллы руководителя: {FFFFFF}+"..g_balls+balls..
                                                                        "\n"..
                                                                        "\n{d5a044}Для очистки всей статистики введите команду {FF6347}/fclean {E9967A}(вся статистика будет сброшена)"..
                                                                        "\n"..
@@ -4418,8 +4457,42 @@ function sampev.onServerMessage(color, text)
             sampAddChatMessage('{7FFFD4}Заработано за происшествие: {26fc66}$'..give.. ' ['..string.format("%2.1f", give/1000000)..'М]', 0x7FFFD4)
             sampAddChatMessage('', 0x7FFFD4)
             sampProcessChatInput('/time',-1)
-            sampShowDialog(0, "{FFA500}Завершение пожара", "{8eeaf0}Пожар {d54447}" ..lvl.. " степени {8eeaf0}был ликвидирован.\n\n{8eeaf0}Время начала: {d5a044}" ..time_fire.. "\n{8eeaf0}Время ликвидации: {d5a044}" ..time_end.. "\n{8eeaf0}Доход: {d5a044}+ $"..give.. " ["..string.format("%2.1f", give/1000000).."М]", "Закрыть", "", DIALOG_STYLE_MSGBOX)
+
+                local resX, resY = getScreenResolution()
+                local ADM_POS_X = resX-(resX/27*3)
+                local ADM_POS_Y = resY/4
+                local ADM_POS_XX = resX-(resX/27*5)
+                local ADM_POS_YY = resY/4
+                local PLY_POS_Y = resY/3
+                local PLY_POS_X = resX/27
+
+                local tbl_org = {}
+                local y_org, n_org = 0, 0
+
+                for id_org = 0, sampGetMaxPlayerId() do
+                    if sampIsPlayerConnected(id_org) then
+                        local name_org, id_org = sampGetPlayerNickname(id_org)
+                        if findInIni(name_org) then 
+                            table.insert(tbl_org,name_org)
+                        end
+                    end
+                end
+
+                for cnt_org, v_org in pairs(tbl_org) do
+                    id_org = sampGetPlayerIdByNickname(v_org)
+                    color = sampGetPlayerColor(id_org)
+                    for _, a in pairs(getAllChars()) do
+                        local result_org, uid_org = sampGetPlayerIdByCharHandle(a)
+                        if result_org and id_org == uid_org then
+                            y_org = y_org+1
+                            templist = "{FFFFFF}- {FFA500}"..v_org.." ["..id_org.."]\n"..templist
+                        end
+                    end
+                end
+
+            sampShowDialog(0, "{FFA500}Завершение пожара", "{8eeaf0}Пожар {d54447}" ..lvl.. " степени {8eeaf0}был ликвидирован.\n\n{8eeaf0}Время начала: {d5a044}" ..time_fire.. "\n{8eeaf0}Время ликвидации: {d5a044}" ..time_end.. "\n{8eeaf0}Доход: {d5a044}+ $"..give.. " ["..string.format("%2.1f", give/1000000).."М]\n\n{D2691E}Состав экипажа на происшествии:\n"..templist, "Закрыть", "", DIЦALOG_STYLE_MSGBOX)
             fd_find_fire = false
+            templist = ''
 
             assert(conn:execute("INSERT INTO firehelp_history (lvl, nick, give, time_start, time_end, date, active) VALUES ('"..lvl.."', '"..who_nick.."', '"..give.."', '"..time_fire.."', '"..time_end.."', '"..firedate.."', '1')"))
             assert(conn:execute("UPDATE firehelp SET give = '"..give.."', stats = stats+'"..give.."' WHERE nick = '"..who_nick.."'"))
@@ -4728,7 +4801,9 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     end 
 
     if dialogId == 27259 then
-        fire_place = text:gsub('(.+){......}', '')
+        test = text:gsub('{......}', '')
+        test = test:gsub('(.+)времени(.+)]%s+', '')
+        fire_place = test:gsub('(%d+)(.+)', '')
         sampAddChatMessage(fire_place, -255)
     end
 
