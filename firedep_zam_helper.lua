@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.22.09.A10")
+script_version("Ver.23.09.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -4713,11 +4713,11 @@ function sampev.onShowDialog(id, style, title, button1, button2, text)
         sampAddChatMessage("Ник скопирован для взаимодействия в буфер обмена: {FFFFFF}"..title, -255)
     end 
 
-    if id == 27259 then
-        text = text:match('* ](%A+)')
-        place = text:gsub('{(.+)', '')
-        fire_place = place:gsub('{', '')
-    end
+    -- if id == 27259 then
+    --     fire_text = text:match('* ](%A+)')
+    --     place = fire_text:gsub('{(.+)', '')
+    --     fire_place = place:gsub('{', '')
+    -- end
 
     if light and id == 27258 then
         sampSendDialogResponse(27258, 1, 2, nil)
