@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.24.09.A3")
+script_version("Ver.24.09.A4")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -4354,11 +4354,11 @@ function sampev.onServerMessage(color, text)
             time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
             next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
 
-            if lvl == '3' then 
-                img = 'https://media.foma.ru/2021/04/maxim-tajer-x3S1aGQNgro-unsplash.jpg'
-                message = '@longames @bbv_cvv @Kos3ik @DanekKam @mayer_666 \n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 уровня!'
-                sendTelegramFire(img, message)
-            end
+            -- if lvl == '3' then 
+            --     img = 'https://media.foma.ru/2021/04/maxim-tajer-x3S1aGQNgro-unsplash.jpg'
+            --     message = '@longames @bbv_cvv @Kos3ik @DanekKam @mayer_666 \n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 уровня!'
+            --     sendTelegramFire(img, message)
+            -- end
         end)
     end
 
