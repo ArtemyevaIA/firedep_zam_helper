@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.24.09.A1")
+script_version("Ver.24.09.A2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -91,6 +91,7 @@ local update_list = ('{FA8072}Ver.23.09'..
                     '\n\t{00BFFF}23. {87CEFA}Добавлена статистика баллов руководителя.'..
                     '\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {87CEFA}Исправление багов.'..
+                    '\n\t{00BFFF}1. {87CEFA}Исправлено добавление сотрудников в список организации для отслеживания. Теперь ищет по должности.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
@@ -120,12 +121,13 @@ function main()
         sampAddChatMessage('Список сотрудников не найден. Сейчас подгрузим.', -255)
         downloadUrlToFile(url, download)
         wait(3000)
-        sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
-        while sampIsDialogActive(0) do wait(100) end
-        local result, button, _, input = sampHasDialogRespond(0)
-        if button == 1 then
-            sampProcessChatInput('/q', -1)
-        end
+        thisScript():reload()
+        --sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
+        -- while sampIsDialogActive(0) do wait(100) end
+        -- local result, button, _, input = sampHasDialogRespond(0)
+        -- if button == 1 then
+        --     sampProcessChatInput('/q', -1)
+        -- end
     end
 
     if autoupdate_loaded and enable_autoupdate and Update then
@@ -136,21 +138,22 @@ function main()
     
     UTC = getpoyas() - 3
 
-    _, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-    nick = sampGetPlayerNickname(id)
-    nick_rus = trst(nick)
-    nick_fire = nick_rus:match('(.)')..'.'..string.gsub(nick_rus, "(.+)(%s)", "")
+    local _, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+    local nick = sampGetPlayerNickname(id)
+    local nick_rus = trst(nick)
+    local nick_fire = nick_rus:match('(.)')..'.'..string.gsub(nick_rus, "(.+)(%s)", "")
     
-    _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-    who_nick = sampGetPlayerNickname(who_id)
-    autor = nick:match('(.)')..'.'..string.gsub(nick, "(.+)_", "")
+    local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+    local who_nick = sampGetPlayerNickname(who_id)
+    local autor = nick:match('(.)')..'.'..string.gsub(nick, "(.+)_", "")
 
     local check_client = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM clients WHERE nick = '"..who_nick.."'"))
     local cnt_client = check_client:fetch({}, "a")
     if cnt_client['cnt'] == '0' then
-        lastlogin = os.date('%d.%m.%Y %H:%M:%S')
+        --lastlogin = os.date('%d.%m.%Y %H:%M:%S')
+        lastlogin = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
         sampAddChatMessage('Клиент не был найден в базе данных. Вносим: {ffbf00}'..who_nick, -1)
-        assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."')"))
+        assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin, ver) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."', '"..thisScript().version.."')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
         local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats from clients c join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
@@ -160,8 +163,9 @@ function main()
         stats = row['stats']
         if tlg_id ~= '0' then tlg_send = true end
 
-        lastlogin = os.date('%d.%m.%Y %H:%M:%S')
-        assert(conn:execute("UPDATE clients SET lastlogin = '"..lastlogin.."' WHERE nick = '"..who_nick.."'"))
+        --lastlogin = os.date('%d.%m.%Y %H:%M:%S')
+        lastlogin = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
+        assert(conn:execute("UPDATE clients SET lastlogin = '"..lastlogin.."', ver = '"..thisScript().version.."' WHERE nick = '"..who_nick.."'"))
     end
 
 
@@ -4331,12 +4335,13 @@ function sampev.onServerMessage(color, text)
         message = message:gsub("{......}", "")
     end
 
-    if isGoing and text:find("(%W)R(%W)") then
+    --if isGoing and text:find("(%W)R(%W)") then
+    if isGoing and text:find("R(.+)Рекрут") or text:find("R(.+)Старший рекрут") or text:find("R(.+)Младший пожарный") or text:find("R(.+)Пожарный") or text:find("R(.+)Старший пожарный") or text:find("R(.+)Пожарный инспектор") or text:find("R(.+)Лейтенант") or text:find("R(.+)Капитан") or text:find("R(.+)Заместитель начальника") then
         local nick = string.match(text,"%a+_%a+")
         if not nick then return sendCmdMsg('Что-то пошло не так! вот сообщение:'..text) end
         local nick = string.match(nick,"%a+_%a+")
         if not findInIni(nick) then
-            sampAddChatMessage('{7FFFD4}Новый член организации! Это - "'..nick..'"',0x7FFFD4)
+            sampAddChatMessage('{7FFFD4}Новый член организации! Это - {FFFFFF}'..nick,0x7FFFD4)
             table.insert(mainIni.orgs, nick)
             inicfg.save(mainIni)
         end
@@ -4350,7 +4355,6 @@ function sampev.onServerMessage(color, text)
             next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
 
             if lvl == '3' then 
-                sampAddChatMessage('Отправил.', -255)
                 img = 'https://media.foma.ru/2021/04/maxim-tajer-x3S1aGQNgro-unsplash.jpg'
                 message = '@longames @bbv_cvv @Kos3ik @DanekKam @mayer_666 \n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 уровня!'
                 sendTelegramFire(img, message)
@@ -4817,7 +4821,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         return false
     end
 
-     if dialogId == 0 then
+     if dialogId == 0 and title:find("Успеваемость") then
         post = text:gsub('(.+)Статистика успеваемости за неделю:(.-)', '')
         post = post:gsub('Статистика успеваемости за сегодня(.+)', '')
         time_post = post:gsub('(.+)Времени на постах: {F9FF23}', '')
@@ -4827,7 +4831,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         fires = post:gsub('(.+)Потушено очагов: {F9FF23}', '')
         fires = fires:match('(%d+)')
         balls = math.floor(time_post/10) + math.floor(help/5) + math.floor(fires/10)
-        sampAddChatMessage('Предварительные баллы по статистике: {FFFFFF}'..balls, 0x7FFFD4)
+        sampAddChatMessage('Баллы по статистике: {FFFFFF}'..balls, 0x7FFFD4)
     end
 end
 
