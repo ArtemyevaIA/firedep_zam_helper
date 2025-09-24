@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.23.09.A4")
+script_version("Ver.24.09.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -65,7 +65,7 @@ local fires_list = {
                     {2444.8303, 1930.0216, 7.9141, 3 }
                 }
 
-local update_list = ('{FA8072}Ver.18.09.A5'..
+local update_list = ('{FA8072}Ver.23.09'..
                     '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
                     '\n\t{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.'..
                     '\n\t{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.'..
@@ -86,10 +86,11 @@ local update_list = ('{FA8072}Ver.18.09.A5'..
                     '\n\t{00BFFF}18. {87CEFA}Если у Вас есть манинг ферма и флешка майнера, то по команде {FFD700}/fmn {87CEFA}Вы сможете собрать сразу все битки.'..
                     '\n\t{00BFFF}19. {87CEFA}Дополнены пункты статистики за пожары.'..
                     '\n\t{00BFFF}20. {87CEFA}Подключен сбор данных степеней пожаров по прибытию на пожар.'..
+                    '\n\t{00BFFF}21. {87CEFA}Автообновление проверяется в 25 минут каждый час.'..
+                    '\n\t{00BFFF}22. {87CEFA}Добавлена статистика за месяц.'..
+                    '\n\t{00BFFF}23. {87CEFA}Добавлена статистика баллов руководителя.'..
                     '\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {87CEFA}Исправление багов.'..
-                    '\n\t{00BFFF}2. {87CEFA}Автообновление проверяется в 25 минут каждый час.'..
-                    '\n\t{00BFFF}3. {87CEFA}Добавлена статистика за месяц.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
@@ -4503,6 +4504,13 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
+    if afk and text:find('Воспользуйтесь трудовой книжкой') then
+        lua_thread.create(function()
+           wait(5000)
+           sampProcessChatInput('/fires', -1)
+     end)
+    end
+
     if afk and text:find('(.+)Список не доступен пока Вы не на смене/дежурстве(.+)') then
         lua_thread.create(function()
             wait(1000)
@@ -4713,16 +4721,10 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     if afk and dialogId == 25527 then
         if title:find("Выбор места спавна") then 
             if text:find("Последнее место выхода") then
-                sampSendDialogResponse(id, 1, 4, nil)
-                sampProcessChatInput('/fires',-1)
-                sampProcessChatInput('/fires',-1)
-                sampProcessChatInput('/fires',-1)
+                sampSendDialogResponse(dialogId, 1, 4, nil)
                 return false
             end
-            sampSendDialogResponse(id, 1, 3, nil)
-            sampProcessChatInput('/fires',-1)
-            sampProcessChatInput('/fires',-1)
-            sampProcessChatInput('/fires',-1)
+            sampSendDialogResponse(dialogId, 1, 3, nil)
             return false
         end
     end
@@ -4730,7 +4732,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     if afk and dialogId == 27263 then
         if title:find("Раздевалка") then
             changedesk = false
-            sampSendDialogResponse(id, 1, 0, nil)
+            sampSendDialogResponse(dialogId, 1, 0, nil)
             return false -- Убираем рисовку окон
         end
     end
