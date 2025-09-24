@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.24.09.A2")
+script_version("Ver.24.09.A3")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -138,14 +138,14 @@ function main()
     
     UTC = getpoyas() - 3
 
-    local _, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-    local nick = sampGetPlayerNickname(id)
-    local nick_rus = trst(nick)
-    local nick_fire = nick_rus:match('(.)')..'.'..string.gsub(nick_rus, "(.+)(%s)", "")
+    _, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+    nick = sampGetPlayerNickname(id)
+    nick_rus = trst(nick)
+    nick_fire = nick_rus:match('(.)')..'.'..string.gsub(nick_rus, "(.+)(%s)", "")
     
-    local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-    local who_nick = sampGetPlayerNickname(who_id)
-    local autor = nick:match('(.)')..'.'..string.gsub(nick, "(.+)_", "")
+    _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+    who_nick = sampGetPlayerNickname(who_id)
+    autor = nick:match('(.)')..'.'..string.gsub(nick, "(.+)_", "")
 
     local check_client = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM clients WHERE nick = '"..who_nick.."'"))
     local cnt_client = check_client:fetch({}, "a")
@@ -4373,6 +4373,7 @@ function sampev.onServerMessage(color, text)
         lua_thread.create(function()
             fd_find_fire = true
             light = true
+            wait(100)
             lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
             time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
             next_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600) + (20*60)+1)
@@ -4831,7 +4832,10 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         fires = post:gsub('(.+)Потушено очагов: {F9FF23}', '')
         fires = fires:match('(%d+)')
         balls = math.floor(time_post/10) + math.floor(help/5) + math.floor(fires/10)
-        sampAddChatMessage('Баллы по статистике: {FFFFFF}'..balls, 0x7FFFD4)
+        sampAddChatMessage('{7FFFD4}Баллы по статистике: {FFFFFF}'..balls, 0x7FFFD4)
+        sampAddChatMessage('{7FFFD4}За посты: {FFFFFF}'..math.floor(time_post/10)..
+                           ' | {7FFFD4}За очаги: {FFFFFF}'..math.floor(fires/10)..
+                           ' | {7FFFD4}За пострадавших: {FFFFFF}'..math.floor(help/5), 0x7FFFD4)
     end
 end
 
