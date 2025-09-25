@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.24.09.A4")
+script_version("Ver.25.09.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -47,6 +47,7 @@ local balls, time_post, help, fires = 0, 0, 0, 0
 
 local fires_list = {
                     {1642.4234, 2180.4091, 11.0258, 1},
+                    {-1295.4134, 104.2618, 14.3593, 1},
                     {2423.3774, 2055.4594, 10.9864, 1},
                     {2529.2770, 1149.7951, 10.8733, 1},
                     {-871.1054, 1494.5131, 22.9384, 1},
@@ -57,12 +58,13 @@ local fires_list = {
                     {2316.7211, -1749.2310, 13.5672, 2},
                     {-100.9319, -55.0312, 3.1171, 2},
                     {1681.2165, 725.3811, 11.0256, 2},
+                    {1927.6845, 177.2301, 37.3727, 2},
                     {89.8577, -262.6102, 1.7802, 3},
                     {2011.6634, -1954.3240, 13.7767, 3},
                     {-1419.5426,-1471.6375,101.1161,3},
                     {1541.0775, -1672.4488, 13.0568, 3},
                     {-1030.7767, -669.1055, 31.5134, 3},
-                    {2444.8303, 1930.0216, 7.9141, 3 }
+                    {2444.8303, 1930.0216, 7.9141, 3}
                 }
 
 local update_list = ('{FA8072}Ver.23.09'..
@@ -122,12 +124,6 @@ function main()
         downloadUrlToFile(url, download)
         wait(3000)
         thisScript():reload()
-        --sampShowDialog(0, "{FFA500}Список сотрудников ПД", "{78dbe2}Список сотруднков не был найден в папке с Вашей игрой. Я скачал его автоматически.\nПерезайдите в игру, для применения изменений.", "Перезайти", "", DIALOG_STYLE_MSGBOX)
-        -- while sampIsDialogActive(0) do wait(100) end
-        -- local result, button, _, input = sampHasDialogRespond(0)
-        -- if button == 1 then
-        --     sampProcessChatInput('/q', -1)
-        -- end
     end
 
     if autoupdate_loaded and enable_autoupdate and Update then
@@ -152,7 +148,6 @@ function main()
     if cnt_client['cnt'] == '0' then
         --lastlogin = os.date('%d.%m.%Y %H:%M:%S')
         lastlogin = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
-        sampAddChatMessage('Клиент не был найден в базе данных. Вносим: {ffbf00}'..who_nick, -1)
         assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin, ver) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."', '"..thisScript().version.."')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
@@ -4055,7 +4050,6 @@ function main()
                     local week_stats = 0
                     local day_stats = 0
                     local month_stats = 0
-                    local g_balls = 0
                     local day_number = os.date("%d")
                     local week_number = os.date("%W")+1
                     local month_number = os.date("%m")
@@ -4075,6 +4069,9 @@ function main()
                     local give_balls = assert(conn:execute("SELECT COUNT(*)*5 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 1 UNION ALL SELECT COUNT(*)*10 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 2 UNION ALL SELECT COUNT(*)*15 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 3 "))
                     local rowd = give_balls:fetch({}, "a")
 
+                    local give_bs = assert(conn:execute("SELECT a.lvl1, b.lvl2, c.lvl3 from (SELECT COUNT(*) as lvl1 from firehelp_history where nick = '"..who_nick.."' and lvl = '1' AND WEEK(date,1) = '"..week_number.."') as a, (select COUNT(*) as lvl2 from firehelp_history where nick = '"..who_nick.."' and lvl = '2' AND WEEK(date,1) = '"..week_number.."') as b, (select COUNT(*) as lvl3 from firehelp_history where nick = '"..who_nick.."' and lvl = '3' AND WEEK(date,1) = '"..week_number.."') as c"))
+                    local rowe = give_bs:fetch({}, "a")
+
                     while rowa do
                         week_stats = week_stats + rowa.give
                         rowa = give_week_stats:fetch({}, "a")
@@ -4089,12 +4086,6 @@ function main()
                         month_stats = month_stats + rowc.give
                         rowc = give_month_stats:fetch({}, "a")
                     end
-
-                    while rowd do
-                        g_balls = g_balls + rowd.cnt
-                        rowd = give_balls:fetch({}, "a")
-                    end
-
                     
                     while row do
                         cnt = cnt+1
@@ -4114,8 +4105,14 @@ function main()
                                                                        "\n{d5a044}Заработано за неделю: {FFFFFF}+$"..week_stats.. " ["..string.format("%2.1f", week_stats/1000000).."М] "..
                                                                        "\n{d5a044}Заработано за месяц: {FFFFFF}+$"..month_stats.. " ["..string.format("%2.1f", month_stats/1000000).."М] "..
                                                                        "\n{d5a044}Заработано всего: {FFFFFF}+$"..stats.. " ["..string.format("%2.1f", stats/1000000).."М]"..
-                                                                       --"\n"..
-                                                                       "\n{d5a044}Предварительные баллы руководителя: {FFFFFF}+"..g_balls+balls..
+                                                                       "\n"..
+                                                                       "\n{d5a044}Предварительные баллы руководителя: {FFFFFF}+"..(rowe.lvl1*5)+(rowe.lvl1*10)+(rowe.lvl1*15)+balls..
+                                                                       "\n{d5a044}Пожары 1 степени: {FFFFFF} "..rowe.lvl1.." шт. \t"..(rowe.lvl1*5).." баллов"..
+                                                                       "\n{d5a044}Пожары 2 степени: {FFFFFF} "..rowe.lvl2.." шт. \t"..(rowe.lvl2*10).." баллов"..
+                                                                       "\n{d5a044}Пожары 3 степени: {FFFFFF} "..rowe.lvl3.." шт. \t"..(rowe.lvl3*15).." баллов"..
+                                                                       "\n{d5a044}Времени на посту: {FFFFFF} "..time_post.." шт. \t"..math.floor(time_post/10).." баллов"..
+                                                                       "\n{d5a044}Потушено очагов: {FFFFFF} "..fires.." шт. \t"..math.floor(fires/10).." баллов"..
+                                                                       "\n{d5a044}Пострадавшие: {FFFFFF} "..help.." шт. \t"..math.floor(help/5).." баллов"..
                                                                        "\n"..
                                                                        "\n{d5a044}Для очистки всей статистики введите команду {FF6347}/fclean {E9967A}(вся статистика будет сброшена)"..
                                                                        "\n"..
@@ -4367,7 +4364,7 @@ function sampev.onServerMessage(color, text)
                 wait(1000)
                 sampProcessChatInput('/rb :fire: Следующий пожар в '..next_fire,-1)
             end)
-        end
+    end
 
     if not fd_find_fire and fd_helper and text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
         lua_thread.create(function()
