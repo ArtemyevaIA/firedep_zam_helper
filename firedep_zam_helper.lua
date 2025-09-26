@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.26.09.A1")
+script_version("Ver.26.09.A2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -4448,7 +4448,6 @@ function sampev.onServerMessage(color, text)
             setVirtualKeyDown(VK_KEY2, true) -- зажать клавишу
             wait(100)
             setVirtualKeyDown(VK_KEY2, false) -- отжать клавишу
-            sampSendDialogResponse(27258, 1, 2, nil)
 
             local x,y,z = getCharCoordinates(PLAYER_PED) 
             assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('"..lvl.."', '"..x.."','"..y.."','"..z.."', '"..who_nick.."', '"..fire_place.."')"))
