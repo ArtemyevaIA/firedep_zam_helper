@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.25.09.A1")
+script_version("Ver.26.09.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -146,17 +146,21 @@ function main()
     local check_client = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM clients WHERE nick = '"..who_nick.."'"))
     local cnt_client = check_client:fetch({}, "a")
     if cnt_client['cnt'] == '0' then
-        --lastlogin = os.date('%d.%m.%Y %H:%M:%S')
         lastlogin = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
-        assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin, ver) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."', '"..thisScript().version.."')"))
+        assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin, ver, co, coc) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."', '"..thisScript().version.."', '1', '1')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
-        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats from clients c join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
+        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats, c.co, c.coc from clients c join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
         local row = client:fetch({}, "a")
         tlg_id = row['tlg_id']
         give = row['give']
         stats = row['stats']
+        set_co = row['co']
+        set_coc = row['coc']
+
         if tlg_id ~= '0' then tlg_send = true end
+        if set_co == '0' then showorgs = false else showorgs = true end
+        if set_coc == '0' then showorg = false else showorg = true end
 
         --lastlogin = os.date('%d.%m.%Y %H:%M:%S')
         lastlogin = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
@@ -3997,9 +4001,41 @@ function main()
                 end
 
                 -----------------------------------------------------------------------------------
-                -- Быстрое восстановление льготы +10% ---------------------------------------------
+                -- Меню отображения состава справа ------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 6 then
+                    if showorgs then
+                        showorgs = false
+                        assert(conn:execute("UPDATE clients SET coc = 0 WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Отображение меню состава справа {FFA07A}выключено.', 0x90EE90)
+                    else
+                        showorgs = true
+                        assert(conn:execute("UPDATE clients SET coc = '1' WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Отображение меню состава справа {7CFC00}включено.', 0x90EE90)
+                    end
+                    zammenu()
+                end
+
+                -----------------------------------------------------------------------------------
+                -- Отображение состава рядом ------------------------------------------------------
                 -----------------------------------------------------------------------------------
                 if button == 1 and list == 7 then
+                    if showorg then
+                        showorg = false
+                        assert(conn:execute("UPDATE clients SET co = 0 WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Отображение состава рядом справа {FFA07A}выключено.', 0x90EE90)
+                    else
+                        showorg = true
+                        assert(conn:execute("UPDATE clients SET co = '1' WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Отображение сотава рядом справа {7CFC00}включено.', 0x90EE90)
+                    end
+                    zammenu()
+                end
+
+                -----------------------------------------------------------------------------------
+                -- Быстрое восстановление льготы +10% ---------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 9 then
                     sampProcessChatInput('/r Уважаемые сотрудники, прошу минуточку внимания...',-1)
                     wait(1000)
                     sampProcessChatInput('/r Я хочу напомнить вам о том, что спать в раздевалке...',-1)
@@ -4044,7 +4080,7 @@ function main()
                 -----------------------------------------------------------------------------------
                 -- Развернутая статистика по пожарам ----------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 8 then
+                if button == 1 and list == 10 then
                     local list = ''
                     local cnt = 0
                     local week_stats = 0
@@ -4124,7 +4160,7 @@ function main()
                 -----------------------------------------------------------------------------------
                 -- Описание и возможности ---------------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 10 then
+                if button == 1 and list == 12 then
                     sampShowDialog(0, "{FFA500}FAQ по работе с хелпером", "{ffa000}Доступные команды:"..
                         "\n\t{7CFC00}/zam {7FFFD4}- Открыть хеплер руководителя пожарного департамента"..
                         "\n\t{7CFC00}/ftime {7FFFD4}- Посмотреть время следующего пожара"..
@@ -4167,13 +4203,17 @@ function zammenu_service()
     if afk then afk_status = '{00FF7F}[Включен]' else afk_status = '{FFA07A}[Выключен]' end
     if fd_helper then fd_helper_status = '{00FF7F}[Включен]' else fd_helper_status = '{FFA07A}[Выключен]' end
     if tlg_send then tlg_status = '{00FF7F}[Подключен]' else tlg_status = '{FFA07A}[Не подключен]' end
+    if showorg then showorg_inf = '{00FF7F}[Показывать]' else showorg_inf = '{FFA07A}[Не показывать]' end
+    if showorgs then showorgs_inf = '{00FF7F}[Показывать]' else showorgs_inf = '{FFA07A}[Не показывать]' end
 
     sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную"..
                                            "\nСписок изменений в обновлении {7CFC00}"..thisScript().version..
                                            "\n "..
-                                           "\nРежим AFK до конца РД "..afk_status..
-                                           "\nХелпер пожарника "..fd_helper_status..
-                                           "\nPAYDAY в телеграм "..tlg_status..
+                                           "\nРежим AFK до конца РД \t\t\t"..afk_status..
+                                           "\nХелпер пожарника \t\t\t\t"..fd_helper_status..
+                                           "\nPAYDAY в телеграм \t\t\t\t"..tlg_status..
+                                           "\nМеню отображения состава справа \t"..showorgs_inf..
+                                           "\nОтображение состава рядом \t\t"..showorg_inf..
                                            "\n "..
                                            "\n{ffa000}[+10%] {FFFFFF}Быстрое восстановление льготы"..
                                            "\n{FFE4B5}Развернутая статистика по пожарам"..
@@ -4830,9 +4870,9 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         fires = fires:match('(%d+)')
         balls = math.floor(time_post/10) + math.floor(help/5) + math.floor(fires/10)
         sampAddChatMessage('{7FFFD4}Баллы по статистике: {FFFFFF}'..balls, 0x7FFFD4)
-        sampAddChatMessage('{7FFFD4}За посты: {FFFFFF}'..math.floor(time_post/10)..
-                           ' | {7FFFD4}За очаги: {FFFFFF}'..math.floor(fires/10)..
-                           ' | {7FFFD4}За пострадавших: {FFFFFF}'..math.floor(help/5), 0x7FFFD4)
+        sampAddChatMessage('{7FFFD4}Посты: {FFFFFF}'..math.floor(time_post/10).." ["..time_post.." мин.]"..
+                           ' | {7FFFD4}Очаги: {FFFFFF}'..math.floor(fires/10).." ["..fires.." шт.]"..
+                           ' | {7FFFD4}Пострадавшие: {FFFFFF}'..math.floor(help/5).." ["..help.." шт.]", 0x7FFFD4)
     end
 end
 
