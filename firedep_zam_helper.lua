@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.26.09.A5")
+script_version("Ver.30.09.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -27,6 +27,7 @@ local font_flag                     = require('moonloader').font_flag
 local my_font                       = renderCreateFont('Arial', 8.2, font_flag.BOLD + font_flag.SHADOW)
 local mainIni                       = inicfg.load({orgs = {}})
 local pay_week                      = false
+local x4_status                     = false
 
 local trstl = {['B'] = 'Б',['Z'] = 'З',['T'] = 'Т',['Y'] = 'Й',['P'] = 'П',['J'] = 'Дж',['X'] = 'Кс',['G'] = 'Г',['V'] = 'В',['H'] = 'Х',['N'] = 'Н',['E'] = 'Е',['I'] = 'И',['D'] = 'Д',['O'] = 'О',['K'] = 'К',['F'] = 'Ф',['y`'] = 'ы',['e`'] = 'э',['A'] = 'А',['C'] = 'К',['L'] = 'Л',['M'] = 'М',['W'] = 'В',['Q'] = 'К',['U'] = 'А',['R'] = 'Р',['S'] = 'С',['zm'] = 'зьм',['h'] = 'х',['q'] = 'к',['y'] = 'и',['a'] = 'а',['w'] = 'в',['b'] = 'б',['v'] = 'в',['g'] = 'г',['d'] = 'д',['e'] = 'е',['z'] = 'з',['i'] = 'и',['j'] = 'ж',['k'] = 'к',['l'] = 'л',['m'] = 'м',['n'] = 'н',['o'] = 'о',['p'] = 'п',['r'] = 'р',['s'] = 'с',['t'] = 'т',['u'] = 'у',['f'] = 'ф',['x'] = 'x',['c'] = 'к',['``'] = 'ъ',['`'] = 'ь',['_'] = ' '}
 local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т',['th'] = 'т',['Sh'] = 'Ш',['sh'] = 'ш', ['ea'] = 'и',['Ae'] = 'Э',['ae'] = 'э',['size'] = 'сайз',['Jj'] = 'Джейджей',['Whi'] = 'Вай',['whi'] = 'вай',['Ck'] = 'К',['ck'] = 'к',['Kh'] = 'Х',['kh'] = 'х',['hn'] = 'н',['Hen'] = 'Ген',['Zh'] = 'Ж',['zh'] = 'ж',['Yu'] = 'Ю',['yu'] = 'ю',['Yo'] = 'Ё',['yo'] = 'ё',['Cz'] = 'Ц',['cz'] = 'ц', ['ia'] = 'я', ['ea'] = 'и',['Ya'] = 'Я', ['ya'] = 'я', ['ove'] = 'ав',['ay'] = 'эй', ['rise'] = 'райз',['oo'] = 'у', ['Oo'] = 'У'}
@@ -47,25 +48,28 @@ local balls, time_post, help, fires = 0, 0, 0, 0
 
 
 local fires_list = {
-                    {1642.4234, 2180.4091, 11.0258, 1},
+                    {-846.0884, 1488.2093, 18.1344, 1},             -- Возгорание магазина в пустыне
+                    {2244.5944, -30.4941, 26.5403, 1},              -- Церковь в паломино крик
+                    {-193.0916, 1023.3978, 19.7953, 1},             -- Пожар на складе в Форт Карсоне
+                    {1642.4234, 2180.4091, 11.0258, 1},             -- Пожар в мастерской Лас Вентураса 
                     {-1295.4134, 104.2618, 14.3593, 1},
-                    {2423.3774, 2055.4594, 10.9864, 1},
-                    {2529.2770, 1149.7951, 10.8733, 1},
+                    {2423.3774, 2055.4594, 10.9864, 1},             -- Возгорание церкви в Лас Вентурасе 
+                    {2529.2770, 1149.7951, 10.8733, 1},             -- Пожар в жилом доме Лас Вентурасе
                     {-871.1054, 1494.5131, 22.9384, 1},
                     {-2427.1535, 39.5095, 35.2162, 1},
                     {514.8258, -1411.5212, 16.1686, 1},
                     {1105.5765, 1884.7687, 11.0221, 2},
-                    {370.7560, -1990.4370, 7.8739, 2},
+                    {370.7560, -1990.4370, 7.8739, 2},              -- Пирс Санта Мария 
                     {2316.7211, -1749.2310, 13.5672, 2},
                     {-100.9319, -55.0312, 3.1171, 2},
                     {1681.2165, 725.3811, 11.0256, 2},
                     {1927.6845, 177.2301, 37.3727, 2},
-                    {89.8577, -262.6102, 1.7802, 3},
+                    {89.8577, -262.6102, 1.7802, 3},                -- Пожар на складе в деревне Блюббери
                     {2011.6634, -1954.3240, 13.7767, 3},
                     {-1419.5426,-1471.6375,101.1161,3},
                     {1541.0775, -1672.4488, 13.0568, 3},
                     {-1030.7767, -669.1055, 31.5134, 3},
-                    {2444.8303, 1930.0216, 7.9141, 3}
+                    {2422.2346, 1896.9704, 6.0156, 3}
                 }
 
 local update_list = ('{FA8072}Ver.23.09'..
@@ -93,8 +97,7 @@ local update_list = ('{FA8072}Ver.23.09'..
                     '\n\t{00BFFF}22. {87CEFA}Добавлена статистика за месяц.'..
                     '\n\t{00BFFF}23. {87CEFA}Добавлена статистика баллов руководителя.'..
                     '\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Исправление багов.'..
-                    '\n\t{00BFFF}1. {87CEFA}Исправлено добавление сотрудников в список организации для отслеживания. Теперь ищет по должности.'..
+                    '\n\t{00BFFF}1. {87CEFA}Добавлена статистика по талону X4. {FFD700}/x4 [цена х4 в кк]'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
                     '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
@@ -217,7 +220,7 @@ function main()
         assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin, ver, co, coc) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."', '"..thisScript().version.."', '1', '1')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
-        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats, c.co, c.coc from clients c join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
+        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats, c.co, c.coc from clients c left join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
         local row = client:fetch({}, "a")
         tlg_id = row['tlg_id']
         give = row['give']
@@ -229,10 +232,51 @@ function main()
         if set_co == '0' then showorgs = false else showorgs = true end
         if set_coc == '0' then showorg = false else showorg = true end
 
-        --lastlogin = os.date('%d.%m.%Y %H:%M:%S')
+        local check_x4 = assert(conn:execute("SELECT COUNT(*) AS 'cnt' FROM x4 WHERE nick = '"..who_nick.."' and status = '1'"))
+        local cnt_client_x4 = check_x4:fetch({}, "a")
+        if cnt_client_x4['cnt'] ~= '0' then
+            local x4_info = assert(conn:execute("select * from x4 WHERE nick = '"..who_nick.."' and status = '1'"))
+            local rowx4 = x4_info:fetch({}, "a")
+
+            if rowx4['status'] ~= '0' then 
+                x4_status = true
+                x4_count = rowx4['count']
+                x4_price = rowx4['price']
+                x4_give = rowx4['give']
+                x4_profit = rowx4['profit']
+            end
+        end
+
         lastlogin = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
         assert(conn:execute("UPDATE clients SET lastlogin = '"..lastlogin.."', ver = '"..thisScript().version.."' WHERE nick = '"..who_nick.."'"))
     end
+
+    sampRegisterChatCommand("x4", function(var) 
+        if var ~= '' then
+            if x4_status then 
+                sampAddChatMessage('Вы уже активировали X4 на 24 Payday за '..x4_price, 0x00BFFF) 
+            else
+                x4_date = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                x4_status = true
+                x4_count = '24'
+                x4_price = var..'000000'
+                x4_give = '0'
+                x4_profit = (x4_price * -1)
+
+                assert(conn:execute("INSERT INTO x4 (nick, count, price, give, profit, status, x4_date) VALUES ('"..who_nick.."', '"..x4_count.."', '"..x4_price.."', '"..x4_give.."', '"..x4_profit.."', '1', '"..x4_date.."')"))
+                sampAddChatMessage('Вы активировали X4 Payday на {FFD700}'..(x4_count/2)..' {00BFFF}часов за {FFD700}$'..x4_price, 0x00BFFF)
+            end
+        else
+            if x4_status then
+                sampAddChatMessage('Статистика по талону X4', 0x00BFFF)
+                sampAddChatMessage('Осталось Payday: {FFD700}'..x4_count, 0x00BFFF)
+                sampAddChatMessage('Последняя получка: {FFD700}'..x4_give, 0x00BFFF)
+                sampAddChatMessage('Профит: {FFD700}'..x4_profit, 0x00BFFF)
+            else
+                sampAddChatMessage('Талон X4 Payday {FF6347}не активирован.', 0x00BFFF)
+            end
+        end
+    end)
 
 
     sampAddChatMessage('', 0x7FFFD4)
@@ -326,6 +370,7 @@ function main()
             dist = getDistanceBetweenCoords3d(x, y, z, fires_list[count][1], fires_list[count][2], fires_list[count][3])
             if dist <= 100 then
                 sampAddChatMessage("Вы находитесь в зоне пожара "..fires_list[count][4].. " степени опасности", -255)
+                sampAddChatMessage("{"..fires_list[count][1]..", "..fires_list[count][2]..", "..fires_list[count][3]..", "..fires_list[count][4].."}", -255)
             end
         end
     end)
@@ -4209,7 +4254,7 @@ function main()
                                                                        "\n{d5a044}Заработано за месяц: {FFFFFF}+$"..month_stats.. " ["..string.format("%2.1f", month_stats/1000000).."М] "..
                                                                        "\n{d5a044}Заработано всего: {FFFFFF}+$"..stats.. " ["..string.format("%2.1f", stats/1000000).."М]"..
                                                                        "\n"..
-                                                                       "\n{d5a044}Предварительные баллы руководителя: {FFFFFF}+"..(rowe.lvl1*5)+(rowe.lvl1*10)+(rowe.lvl1*15)+balls..
+                                                                       "\n{d5a044}Предварительные баллы руководителя: {FFFFFF}+"..(rowe.lvl1*5)+(rowe.lvl2*10)+(rowe.lvl3*15)+balls..
                                                                        "\n{d5a044}Пожары 1 степени: {FFFFFF} "..rowe.lvl1.." шт. \t"..(rowe.lvl1*5).." баллов"..
                                                                        "\n{d5a044}Пожары 2 степени: {FFFFFF} "..rowe.lvl2.." шт. \t"..(rowe.lvl2*10).." баллов"..
                                                                        "\n{d5a044}Пожары 3 степени: {FFFFFF} "..rowe.lvl3.." шт. \t"..(rowe.lvl3*15).." баллов"..
@@ -4221,7 +4266,47 @@ function main()
                                                                        "\n"..
                                                                        "\n{AFEEEE}Статистика за последние 20 пожаров:"..
                                                                        "\n"..list, 
-                                      "Закрыть", "")
+                                      "Отчёт", "Закрыть")
+                    while sampIsDialogActive(0) do wait(100) end
+                    local result, button, _, input = sampHasDialogRespond(0)
+                    if button == 1 then 
+                        local file_report = io.open(getGameDirectory() .. "\\moonloader\\report.txt", "w")
+                        file_report:write("[TABLE width='100%']"..
+"[TR]\n"..
+"[td][FONT=times new roman]Имя Фамилия: [COLOR=rgb(65, 168, 95)]"..who_nick:gsub('_', ' ').."[/COLOR][/FONT][/td]\n"..
+"[/TR]\n"..
+"[TR]\n"..
+"[td][FONT=times new roman]Организация: [COLOR=rgb(65, 168, 95)]FD[/COLOR][/FONT][/td]\n"..
+"[/TR]\n"..
+"[TR]\n"..
+"[td][FONT=times new roman]Должность: [COLOR=rgb(65, 168, 95)]9[/COLOR][/FONT][/td]\n"..
+"[/TR]\n"..
+"[TR]\n"..
+"[td][FONT=times new roman]Ссылка на страницу ВК: [URL='https://vk.com/artemjevnikitos'][COLOR=rgb(65, 168, 95)]Документация[/COLOR][/URL][/FONT][/td]\n"..
+"[/TR]\n"..
+"[TR]\n"..
+"[td][FONT=times new roman]Что было проделано за эту неделю с доказательствами:\n"..
+"1. Пожары 1 степени ("..rowe.lvl1..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+"2. Пожары 2 степени ("..rowe.lvl2..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+"3. Пожары 3 степени ("..rowe.lvl3..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+"4. Потушено очагов пожаров ("..fires..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+"5. Спасено пострадавших ("..help..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+"6. Времени на постах ("..time_post..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL][/FONT][/td]\n"..
+"[/TR]\n"..
+"[TR]\n"..
+"[td][FONT=times new roman]Кому выдать баллы (Лидер/Зам): [COLOR=rgb(65, 168, 95)]Заместитель (мне)[/COLOR][/FONT][/td]\n"..
+"[/TR]\n"..
+"[TR]\n"..
+"[td][FONT=times new roman]Доказательства онлайна в Discord [для получения бонуса]: -[/FONT][/td]\n"..
+"[/TR]\n"..
+"[TR]\n"..
+"[td][FONT=times new roman]Работа проведена с [COLOR=rgb(65, 168, 95)]15.09.2025[/COLOR] по [COLOR=rgb(65, 168, 95)]21.09.2025[/COLOR][/FONT][/td]\n"..
+"[/TR]\n"..
+"[/TABLE]")
+                        file_report:close()
+                    end
+
+                    if button == 0 then zammenu() end
                 end
 
                 -----------------------------------------------------------------------------------
@@ -4830,6 +4915,21 @@ function sampev.onServerMessage(color, text)
             sendvkimg(encodeUrl(info),img)
         end)
     end
+
+    if x4_status and text:find('Общая заработная плата: $(%d+)') then
+        x4_give = string.match(text,"Общая заработная плата: $(%d+)")
+        if x4_count == '1' then
+            sampAddChatMessage('Время действия X4 Payday {FF4500}завершен.', 0x00BFFF)
+            assert(conn:execute("UPDATE x4 SET count = count - 1, give = give + '"..x4_give.."', status = '0', profit = profit + '"..x4_give.."' WHERE nick = '"..who_nick.."' and status = '1'"))
+            x4_profit = x4_profit + x4_give
+            x4_count = x4_count - 1
+            x4_status = false
+        else
+            x4_profit = x4_profit + x4_give
+            x4_count = x4_count - 1
+            assert(conn:execute("UPDATE x4 SET count = count - 1, give = give + '"..x4_give.."', profit = profit + '"..x4_give.."' WHERE nick = '"..who_nick.."' and status = '1'"))
+        end
+    end
 end
 
 function sampGetPlayerIdByNickname(nick)
@@ -4853,10 +4953,10 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     if afk and dialogId == 25527 then
         if title:find("Выбор места спавна") then 
             if text:find("Последнее место выхода") then
-                sampSendDialogResponse(dialogId, 1, 4, nil)
+                sampSendDialogResponse(dialogId, 1, 5, nil)
                 return false
             end
-            sampSendDialogResponse(dialogId, 1, 3, nil)
+            sampSendDialogResponse(dialogId, 1, 4, nil)
             return false
         end
     end
@@ -4873,9 +4973,66 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         if dialogId == 7238 then
             lua_thread.create(function()
                 wait(2000)
-                sampSendDialogResponse(7238, 1, 0, nil)
+                -- sampSendDialogResponse(7238, 1, 0, nil)
                 
+                --     ----------------------------------------
+                --     -- Дом №1 ------------------------------
+                --     -- Стойка №1 ---------------------------
+                --     -- Видеокарта №1-4 ---------------------
+                --     ----------------------------------------
+                --     wait(100) sampSendDialogResponse(25182, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 2, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 3, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 4, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                --     ----------------------------------------
+                --     -- Дом №1 ------------------------------
+                --     -- Стойка №2 ---------------------------
+                --     -- Видеокарта №5-8 ---------------------
+                --     ----------------------------------------
+                --     wait(100) sampSendDialogResponse(25182, 1, 7, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 8, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 9, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 10, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                --     ----------------------------------------
+                --     -- Дом №1 ------------------------------
+                --     -- Стойка №3 ---------------------------
+                --     -- Видеокарта №9-12 --------------------
+                --     ----------------------------------------
+                --     wait(100) sampSendDialogResponse(25182, 1, 13, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 14, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 15, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 16, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                --     ----------------------------------------
+                --     -- Дом №1 ------------------------------
+                --     -- Стойка №4 ---------------------------
+                --     -- Видеокарта №13-16 -------------------
+                --     ----------------------------------------
+                --     wait(100) sampSendDialogResponse(25182, 1, 19, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 20, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 21, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 22, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    
+                --     ----------------------------------------
+                --     -- Дом №1 ------------------------------
+                --     -- Стойка №5 ---------------------------
+                --     -- Видеокарта №17-20 -------------------
+                --     ----------------------------------------
+                --     wait(100) sampSendDialogResponse(25182, 1, 25, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 26, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 27, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     wait(100) sampSendDialogResponse(25182, 1, 28, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                --     ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                --     -- смена дома
+                --     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
+
+                    sampSendDialogResponse(7238, 1, 1, nil)
+                    
                     ----------------------------------------
+                    -- Дом №2 ------------------------------
                     -- Стойка №1 ---------------------------
                     -- Видеокарта №1-4 ---------------------
                     ----------------------------------------
@@ -4885,6 +5042,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     wait(100) sampSendDialogResponse(25182, 1, 4, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
 
                     ----------------------------------------
+                    -- Дом №2 ------------------------------
                     -- Стойка №2 ---------------------------
                     -- Видеокарта №5-8 ---------------------
                     ----------------------------------------
@@ -4894,6 +5052,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     wait(100) sampSendDialogResponse(25182, 1, 10, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
 
                     ----------------------------------------
+                    -- Дом №2 ------------------------------
                     -- Стойка №3 ---------------------------
                     -- Видеокарта №9-12 --------------------
                     ----------------------------------------
@@ -4903,6 +5062,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     wait(100) sampSendDialogResponse(25182, 1, 16, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
 
                     ----------------------------------------
+                    -- Дом №2 ------------------------------
                     -- Стойка №4 ---------------------------
                     -- Видеокарта №13-16 -------------------
                     ----------------------------------------
@@ -4912,6 +5072,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     wait(100) sampSendDialogResponse(25182, 1, 22, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
                     
                     ----------------------------------------
+                    -- Дом №2 ------------------------------
                     -- Стойка №5 ---------------------------
                     -- Видеокарта №17-20 -------------------
                     ----------------------------------------
@@ -4919,7 +5080,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     wait(100) sampSendDialogResponse(25182, 1, 26, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
                     wait(100) sampSendDialogResponse(25182, 1, 27, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
                     wait(100) sampSendDialogResponse(25182, 1, 28, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
-
+                    
                     -- закрытие
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
                     wait(1000) sampSendDialogResponse(7238, 0, 0, nil)
