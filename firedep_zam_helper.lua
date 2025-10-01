@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.01.10.A1")
+script_version("Ver.01.10.A2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -4735,7 +4735,7 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find('Давай оплату за хелпера') then
+    if text:find('Сейчас бы в отпуск') then
         lua_thread.create(function()
             wait(1000)
             nick_give = string.match(text,"%a+_%a+")
@@ -4802,66 +4802,81 @@ function sampev.onServerMessage(color, text)
 
     if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)псж(.+)') then
         lua_thread.create(function() wait(100)
-            code_check = math.random(100000,999999)
-            nick = string.match(text,"%a+_%a+")
-            id = sampGetPlayerIdByNickname(nick)
-            local nm = trst(nick)
-            wait(1000)
-            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
-            wait(1000)
-            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            nick_give = string.match(text,"%a+_%a+")
+            if who_nick ~= nick_give then
+                code_check = math.random(100000,999999)
+                nick = string.match(text,"%a+_%a+")
+                id = sampGetPlayerIdByNickname(nick)
+                local nm = trst(nick)
+                wait(1000)
+                sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
+                wait(1000)
+                sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            end
         end)
     end
 
     if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)ПСЖ(.+)') then
         lua_thread.create(function() wait(100)
-            code_check = math.random(100000,999999)
-            nick = string.match(text,"%a+_%a+")
-            id = sampGetPlayerIdByNickname(nick)
-            local nm = trst(nick)
-            wait(1000)
-            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
-            wait(1000)
-            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            nick_give = string.match(text,"%a+_%a+")
+            if who_nick ~= nick_give then
+                code_check = math.random(100000,999999)
+                nick = string.match(text,"%a+_%a+")
+                id = sampGetPlayerIdByNickname(nick)
+                local nm = trst(nick)
+                wait(1000)
+                sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
+                wait(1000)
+                sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            end
         end)
     end
 
     if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)Псж(.+)') then
         lua_thread.create(function() wait(100)
-            code_check = math.random(100000,999999)
-            nick = string.match(text,"%a+_%a+")
-            id = sampGetPlayerIdByNickname(nick)
-            local nm = trst(nick)
-            wait(1000)
-            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
-            wait(1000)
-            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            nick_give = string.match(text,"%a+_%a+")
+            if who_nick ~= nick_give then
+                code_check = math.random(100000,999999)
+                nick = string.match(text,"%a+_%a+")
+                id = sampGetPlayerIdByNickname(nick)
+                local nm = trst(nick)
+                wait(1000)
+                sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
+                wait(1000)
+                sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            end
         end)
     end
 
     if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)увал(.+)') then
         lua_thread.create(function() wait(100)
-            code_check = math.random(100000,999999)
-            nick = string.match(text,"%a+_%a+")
-            id = sampGetPlayerIdByNickname(nick)
-            local nm = trst(nick)
-            wait(1000)
-            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
-            wait(1000)
-            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            nick_give = string.match(text,"%a+_%a+")
+            if who_nick ~= nick_give then
+                code_check = math.random(100000,999999)
+                nick = string.match(text,"%a+_%a+")
+                id = sampGetPlayerIdByNickname(nick)
+                local nm = trst(nick)
+                wait(1000)
+                sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
+                wait(1000)
+                sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            end
         end)
     end
 
     if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+)Увал(.+)') then
         lua_thread.create(function() wait(100)
-            code_check = math.random(100000,999999)
-            nick = string.match(text,"%a+_%a+")
-            id = sampGetPlayerIdByNickname(nick)
-            local nm = trst(nick)
-            wait(1000)
-            sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
-            wait(1000)
-            sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            nick_give = string.match(text,"%a+_%a+")
+            if who_nick ~= nick_give then   
+                code_check = math.random(100000,999999)
+                nick = string.match(text,"%a+_%a+")
+                id = sampGetPlayerIdByNickname(nick)
+                local nm = trst(nick)
+                wait(1000)
+                sampProcessChatInput('/rb Сотрудник '..nm..", отправьте в /r код - "..code_check, -1)
+                wait(1000)
+                sampProcessChatInput('/rb После отправки кода в /r, вы будете автоматически уволены.', -1)
+            end
         end)
     end
 
@@ -4919,7 +4934,7 @@ function sampev.onServerMessage(color, text)
 
     if x4_status and text:find('Общая заработная плата: $(%d+)') then
         x4_give = string.match(text,"Общая заработная плата: $(%d+)")
-        if x4_count ~= '1' then
+        if x4_count == '1' then
             sampAddChatMessage('Время действия X4 Payday {FF4500}завершен.', 0x00BFFF)
             assert(conn:execute("UPDATE x4 SET count = count - 1, give = '"..x4_give.."', status = '0', profit = profit + '"..x4_give.."' WHERE nick = '"..who_nick.."' and status = '1'"))
             x4_profit = x4_profit + x4_give
@@ -4932,25 +4947,10 @@ function sampev.onServerMessage(color, text)
         end
     end
 
-    -- if text:find('Выводить прибыль можно только целыми частями и минимум 1 целый коин.') then
-    --     give_btc = string.match(text,"минимум (%d) целый коин.")
-    --     BTC = BTC+give_btc
-    -- end
-
     if text:find('Вы вывели(.+)BTC') then
         give_btc = string.match(text,"(%d) BTC")
         BTC = BTC+give_btc
     end
-
-    -- if text:find('Вы вывели(.+)BTC') then
-    --     BTC = string.match(text,"(%d) BTC")
-    --     msg = ('Give: '..BTC..' BTC')
-    --     math.randomseed(os.time())
-    --     local rnd = math.random(-2147483648, 2147483647)
-    --     local peer_id = 2000000001
-    --     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
-    --     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&access_token='..token2..'&v=5.81')
-    -- end
 end
 
 
