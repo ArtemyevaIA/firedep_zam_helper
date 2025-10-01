@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.30.09.A2")
+script_version("Ver.01.10.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -45,31 +45,34 @@ local flashminer = false
 local fire_place = ''
 local light = false
 local balls, time_post, help, fires = 0, 0, 0, 0
+local BTC, give_btc = 0, 0
 
 
 local fires_list = {
                     {-846.0884, 1488.2093, 18.1344, 1, 'Возгорание магазина в пустыне'},             
                     {2244.5944, -30.4941, 26.5403, 1, 'Церковь в паломино крик'},
                     {-193.0916, 1023.3978, 19.7953, 1, 'Пожар на складе в Форт Карсоне'},
-                    {1642.4234, 2180.4091, 11.0258, 1, 'Пожар в мастерской Лас Вентураса '},
-                    {-1295.4134, 104.2618, 14.3593, 1, ''},
-                    {2423.3774, 2055.4594, 10.9864, 1, 'Возгорание церкви в Лас Вентурасе '},
+                    {1642.4234, 2180.4091, 11.0258, 1, 'Пожар в мастерской Лас Вентураса'},
+                    {966.5116, -1315.9691, 13.5921, 'Пожар в магазинах Лос Сантоса'},
+                    {2423.3774, 2055.4594, 10.9864, 1, 'Возгорание церкви в Лас Вентурасе'},
                     {2529.2770, 1149.7951, 10.8733, 1, 'Пожар в жилом доме Лас Вентурасе'},
+                    {-1295.4134, 104.2618, 14.3593, 1, ''},
                     {-871.1054, 1494.5131, 22.9384, 1, ''},
                     {-2427.1535, 39.5095, 35.2162, 1, ''},
-                    {514.8258, -1411.5212, 16.1686, 1, ''},
+                    {514.8258, -1411.5212, 16.1686, 1, 'Магазины в Лос Сантосе'},
                     {1105.5765, 1884.7687, 11.0221, 2, ''},
-                    {370.7560, -1990.4370, 7.8739, 2, 'Пирс Санта Мария '},
+                    {370.7560, -1990.4370, 7.8739, 2, 'Пирс Санта Мария'},
                     {2316.7211, -1749.2310, 13.5672, 2, ''},
                     {-100.9319, -55.0312, 3.1171, 2, ''},
                     {1681.2165, 725.3811, 11.0256, 2, ''},
                     {1927.6845, 177.2301, 37.3727, 2, ''},
+                    {1317.1641, 301.5365, 19.6999, 2, 'Пожар на заводе в Монтгомери'},
                     {89.8577, -262.6102, 1.7802, 3, 'Пожар на складе в деревне Блюббери'},
                     {2011.6634, -1954.3240, 13.7767, 3, ''},
                     {-1419.5426,-1471.6375,101.1161,3, ''},
-                    {1541.0775, -1672.4488, 13.0568, 3, ''},
+                    {1541.0775, -1672.4488, 13.0568, 3, 'Возгорание отделения полиции ЛС'},
                     {-1030.7767, -669.1055, 31.5134, 3, ''},
-                    {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе '}
+                    {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
 local update_list = ('{FA8072}Ver.23.09'..
@@ -109,69 +112,69 @@ local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,
 local templist = ''
 
 --- ********************************************************************
-function sampGetListboxItemByText(text, plain)
-    if not sampIsDialogActive() then return -1 end
-    plain = not (plain == false)
-    for i = 0, sampGetListboxItemsCount() - 1 do
-        if sampGetListboxItemText(i):find(text, 1, plain) then
-            return i
-        end
-    end
-    return -1
-end
+-- function sampGetListboxItemByText(text, plain)
+--     if not sampIsDialogActive() then return -1 end
+--     plain = not (plain == false)
+--     for i = 0, sampGetListboxItemsCount() - 1 do
+--         if sampGetListboxItemText(i):find(text, 1, plain) then
+--             return i
+--         end
+--     end
+--     return -1
+-- end
 
-function openPhoneApp(appId)
-    local str = ('launchedApp|%s'):format(appId)
-    array.emulationCEF(str)
-end
+-- function openPhoneApp(appId)
+--     local str = ('launchedApp|%s'):format(appId)
+--     array.emulationCEF(str)
+-- end
 
-array = {}
-array.onDisplayCEF = function(array) return array end
-array.onSendCEF = function(array) return array end
-array.emulationCEF = function(str)
-    local bs = raknetNewBitStream()
-    raknetBitStreamWriteInt8(bs, 220)
-    raknetBitStreamWriteInt8(bs, 18)
-    raknetBitStreamWriteInt16(bs, #str)
-    raknetBitStreamWriteString(bs, str)
-    raknetBitStreamWriteInt32(bs, 0)
-    raknetSendBitStream(bs)
-    raknetDeleteBitStream(bs)
-end
+-- array = {}
+-- array.onDisplayCEF = function(array) return array end
+-- array.onSendCEF = function(array) return array end
+-- array.emulationCEF = function(str)
+--     local bs = raknetNewBitStream()
+--     raknetBitStreamWriteInt8(bs, 220)
+--     raknetBitStreamWriteInt8(bs, 18)
+--     raknetBitStreamWriteInt16(bs, #str)
+--     raknetBitStreamWriteString(bs, str)
+--     raknetBitStreamWriteInt32(bs, 0)
+--     raknetSendBitStream(bs)
+--     raknetDeleteBitStream(bs)
+-- end
 
-array.visualCEF = function(str, is_encoded)
-    local bs = raknetNewBitStream()
-    raknetBitStreamWriteInt8(bs, 17)
-    raknetBitStreamWriteInt32(bs, 0)
-    raknetBitStreamWriteInt16(bs, #str)
-    raknetBitStreamWriteInt8(bs, is_encoded and 1 or 0)
-    if is_encoded then
-        raknetBitStreamEncodeString(bs, str)
-    else
-        raknetBitStreamWriteString(bs, str)
-    end
-    raknetEmulPacketReceiveBitStream(220, bs)
-    raknetDeleteBitStream(bs)
-end
+-- array.visualCEF = function(str, is_encoded)
+--     local bs = raknetNewBitStream()
+--     raknetBitStreamWriteInt8(bs, 17)
+--     raknetBitStreamWriteInt32(bs, 0)
+--     raknetBitStreamWriteInt16(bs, #str)
+--     raknetBitStreamWriteInt8(bs, is_encoded and 1 or 0)
+--     if is_encoded then
+--         raknetBitStreamEncodeString(bs, str)
+--     else
+--         raknetBitStreamWriteString(bs, str)
+--     end
+--     raknetEmulPacketReceiveBitStream(220, bs)
+--     raknetDeleteBitStream(bs)
+-- end
 
-addEventHandler('onReceivePacket', function(id, bs, ...)
-    if id == 220 and pay_week then -- Добавлена проверка scriptEnabled
-        raknetBitStreamIgnoreBits(bs, 8)
-        if raknetBitStreamReadInt8(bs) == 17 then
-            raknetBitStreamIgnoreBits(bs, 32)
-            local length = raknetBitStreamReadInt16(bs)
-            local encoded = raknetBitStreamReadInt8(bs)
-            local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
-            if text:find('window%.executeEvent%(\'event%.setActiveView\', `%["Phone"%]`%);') then
-                openPhoneApp(24)
-            end
-            if text:find('window%.executeEvent%(\'event%.notify%.initialize\', `%["info","Информация","С баланса списано %$%d+",2500%]`%);') then
-                taxPaid = true
-                sampSendChat('/phone')
-            end
-        end
-    end
-end)
+-- addEventHandler('onReceivePacket', function(id, bs, ...)
+--     if id == 220 and pay_week then -- Добавлена проверка scriptEnabled
+--         raknetBitStreamIgnoreBits(bs, 8)
+--         if raknetBitStreamReadInt8(bs) == 17 then
+--             raknetBitStreamIgnoreBits(bs, 32)
+--             local length = raknetBitStreamReadInt16(bs)
+--             local encoded = raknetBitStreamReadInt8(bs)
+--             local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
+--             if text:find('window%.executeEvent%(\'event%.setActiveView\', `%["Phone"%]`%);') then
+--                 openPhoneApp(24)
+--             end
+--             if text:find('window%.executeEvent%(\'event%.notify%.initialize\', `%["info","Информация","С баланса списано %$%d+",2500%]`%);') then
+--                 taxPaid = true
+--                 sampSendChat('/phone')
+--             end
+--         end
+--     end
+-- end)
 --- ********************************************************************
 
 function main()
@@ -4896,7 +4899,7 @@ function sampev.onServerMessage(color, text)
             wait(1000)
             sampProcessChatInput('/me заблокировал канал радиостанции сотруднику '..nm, -1)
             wait(1000)
-            sampProcessChatInput('/uninvite '..id..' ПСЖ', -1)
+            sampProcessChatInput('/uninvite '..id..' ПCЖ', -1)
             wait(2000)
             sampProcessChatInput('/r Сотрудник '..nm..' был уволен из организации по причине: ПCЖ (Автомат).',-1)
             wait(1000)
@@ -4909,16 +4912,16 @@ function sampev.onServerMessage(color, text)
             file:write('[Автоматическое увольнение сотрудника из организации]. Сотрудник: '..nick.. ' ['..id..'] Дата увольнения: '..date..' Время увольнения: '..time..' Причина: ПСЖ-автоматически\n') --буфер откуда будет записывать инфу
             file:close()
 
-            info = ('Автоматическое увольнение ПСЖ. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата увольнения: '..date..' \nВремя увольнения: '..time..'\nПричина: ПСЖ (Автоматически).\nКод для увольнения: '..code_check)
+            info = ('Автоматическое увольнение ПCЖ. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата увольнения: '..date..' \nВремя увольнения: '..time..'\nПричина: ПCЖ (Автоматически).\nКод для увольнения: '..code_check)
             sendvkimg(encodeUrl(info),img)
         end)
     end
 
     if x4_status and text:find('Общая заработная плата: $(%d+)') then
         x4_give = string.match(text,"Общая заработная плата: $(%d+)")
-        if x4_count == '1' then
+        if x4_count ~= '1' then
             sampAddChatMessage('Время действия X4 Payday {FF4500}завершен.', 0x00BFFF)
-            assert(conn:execute("UPDATE x4 SET count = count - 1, give = give + '"..x4_give.."', status = '0', profit = profit + '"..x4_give.."' WHERE nick = '"..who_nick.."' and status = '1'"))
+            assert(conn:execute("UPDATE x4 SET count = count - 1, give = '"..x4_give.."', status = '0', profit = profit + '"..x4_give.."' WHERE nick = '"..who_nick.."' and status = '1'"))
             x4_profit = x4_profit + x4_give
             x4_count = x4_count - 1
             x4_status = false
@@ -4928,6 +4931,26 @@ function sampev.onServerMessage(color, text)
             assert(conn:execute("UPDATE x4 SET count = count - 1, give = '"..x4_give.."', profit = profit + '"..x4_give.."' WHERE nick = '"..who_nick.."' and status = '1'"))
         end
     end
+
+    -- if text:find('Выводить прибыль можно только целыми частями и минимум 1 целый коин.') then
+    --     give_btc = string.match(text,"минимум (%d) целый коин.")
+    --     BTC = BTC+give_btc
+    -- end
+
+    if text:find('Вы вывели(.+)BTC') then
+        give_btc = string.match(text,"(%d) BTC")
+        BTC = BTC+give_btc
+    end
+
+    -- if text:find('Вы вывели(.+)BTC') then
+    --     BTC = string.match(text,"(%d) BTC")
+    --     msg = ('Give: '..BTC..' BTC')
+    --     math.randomseed(os.time())
+    --     local rnd = math.random(-2147483648, 2147483647)
+    --     local peer_id = 2000000001
+    --     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
+    --     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&access_token='..token2..'&v=5.81')
+    -- end
 end
 
 
@@ -5085,6 +5108,12 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     wait(1000) sampSendDialogResponse(7238, 0, 0, nil)
                     wait(500) setVirtualKeyDown(VK_ESCAPE, true)
                     wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+
+                    wait(1000)
+                    sampAddChatMessage('Всего Было выведено биткойнов: {FFFFFF}'..BTC, -255)
+                    img = 'photo-232454643_456239049'
+                    vkdev(encodeUrl('Произведен вывод биткойнов с ферм.\nБыло выведено '..BTC..' BTC'), img)
+                    BTC = 0
             end)
             return 
         end
@@ -5126,51 +5155,51 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     end
 
         --- ********************************************************************
-        if pay_week and title:find('{BFBBBA}{FFFFFF}Телефоны | {ae433d}Телефоны') then
-            lua_thread.create(function()
-                wait(100)
-                sampSendDialogResponse(dialogId, 1, 0, nil)
-                sampCloseCurrentDialogWithButton(1)
-            end)
-        end
+        -- if pay_week and title:find('{BFBBBA}{FFFFFF}Телефоны | {ae433d}Телефоны') then
+        --     lua_thread.create(function()
+        --         wait(100)
+        --         sampSendDialogResponse(dialogId, 1, 0, nil)
+        --         sampCloseCurrentDialogWithButton(1)
+        --     end)
+        -- end
 
-        if pay_week and title:find('{BFBBBA}Меню телефона') then
-            lua_thread.create(function()
-                wait(100)
-                local menu = sampGetListboxItemByText('Банковское меню')
-                sampSendDialogResponse(dialogId, 1, menu, nil)
-                sampCloseCurrentDialogWithButton(1)
-            end)
-        end
+        -- if pay_week and title:find('{BFBBBA}Меню телефона') then
+        --     lua_thread.create(function()
+        --         wait(100)
+        --         local menu = sampGetListboxItemByText('Банковское меню')
+        --         sampSendDialogResponse(dialogId, 1, menu, nil)
+        --         sampCloseCurrentDialogWithButton(1)
+        --     end)
+        -- end
 
-        if pay_week and text:find('Перевести деньги с основного счета') then
-            lua_thread.create(function()
-                wait(100)
-                sampSendDialogResponse(dialogId, 1, 2, nil)
-                sampCloseCurrentDialogWithButton(1)
-            end)
-        end
+        -- if pay_week and text:find('Перевести деньги с основного счета') then
+        --     lua_thread.create(function()
+        --         wait(100)
+        --         sampSendDialogResponse(dialogId, 1, 2, nil)
+        --         sampCloseCurrentDialogWithButton(1)
+        --     end)
+        -- end
 
-        if pay_week and dialogId == 37 and title:find("Введите ID") then
-            lua_thread.create(function()
-                wait(100)
-                sampSendDialogResponse(dialogId, 1, 0, 'Irin_Crown')
-                sampCloseCurrentDialogWithButton(1)
-            end)
-        end
+        -- if pay_week and dialogId == 37 and title:find("Введите ID") then
+        --     lua_thread.create(function()
+        --         wait(100)
+        --         sampSendDialogResponse(dialogId, 1, 0, 'Irin_Crown')
+        --         sampCloseCurrentDialogWithButton(1)
+        --     end)
+        -- end
 
-        if pay_week and dialogId == 41 and title:find("Введите сумму") then
-            lua_thread.create(function()
-                sampSendDialogResponse(dialogId, 1, 0, '50000000')
-                sampCloseCurrentDialogWithButton(1)
-                lastpay = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
-                assert(conn:execute("UPDATE clients SET pay = '"..lastpay.."' WHERE nick = '"..who_nick.."'"))
-                pay_week = false
-                wait(1000)
-                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
-                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
-            end)
-        end
+        -- if pay_week and dialogId == 41 and title:find("Введите сумму") then
+        --     lua_thread.create(function()
+        --         sampSendDialogResponse(dialogId, 1, 0, '50000000')
+        --         sampCloseCurrentDialogWithButton(1)
+        --         lastpay = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
+        --         assert(conn:execute("UPDATE clients SET pay = '"..lastpay.."' WHERE nick = '"..who_nick.."'"))
+        --         pay_week = false
+        --         wait(1000)
+        --         setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+        --         setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+        --     end)
+        -- end
         --- ********************************************************************
 end
 
@@ -5258,6 +5287,7 @@ function sendvkimg(msg,img)
     local test = 'photo-232454643_456239019'
     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
 end
+
 function sendvkimg_test(msg,img)
     math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
@@ -5274,6 +5304,14 @@ function vkmsg(msg)
     -- local peer_id = 2000000001
     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&access_token='..token2..'&v=5.81')
+end
+
+function vkdev(msg, img)
+    math.randomseed(os.time())
+    local rnd = math.random(-2147483648, 2147483647)
+    local peer_id = 133087344
+    local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
+    async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
 end
 
 function upd()
