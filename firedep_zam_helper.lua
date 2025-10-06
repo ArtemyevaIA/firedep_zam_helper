@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.06.10.A1")
+script_version("Ver.06.10.A2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -3920,37 +3920,6 @@ function main()
                                     cnt = cnt+1
                                 end
                             end
-
-                            if row.name:match('первый') then                                                                                             -- если выполнить задание: внести в черный список
-                                local time = os.date('%H:%M:%S', os.time() - (UTC * 3600))
-                                local date = os.date('%d.%m.%Y')
-                                local datetime = (date..' '..time)
-                                local id = sampGetPlayerIdByNickname(row.nick)
-                                local _, who_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                                local who_nick = sampGetPlayerNickname(who_id)
-                                local who_add = (who_nick..' ['..who_id..']')
-
-                                assert(conn:execute("DELETE FROM zadlist WHERE id = '"..row.id.."'"))
-                                assert(conn:execute("INSERT INTO history (datetime, who_nick, zadanie, command, reason, nick, autor) VALUES ('"..datetime.."', '"..who_add.."', '"..row.name.."', '"..row.command.."', '"..row.reason.."', '"..row.nick.."', '"..row.autor.."')"))
-                                
-                                sampProcessChatInput(row.command,-1)
-                                sampProcessChatInput('/time ',-1)
-
-                                sampAddChatMessage('Задание: {ffad33}'..row.name..' {FFFFFF}ВЫПОЛНЕНО', -1)
-
-                                info_2 = ('Получение награды. \n\nДата выполнения: '..date..' \nВремя выполнения: '..time..'\n\nСоздал задание: '..row.autor..'\nВыполнил первым: '..who_nick..' ['..who_id..']')
-                                img = 'photo-232454643_456239048'
-                                sendvkmsgtest(encodeUrl(info_2),img)
-
-                                local cursor = assert(conn:execute("SELECT * FROM zadlist ORDER by uid ASC"))
-                                local row = cursor:fetch({}, "a")
-                                local cnt = 0
-                                while row do
-                                    assert(conn:execute("UPDATE zadlist SET id = '"..cnt.."' WHERE uid = '"..row.uid.."'"))
-                                    row = cursor:fetch({}, "a")
-                                    cnt = cnt+1
-                                end
-                            end
                         end
                     end
 
@@ -5409,42 +5378,34 @@ function loop_async_http_request(url, args, reject)
         end
     end)
 end
+
+-----------------------------------------------------------------------------------
+-- Сообщение в диалог рук-ва ВК ---------------------------------------------------
+-----------------------------------------------------------------------------------
 function sendvkmsg(msg)
-math.randomseed(os.time())
+    math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
-    local peer_id = 2000000003
+    local peer_id = 2000000004
     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
     local test = 'photo-232454643_456239019'
     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&access_token='..token2..'&v=5.81')
 end
 
-function sendvkmsgtest(msg,img)
-    math.randomseed(os.time())
-    local rnd = math.random(-2147483648, 2147483647)
-    local peer_id = 2000000003
-    local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
-    local test = 'photo-232454643_456239019'
-    async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
-end
-
+-----------------------------------------------------------------------------------
+-- Уведомление в диалог ВК --------------------------------------------------------
+-----------------------------------------------------------------------------------
 function sendvkimg(msg,img)
     math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
-    local peer_id = 2000000002
+    local peer_id = 2000000004
     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
     local test = 'photo-232454643_456239019'
     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
 end
 
-function sendvkimg_test(msg,img)
-    math.randomseed(os.time())
-    local rnd = math.random(-2147483648, 2147483647)
-    local peer_id = 2000000001
-    local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
-    local test = 'photo-232454643_456239019'
-    async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
-end
-
+-----------------------------------------------------------------------------------
+-- Сообщение в диалог ВК ----------------------------------------------------------
+-----------------------------------------------------------------------------------
 function vkmsg(msg)
     math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
