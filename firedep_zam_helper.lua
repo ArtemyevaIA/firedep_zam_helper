@@ -34,7 +34,7 @@ local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т'
 
 local date = os.date('%d.%m.%Y')
 local fd_helper, fd_find_fire, autoupdate_loaded, start_sobes, enable_autoupdate, Update, sobes_start = false, false, false, false, true, nil, false
-local afk = true
+local afk = false
 local sobes, next_fire, time_fire, time_end = ',05,Пожарный департамент', 'появится после пожара', '00:00:00', '00:00:00'
 local give, stats, lvl, UTC = 0, 0, 0, 0
 local config = {}
