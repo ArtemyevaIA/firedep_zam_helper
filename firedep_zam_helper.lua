@@ -118,69 +118,69 @@ local templist = ''
 local templ = ''
 
 --- ********************************************************************
--- function sampGetListboxItemByText(text, plain)
---     if not sampIsDialogActive() then return -1 end
---     plain = not (plain == false)
---     for i = 0, sampGetListboxItemsCount() - 1 do
---         if sampGetListboxItemText(i):find(text, 1, plain) then
---             return i
---         end
---     end
---     return -1
--- end
+function sampGetListboxItemByText(text, plain)
+    if not sampIsDialogActive() then return -1 end
+    plain = not (plain == false)
+    for i = 0, sampGetListboxItemsCount() - 1 do
+        if sampGetListboxItemText(i):find(text, 1, plain) then
+            return i
+        end
+    end
+    return -1
+end
 
--- function openPhoneApp(appId)
---     local str = ('launchedApp|%s'):format(appId)
---     array.emulationCEF(str)
--- end
+function openPhoneApp(appId)
+    local str = ('launchedApp|%s'):format(appId)
+    array.emulationCEF(str)
+end
 
--- array = {}
--- array.onDisplayCEF = function(array) return array end
--- array.onSendCEF = function(array) return array end
--- array.emulationCEF = function(str)
---     local bs = raknetNewBitStream()
---     raknetBitStreamWriteInt8(bs, 220)
---     raknetBitStreamWriteInt8(bs, 18)
---     raknetBitStreamWriteInt16(bs, #str)
---     raknetBitStreamWriteString(bs, str)
---     raknetBitStreamWriteInt32(bs, 0)
---     raknetSendBitStream(bs)
---     raknetDeleteBitStream(bs)
--- end
+array = {}
+array.onDisplayCEF = function(array) return array end
+array.onSendCEF = function(array) return array end
+array.emulationCEF = function(str)
+    local bs = raknetNewBitStream()
+    raknetBitStreamWriteInt8(bs, 220)
+    raknetBitStreamWriteInt8(bs, 18)
+    raknetBitStreamWriteInt16(bs, #str)
+    raknetBitStreamWriteString(bs, str)
+    raknetBitStreamWriteInt32(bs, 0)
+    raknetSendBitStream(bs)
+    raknetDeleteBitStream(bs)
+end
 
--- array.visualCEF = function(str, is_encoded)
---     local bs = raknetNewBitStream()
---     raknetBitStreamWriteInt8(bs, 17)
---     raknetBitStreamWriteInt32(bs, 0)
---     raknetBitStreamWriteInt16(bs, #str)
---     raknetBitStreamWriteInt8(bs, is_encoded and 1 or 0)
---     if is_encoded then
---         raknetBitStreamEncodeString(bs, str)
---     else
---         raknetBitStreamWriteString(bs, str)
---     end
---     raknetEmulPacketReceiveBitStream(220, bs)
---     raknetDeleteBitStream(bs)
--- end
+array.visualCEF = function(str, is_encoded)
+    local bs = raknetNewBitStream()
+    raknetBitStreamWriteInt8(bs, 17)
+    raknetBitStreamWriteInt32(bs, 0)
+    raknetBitStreamWriteInt16(bs, #str)
+    raknetBitStreamWriteInt8(bs, is_encoded and 1 or 0)
+    if is_encoded then
+        raknetBitStreamEncodeString(bs, str)
+    else
+        raknetBitStreamWriteString(bs, str)
+    end
+    raknetEmulPacketReceiveBitStream(220, bs)
+    raknetDeleteBitStream(bs)
+end
 
--- addEventHandler('onReceivePacket', function(id, bs, ...)
---     if id == 220 and pay_week then -- Добавлена проверка scriptEnabled
---         raknetBitStreamIgnoreBits(bs, 8)
---         if raknetBitStreamReadInt8(bs) == 17 then
---             raknetBitStreamIgnoreBits(bs, 32)
---             local length = raknetBitStreamReadInt16(bs)
---             local encoded = raknetBitStreamReadInt8(bs)
---             local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
---             if text:find('window%.executeEvent%(\'event%.setActiveView\', `%["Phone"%]`%);') then
---                 openPhoneApp(24)
---             end
---             if text:find('window%.executeEvent%(\'event%.notify%.initialize\', `%["info","Информация","С баланса списано %$%d+",2500%]`%);') then
---                 taxPaid = true
---                 sampSendChat('/phone')
---             end
---         end
---     end
--- end)
+addEventHandler('onReceivePacket', function(id, bs, ...)
+    if id == 220 and pay_week then -- Добавлена проверка scriptEnabled
+        raknetBitStreamIgnoreBits(bs, 8)
+        if raknetBitStreamReadInt8(bs) == 17 then
+            raknetBitStreamIgnoreBits(bs, 32)
+            local length = raknetBitStreamReadInt16(bs)
+            local encoded = raknetBitStreamReadInt8(bs)
+            local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
+            if text:find('window%.executeEvent%(\'event%.setActiveView\', `%["Phone"%]`%);') then
+                openPhoneApp(24)
+            end
+            if text:find('window%.executeEvent%(\'event%.notify%.initialize\', `%["info","Информация","С баланса списано %$%d+",2500%]`%);') then
+                taxPaid = true
+                sampSendChat('/phone')
+            end
+        end
+    end
+end)
 --- ********************************************************************
 
 function main()
@@ -5349,51 +5349,51 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     end
 
         --- ********************************************************************
-        -- if pay_week and title:find('{BFBBBA}{FFFFFF}Телефоны | {ae433d}Телефоны') then
-        --     lua_thread.create(function()
-        --         wait(100)
-        --         sampSendDialogResponse(dialogId, 1, 0, nil)
-        --         sampCloseCurrentDialogWithButton(1)
-        --     end)
-        -- end
+        if pay_week and title:find('{BFBBBA}{FFFFFF}Телефоны | {ae433d}Телефоны') then
+            lua_thread.create(function()
+                wait(100)
+                sampSendDialogResponse(dialogId, 1, 0, nil)
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
 
-        -- if pay_week and title:find('{BFBBBA}Меню телефона') then
-        --     lua_thread.create(function()
-        --         wait(100)
-        --         local menu = sampGetListboxItemByText('Банковское меню')
-        --         sampSendDialogResponse(dialogId, 1, menu, nil)
-        --         sampCloseCurrentDialogWithButton(1)
-        --     end)
-        -- end
+        if pay_week and title:find('{BFBBBA}Меню телефона') then
+            lua_thread.create(function()
+                wait(100)
+                local menu = sampGetListboxItemByText('Банковское меню')
+                sampSendDialogResponse(dialogId, 1, menu, nil)
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
 
-        -- if pay_week and text:find('Перевести деньги с основного счета') then
-        --     lua_thread.create(function()
-        --         wait(100)
-        --         sampSendDialogResponse(dialogId, 1, 2, nil)
-        --         sampCloseCurrentDialogWithButton(1)
-        --     end)
-        -- end
+        if pay_week and text:find('Перевести деньги с основного счета') then
+            lua_thread.create(function()
+                wait(100)
+                sampSendDialogResponse(dialogId, 1, 2, nil)
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
 
-        -- if pay_week and dialogId == 37 and title:find("Введите ID") then
-        --     lua_thread.create(function()
-        --         wait(100)
-        --         sampSendDialogResponse(dialogId, 1, 0, 'Irin_Crown')
-        --         sampCloseCurrentDialogWithButton(1)
-        --     end)
-        -- end
+        if pay_week and dialogId == 37 and title:find("Введите ID") then
+            lua_thread.create(function()
+                wait(100)
+                sampSendDialogResponse(dialogId, 1, 0, 'Irin_Crown')
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
 
-        -- if pay_week and dialogId == 41 and title:find("Введите сумму") then
-        --     lua_thread.create(function()
-        --         sampSendDialogResponse(dialogId, 1, 0, '50000000')
-        --         sampCloseCurrentDialogWithButton(1)
-        --         lastpay = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
-        --         assert(conn:execute("UPDATE clients SET pay = '"..lastpay.."' WHERE nick = '"..who_nick.."'"))
-        --         pay_week = false
-        --         wait(1000)
-        --         setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
-        --         setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
-        --     end)
-        -- end
+        if pay_week and dialogId == 41 and title:find("Введите сумму") then
+            lua_thread.create(function()
+                sampSendDialogResponse(dialogId, 1, 0, '50000000')
+                sampCloseCurrentDialogWithButton(1)
+                lastpay = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                assert(conn:execute("UPDATE clients SET pay = '"..lastpay.."' WHERE nick = '"..who_nick.."'"))
+                pay_week = false
+                wait(1000)
+                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+            end)
+        end
         --- ********************************************************************
 end
 
