@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.14.10.A2")
+script_version("Ver.27.10.A1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -528,17 +528,17 @@ function main()
         --     sampProcessChatInput('/r Благодарю за внимание.',-1)
         -- end
 
-        if os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "00:05:00" then
-                wait(1000)
-                afk = true
-                wait(1000)
-                sampProcessChatInput('/rec',-1)
-                wait(7000)
-                afk = false
-                wait(1000)
-                sampProcessChatInput('/leca',-1)
-                runToCorner()
-        end
+        -- if os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "00:05:00" then
+        --         wait(1000)
+        --         afk = true
+        --         wait(1000)
+        --         sampProcessChatInput('/rec',-1)
+        --         wait(7000)
+        --         afk = false
+        --         wait(1000)
+        --         sampProcessChatInput('/leca',-1)
+        --         runToCorner()
+        -- end
 
         if isKeyJustPressed(vkey.VK_SCROLL) then
            zammenu()
