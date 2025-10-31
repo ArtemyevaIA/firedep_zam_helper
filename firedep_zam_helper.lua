@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.31.10.R2")
+script_version("Ver.31.10.R3")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -496,15 +496,16 @@ function main()
             end
 
             renderFontDrawText(my_font, "{f87858}„лены организации онлайн:", ADM_POS_X, ADM_POS_Y, -255)
-            if showorg then renderFontDrawText(my_font, "{f87858}„лены организации р€дом:", ADM_POS_XX, ADM_POS_YY, -255) end
             for cnt_org, v_org in pairs(tbl_org) do
                 id_org = sampGetPlayerIdByNickname(v_org)
                 color = sampGetPlayerColor(id_org)
 
                 if showorg then
+
                     for _, a in pairs(getAllChars()) do
                         local result_org, uid_org = sampGetPlayerIdByCharHandle(a)
                         if result_org and id_org == uid_org then
+                            renderFontDrawText(my_font, "{f87858}„лены организации р€дом:", ADM_POS_XX, ADM_POS_YY, -255)
                             y_org = y_org+1
                             
                             if color == 2164212992 then
