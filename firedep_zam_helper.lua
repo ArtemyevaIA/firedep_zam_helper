@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.27.10.A1")
+script_version("Ver.31.10.R1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -52,6 +52,8 @@ local BTC, give_btc = 0, 0
 local cruise = false
 local call = false
 local qtime = false
+local RTX = false
+local shownew = false
 
 local fires_list = {
                     {-846.0884, 1488.2093, 18.1344, 1, 'Возгорание магазина в пустыне'},             
@@ -62,53 +64,38 @@ local fires_list = {
                     {2423.3774, 2055.4594, 10.9864, 1, 'Возгорание церкви в Лас Вентурасе'},
                     {2529.2770, 1149.7951, 10.8733, 1, 'Пожар в жилом доме Лас Вентурасе'},
                     {-1295.4134, 104.2618, 14.3593, 1, 'Пожар в аэропорту СФ'},
-                    {-2427.1535, 39.5095, 35.2162, 1, 'Возгорание в квартире в Сан Фиерро (взрыв газа) '},
+                    {-2427.1535, 39.5095, 35.2162, 1, 'Возгорание в квартире в Сан Фиерро (взрыв газа)'},
                     {514.8258, -1411.5212, 16.1686, 1, 'Магазины в Лос Сантосе'},
                     {1105.5765, 1884.7687, 11.0221, 2, 'Склад в Лас Вентурасе'},
                     {370.7560, -1990.4370, 7.8739, 2, 'Пирс Санта Мария'},
                     {2316.7211, -1749.2310, 13.5672, 2, 'Возгорание жилого дома в ЛС'},
-                    {-100.9319, -55.0312, 3.1171, 2, ''},
+                    {-100.9319, -55.0312, 3.1171, 2, 'Возгорание амбара на ферме'},
                     {1681.2165, 725.3811, 11.0256, 2, 'Пожар в ангаре Лас Вентураса'},
                     {1927.6845, 177.2301, 37.3727, 2, 'Возгорание овощебазы около Паломино Крик'},
                     {1317.1641, 301.5365, 19.6999, 2, 'Пожар на заводе в Монтгомери'},
                     {89.8577, -262.6102, 1.7802, 3, 'Пожар на складе в деревне Блюббери'},
                     {2011.6634, -1954.3240, 13.7767, 3, 'Свалка в Лос Сантосе'},
-                    {-1419.5426,-1471.6375,101.1161,3, ''},
+                    {-1419.5426,-1471.6375,101.1161,3, 'Пожар на заброшенной ферме'},
                     {1541.0775, -1672.4488, 13.0568, 3, 'Возгорание отделения полиции ЛС'},
-                    {-1030.7767, -669.1055, 31.5134, 3, ''},
-                    {2464.0771, 1981.6748, 11.0209, 3, 'Нефтебаза Лас Вентурас '},
+                    {-1030.7767, -669.1055, 31.5134, 3, '***'},
+                    {2464.0771, 1981.6748, 11.0209, 1, '***'},
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
 local update_list = ('{FA8072}Ver.23.09'..
-                    '\n\t{00BFFF}1. {87CEFA}Добавлен режим АФК после рабочего дня.'..
-                    '\n\t{00BFFF}2. {87CEFA}Добавлен хедпер с РП отыгровками и статистикой заработка за пожар.'..
-                    '\n\t{00BFFF}3. {87CEFA}Скоррертировано получение часового пояса для получения точного времени.'..
-                    '\n\t{00BFFF}4. {87CEFA}Добавлена команда {FFD700}/ftime {87CEFA}для просмотра времени следуюющего пожара.'..
-                    '\n\t{00BFFF}5. {87CEFA}При появлении в {32CD32}/r {87CEFA}или {32CD32}/rb {87CEFA}слова некст {87CEFA}или next{87CEFA}, вы отправите всем время сл. пожара.'..
-                    '\n\t{00BFFF}6. {87CEFA}Исправлены РП отыгровки на мужской пол.'..
-                    '\n\t{00BFFF}7. {87CEFA}Исправлена ошибка, из-за которой персонаж при уходе в режим AFK не одевался после реконекта в форму.'..
-                    '\n\t{00BFFF}8. {87CEFA}Добавлена функция отображения членов организации онлайн, и кто из оргнанизации рядом с вами.'..
-                    '\n\t{00BFFF}9. {87CEFA}Добавлена возможность быстро восстановить льготу +10% через сервисное меню.'..
-                    '\n\t{00BFFF}10. {87CEFA}Добавлена команда {FFD700}/stime {87CEFA}для сверки часового пояса.'..
-                    '\n\t{00BFFF}11. {87CEFA}Добавлена команда {FFD700}/afk {87CEFA}для моментального ухода в режим AFK.'..
-                    '\n\t{00BFFF}12. {87CEFA}Исправлена глобальная ошибка с кодировкой для соместных заданий.'..
-                    '\n\t{00BFFF}13. {87CEFA}Исправлена ошибка быстрым собеседованием.'..
-                    '\n\t{00BFFF}14. {FFD700}/ftime {87CEFA}теперь показывает общую статистику заработка и доход за прошедний пожар.'..
-                    '\n\t{00BFFF}15. {87CEFA}В сервисном меню появилась развернутая статистика по пожарам.'..
-                    '\n\t{00BFFF}16. {87CEFA}Добавлена команда {FFD700}/fclean {87CEFA}для обнуления статистики по пожарам.'..
-                    '\n\t{00BFFF}17. {87CEFA}Добавлена сервисная функция подключения оповещения и статистики PAYDAY в телеграм.'..
-                    '\n\t{00BFFF}18. {87CEFA}Если у Вас есть манинг ферма и флешка майнера, то по команде {FFD700}/fmn {87CEFA}Вы сможете собрать сразу все битки.'..
-                    '\n\t{00BFFF}19. {87CEFA}Дополнены пункты статистики за пожары.'..
-                    '\n\t{00BFFF}20. {87CEFA}Подключен сбор данных степеней пожаров по прибытию на пожар.'..
-                    '\n\t{00BFFF}21. {87CEFA}Автообновление проверяется в 25 минут каждый час.'..
-                    '\n\t{00BFFF}22. {87CEFA}Добавлена статистика за месяц.'..
-                    '\n\t{00BFFF}23. {87CEFA}Добавлена статистика баллов руководителя.'..
-                    '\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Добавлена статистика по талону X4. {FFD700}/x4 [цена х4 в кк]'..
+                    '\n\t{00BFFF}1. {87CEFA}Весь прошлый функционал.'..
+                    '\n\n{7CFC00}'..thisScript().version..
+                    '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
+                    '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
+                    '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
+                    '\n\t{00BFFF}4. {87CEFA}Описание и возможности было убрано.'..
+                    '\n\t{00BFFF}5. {87CEFA}Добавлена команда {FFD700}/ccal [id] {87CEFA}для быстрого звока по id.'..
+                    '\n\t{00BFFF}6. {87CEFA}Добавлена команда {FFD700}/tt {87CEFA}для показа состава рядом (скопирует также в буфер).'..
+                    '\n\t{00BFFF}7. {87CEFA}Добавлена команда {FFD700}/qtime [00:00:00 мск] {87CEFA}для выхода из игры в установленное время по мск. Вводить полностью.'..
+                    '\n\t{00BFFF}8. {87CEFA}На клавишу {32CD32}[NUM-] {87CEFA}включится круиз контроль. Машина будет ехать сама, пока не будет повторно нажата клавиша {32CD32}[NUM-] {87CEFA}или тормоз {32CD32}[S].'..
+                    '\n\t{00BFFF}9. {87CEFA}Добавлена команда {FFD700}/setafkmenu [*] {87CEFA}для установки пункта при спавше Организация пожарный департамент.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
-                    '\n\t{00BFFF}1. {87CEFA}Сделать автоматический ответ админам, если они спрашивают.'..
-                    '\n\t{00BFFF}2. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
+                    '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
 local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
@@ -118,69 +105,69 @@ local templist = ''
 local templ = ''
 
 --- ********************************************************************
-function sampGetListboxItemByText(text, plain)
-    if not sampIsDialogActive() then return -1 end
-    plain = not (plain == false)
-    for i = 0, sampGetListboxItemsCount() - 1 do
-        if sampGetListboxItemText(i):find(text, 1, plain) then
-            return i
-        end
-    end
-    return -1
-end
+-- function sampGetListboxItemByText(text, plain)
+--     if not sampIsDialogActive() then return -1 end
+--     plain = not (plain == false)
+--     for i = 0, sampGetListboxItemsCount() - 1 do
+--         if sampGetListboxItemText(i):find(text, 1, plain) then
+--             return i
+--         end
+--     end
+--     return -1
+-- end
 
-function openPhoneApp(appId)
-    local str = ('launchedApp|%s'):format(appId)
-    array.emulationCEF(str)
-end
+-- function openPhoneApp(appId)
+--     local str = ('launchedApp|%s'):format(appId)
+--     array.emulationCEF(str)
+-- end
 
-array = {}
-array.onDisplayCEF = function(array) return array end
-array.onSendCEF = function(array) return array end
-array.emulationCEF = function(str)
-    local bs = raknetNewBitStream()
-    raknetBitStreamWriteInt8(bs, 220)
-    raknetBitStreamWriteInt8(bs, 18)
-    raknetBitStreamWriteInt16(bs, #str)
-    raknetBitStreamWriteString(bs, str)
-    raknetBitStreamWriteInt32(bs, 0)
-    raknetSendBitStream(bs)
-    raknetDeleteBitStream(bs)
-end
+-- array = {}
+-- array.onDisplayCEF = function(array) return array end
+-- array.onSendCEF = function(array) return array end
+-- array.emulationCEF = function(str)
+--     local bs = raknetNewBitStream()
+--     raknetBitStreamWriteInt8(bs, 220)
+--     raknetBitStreamWriteInt8(bs, 18)
+--     raknetBitStreamWriteInt16(bs, #str)
+--     raknetBitStreamWriteString(bs, str)
+--     raknetBitStreamWriteInt32(bs, 0)
+--     raknetSendBitStream(bs)
+--     raknetDeleteBitStream(bs)
+-- end
 
-array.visualCEF = function(str, is_encoded)
-    local bs = raknetNewBitStream()
-    raknetBitStreamWriteInt8(bs, 17)
-    raknetBitStreamWriteInt32(bs, 0)
-    raknetBitStreamWriteInt16(bs, #str)
-    raknetBitStreamWriteInt8(bs, is_encoded and 1 or 0)
-    if is_encoded then
-        raknetBitStreamEncodeString(bs, str)
-    else
-        raknetBitStreamWriteString(bs, str)
-    end
-    raknetEmulPacketReceiveBitStream(220, bs)
-    raknetDeleteBitStream(bs)
-end
+-- array.visualCEF = function(str, is_encoded)
+--     local bs = raknetNewBitStream()
+--     raknetBitStreamWriteInt8(bs, 17)
+--     raknetBitStreamWriteInt32(bs, 0)
+--     raknetBitStreamWriteInt16(bs, #str)
+--     raknetBitStreamWriteInt8(bs, is_encoded and 1 or 0)
+--     if is_encoded then
+--         raknetBitStreamEncodeString(bs, str)
+--     else
+--         raknetBitStreamWriteString(bs, str)
+--     end
+--     raknetEmulPacketReceiveBitStream(220, bs)
+--     raknetDeleteBitStream(bs)
+-- end
 
-addEventHandler('onReceivePacket', function(id, bs, ...)
-    if id == 220 and pay_week then -- Добавлена проверка scriptEnabled
-        raknetBitStreamIgnoreBits(bs, 8)
-        if raknetBitStreamReadInt8(bs) == 17 then
-            raknetBitStreamIgnoreBits(bs, 32)
-            local length = raknetBitStreamReadInt16(bs)
-            local encoded = raknetBitStreamReadInt8(bs)
-            local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
-            if text:find('window%.executeEvent%(\'event%.setActiveView\', `%["Phone"%]`%);') then
-                openPhoneApp(24)
-            end
-            if text:find('window%.executeEvent%(\'event%.notify%.initialize\', `%["info","Информация","С баланса списано %$%d+",2500%]`%);') then
-                taxPaid = true
-                sampSendChat('/phone')
-            end
-        end
-    end
-end)
+-- addEventHandler('onReceivePacket', function(id, bs, ...)
+--     if id == 220 and pay_week then -- Добавлена проверка scriptEnabled
+--         raknetBitStreamIgnoreBits(bs, 8)
+--         if raknetBitStreamReadInt8(bs) == 17 then
+--             raknetBitStreamIgnoreBits(bs, 32)
+--             local length = raknetBitStreamReadInt16(bs)
+--             local encoded = raknetBitStreamReadInt8(bs)
+--             local text = (encoded ~= 0) and raknetBitStreamDecodeString(bs, length + encoded) or raknetBitStreamReadString(bs, length)
+--             if text:find('window%.executeEvent%(\'event%.setActiveView\', `%["Phone"%]`%);') then
+--                 openPhoneApp(24)
+--             end
+--             if text:find('window%.executeEvent%(\'event%.notify%.initialize\', `%["info","Информация","С баланса списано %$%d+",2500%]`%);') then
+--                 taxPaid = true
+--                 sampSendChat('/phone')
+--             end
+--         end
+--     end
+-- end)
 --- ********************************************************************
 
 function main()
@@ -226,16 +213,17 @@ function main()
     local cnt_client = check_client:fetch({}, "a")
     if cnt_client['cnt'] == '0' then
         lastlogin = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
-        assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin, ver, co, coc) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."', '"..thisScript().version.."', '1', '1')"))
+        assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin, ver, co, coc, afk) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."', '"..thisScript().version.."', '1', '1', '0')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
-        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats, c.co, c.coc from clients c left join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
+        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats, c.co, c.coc, c.afk from clients c left join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
         local row = client:fetch({}, "a")
         tlg_id = row['tlg_id']
         give = row['give']
         stats = row['stats']
         set_co = row['co']
         set_coc = row['coc']
+        afkmenu = row['afk']
 
         if tlg_id ~= '0' then tlg_send = true end
         if set_co == '0' then showorgs = false else showorgs = true end
@@ -261,6 +249,13 @@ function main()
         assert(conn:execute("UPDATE clients SET lastlogin = '"..lastlogin.."', ver = '"..thisScript().version.."' WHERE nick = '"..who_nick.."'"))
     end
 
+    sampAddChatMessage('', 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Версия помощника: {7CFC00}'..thisScript().version..' {7FFFD4}Часовой пояс: {FFFFFF}+'..UTC..' {FFFFFF}мск', 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Команда для открытия меню {ffa000}/zam {7FFFD4}или клавиша {ffa000}Scroll Lock', 0x7FFFD4)
+    sampAddChatMessage('{7FFFD4}Разработчик: {ffa000}Irin_Crown (Никита Артемьев)', 0x7FFFD4)
+    sampAddChatMessage('', 0x7FFFD4)
+    
     sampRegisterChatCommand("x4", function(var) 
         if var ~= '' then
             if x4_status then 
@@ -301,39 +296,13 @@ function main()
             end
         end
     end)
-
-    -- sampRegisterChatCommand("tsms", function(var)
-    --     t_id = var:match('%d+')
-    --     t_text = var:gsub('%d+', '')
-    --     setClipboardText(t_text)
-
-    --     sampProcessChatInput('/number '..t_id, -1)
-
-    --     function sampev.onServerMessage(color, text)
-    --         if text:find('{33CCFF}(%d+)') then
-    --             t_number = text:match('{33CCFF}(%d+)')
-    --             --sampAddChatMessage("id игрока: "..t_id, -255)
-    --             --sampAddChatMessage("Номер телефона: "..t_number, -255)
-    --             sampAddChatMessage("Сообщение абоненту: "..t_text, -255)
-    --         end
-    --     end
-
-    --     sampProcessChatInput('/sms '..t_number, -1)
-    -- end)
-
-    sampRegisterChatCommand("tcall", function(var)
+    sampRegisterChatCommand("ccall", function(var)
         call = true
         sampProcessChatInput('/number '..var, -1)
     end)
-
-
-    sampAddChatMessage('', 0x7FFFD4)
-    sampAddChatMessage('{7FFFD4}Помощник руководителя пожарного департамента загружен', 0x7FFFD4)
-    sampAddChatMessage('{7FFFD4}Версия помощника: {7CFC00}'..thisScript().version..' {7FFFD4}Часовой пояс: {FFFFFF}+'..UTC..' {FFFFFF}мск', 0x7FFFD4)
-    sampAddChatMessage('{7FFFD4}Команда для открытия меню {ffa000}/zam {7FFFD4}или клавиша {ffa000}Scroll Lock', 0x7FFFD4)
-    sampAddChatMessage('{7FFFD4}Разработчик: {ffa000}Irin_Crown (Никита Артемьев)', 0x7FFFD4)
-    sampAddChatMessage('', 0x7FFFD4)
-    
+    sampRegisterChatCommand("rtx", function() RTX = not RTX
+        sampProcessChatInput((RTX and ')' or '('), -1)
+    end)
     sampRegisterChatCommand('zam', zammenu)
     sampRegisterChatCommand('upd', upd)
     sampRegisterChatCommand('stime', stime)
@@ -349,20 +318,22 @@ function main()
         assert(conn:execute("UPDATE firehelp SET give = 0, stats = 0 WHERE nick = '"..who_nick.."'"))
         assert(conn:execute("UPDATE firehelp_history SET active = 0 WHERE nick = '"..who_nick.."'"))
     end)
-
     sampRegisterChatCommand('afk', function()
-        afk = true
-        sampSetGamestate(GAMESTATE_DISCONNECTED)
-        sampDisconnectWithReason(0)
-        sampAddChatMessage('', 0x90EE90)
-        sampAddChatMessage('{90EE90}Выполнен уход в режим АФК. Ваша сессия завершена.', 0x90EE90)
-        sampAddChatMessage('{90EE90}За 5 минут до окончания рабочего дня будет выполнена команда /rec.', 0x90EE90)
-        sampAddChatMessage('{90EE90}После персонаж автоматически пойдет одеваться и встанет в угол фармить.', 0x90EE90)
-        sampAddChatMessage('', 0x90EE90)
-        sampAddChatMessage('{90EE90}Ожидаем {FFFFFF}19:55:00 {90EE90}для выхода из режима.', 0x90EE90)
-        sampAddChatMessage('', 0x90EE90)
+        if afkmenu == 0 then 
+            sampAddChatMessage('{90EE90}Вам необходимо установить пункт спавна Организация Пожарный департамент через команду {FA8072}/setafkmenu [номер пункта при спавне]', 0x90EE90)
+        else
+            afk = true
+            sampSetGamestate(GAMESTATE_DISCONNECTED)
+            sampDisconnectWithReason(0)
+            sampAddChatMessage('', 0x90EE90)
+            sampAddChatMessage('{90EE90}Выполнен уход в режим АФК. Ваша сессия завершена.', 0x90EE90)
+            sampAddChatMessage('{90EE90}За 5 минут до окончания рабочего дня будет выполнена команда /rec.', 0x90EE90)
+            sampAddChatMessage('{90EE90}После персонаж автоматически пойдет одеваться и встанет в угол фармить.', 0x90EE90)
+            sampAddChatMessage('', 0x90EE90)
+            sampAddChatMessage('{90EE90}Ожидаем {FFFFFF}19:55:00 {90EE90}для выхода из режима.', 0x90EE90)
+            sampAddChatMessage('', 0x90EE90)
+        end
     end)
-
     sampRegisterChatCommand("co", co)
     sampRegisterChatCommand("new", neworg)
     sampRegisterChatCommand("del", delorg)
@@ -436,6 +407,13 @@ function main()
             qtime = false
         end
     end)
+
+    sampRegisterChatCommand('setafkmenu', function(var)
+        afkmenu = tonumber(var-1)
+        if afkmenu == -1 then afkmenu = 0 end
+        assert(conn:execute("UPDATE clients SET afk = '"..afkmenu.."' WHERE nick = '"..who_nick.."'"))
+        sampAddChatMessage('Пукнт при спавне Организация Пожарный департамент установлен на {FFFFFF}'..var, -255)
+    end)
             
     while true do wait(0)
         if showorgs then
@@ -460,7 +438,6 @@ function main()
             end
 
             renderFontDrawText(my_font, "{f87858}Члены организации онлайн:", ADM_POS_X, ADM_POS_Y, -255)
-
             for cnt_org, v_org in pairs(tbl_org) do
                 id_org = sampGetPlayerIdByNickname(v_org)
                 color = sampGetPlayerColor(id_org)
@@ -474,19 +451,69 @@ function main()
                             
                             if color == 2164212992 then
                                 renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
+                            elseif color == 23486046 then
+                                renderFontDrawText(my_font, cnt_org..". {808080}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
                             else
                                 renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
                             end
                         end
                     end
                 end
-
+                
                 if color == 2164212992 then
                     renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
+                elseif color == 23486046 then
+                    renderFontDrawText(my_font, cnt_org..". {808080}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
                 else
                     renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
                 end
+                
             end
+        end
+
+        if shownew then
+            local resX, resY = getScreenResolution()
+            local ADM_POS_X = resX-(resX/27*3)
+            local ADM_POS_Y = resY/4
+            local ADM_POS_XX = resX-(resX/27*5)
+            local ADM_POS_YY = resY/4
+            local PLY_POS_Y = resY/3
+            local PLY_POS_X = resX/27
+
+            local tbl_orgnew = {}
+            local y_org, n_org = 0, 0
+
+            for id_org = 0, sampGetMaxPlayerId() do
+                if sampIsPlayerConnected(id_org) then
+                    local name_org, id_org = sampGetPlayerNickname(id_org)
+                    if findInIni(name_org) then 
+                        table.insert(tbl_orgnew,name_org)
+                    end
+                end
+            end
+
+            renderFontDrawText(my_font, "{1E90FF}Сотрудники по заявлению:", ADM_POS_X-290, ADM_POS_Y, -255)
+            for cnt_org, v_org in pairs(tbl_orgnew) do
+                id_org = sampGetPlayerIdByNickname(v_org)
+                color = sampGetPlayerColor(id_org)                
+                renderFontDrawText(my_font, cnt_org..". {87CEFA}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X-290, ADM_POS_Y+cnt_org*13, -255)
+            end
+        end
+
+        if x4_status then
+            local resX, resY = getScreenResolution()
+            local ADM_POS_X = resX-(resX/27*3)
+            local ADM_POS_Y = resY/4
+            local ADM_POS_XX = resX-(resX/27*5)
+            local ADM_POS_YY = resY/4
+
+            renderFontDrawText(my_font, "{1E90FF}Талон X4 PAYDAY активен"..
+                                        "\n{00BFFF}Осталось Payday: {FFFFFFFF}"..x4_count.." / 24"..
+                                        "\n{00BFFF}Цена талона: {FFFFFFFF}$"..tonumber(x4_price).. " ["..string.format("%2.1f", x4_price/1000000).."М]"..
+                                        "\n{00BFFF}Последняя получка: {FFFFFFFF}$"..tonumber(x4_give).. " ["..string.format("%2.1f", tonumber(x4_give)/1000000).."М]"..
+                                        "\n{00BFFF}Профит: {FFFFFFFF}$"..tonumber(x4_profit).." ["..string.format("%2.1f", tonumber(x4_profit)/1000000).."М]"..
+                                        "\n{00BFFF}Депозит: {FFFFFFFF}$"..tonumber(x4_dep).." ["..string.format("%2.1f", tonumber(x4_dep)/1000000).."М]",
+                                        ADM_POS_X-1650, ADM_POS_Y+360, 0xFFFFFFFF)
         end
 
         if afk and os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "19:55:00" then
@@ -501,53 +528,26 @@ function main()
             sampProcessChatInput('/q',-1)
         end
 
-        -- if os.date('%M:%S', os.time() - (UTC * 3600)) == "20:00" then
-        --     wait(1000)
-        --     sampProcessChatInput('/r Уважаемые коллеги, минуточку внимания!',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r У Вас есть уникальная возможность получить 2 похвалы.',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r Для этого Вам необходимо заключить со СМИ договор на...',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r ... автообъявление на 10 дней.',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r Для этого Вам необходимо приехать в СМИ, посмотреть ...',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r ... доступные автообъявление и если есть свободные, то ...',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r ... заключить договор у заместителя или руководителя СМИ.',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r Текст объявления следующие:',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r На офф. портале штата открыты заявление на Пожарного[4]. Слава, льготы, женщины. Только у нас!',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r При предъявлении доказательств в спец. рации, вы получите по 2 похвалы ...',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r ... за каждый заключенный контракт. У меня на этом всё.',-1)
-        --     wait(1500)
-        --     sampProcessChatInput('/r Благодарю за внимание.',-1)
-        -- end
-
-        -- if os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "00:05:00" then
-        --         wait(1000)
-        --         afk = true
-        --         wait(1000)
-        --         sampProcessChatInput('/rec',-1)
-        --         wait(7000)
-        --         afk = false
-        --         wait(1000)
-        --         sampProcessChatInput('/leca',-1)
-        --         runToCorner()
-        -- end
+        if os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "00:05:00" then
+                wait(1000)
+                afk = true
+                wait(1000)
+                sampProcessChatInput('/rec',-1)
+                wait(7000)
+                afk = false
+                wait(1000)
+                sampProcessChatInput('/leca',-1)
+                runToCorner()
+        end
 
         if isKeyJustPressed(vkey.VK_SCROLL) then
            zammenu()
         end
 
         if isKeyJustPressed(vkey.VK_SUBTRACT) then
-           cruise = not cruise
-           sampAddChatMessage('Круиз контроль '..(cruise and "{3CB371}включен. {FFA500}При нажатии тормоза, круиз выключится автомтатически." or "{D2691E}выключен."), 0XFFA500)
-           setVirtualKeyDown(VK_W, false)
+            cruise = not cruise
+            sampAddChatMessage('Круиз контроль '..(cruise and "{3CB371}включен. {FFA500}При нажатии тормоза, круиз выключится автомтатически." or "{D2691E}выключен."), 0XFFA500)
+            setVirtualKeyDown(VK_W, false)
         end
 
         if isKeyJustPressed(vkey.VK_NUMPAD2) then
@@ -563,7 +563,6 @@ function main()
 
         if cruise then
             setVirtualKeyDown(VK_W, true) -- зажать клавишу
-            --wait(100)
         end
         
         local result, button, list, input = sampHasDialogRespond(1999)
@@ -823,7 +822,7 @@ function main()
                             ranklist()
                             while sampIsDialogActive(2007) do wait(100) end
                             local result, button, list, input = sampHasDialogRespond(2007)
-                            local rank = {"Рекрут", "Старший рекрут", "Младший пожарный", "Пожарный", "Старший пожарный", "Пожарный инспектор", "Лейтенант", "Капитан"}
+                            local rank = {"Рекрут", "Старший рекрут", "Младший пожарный", "Пожарный", "Инженер-оператор", "Лейтенант", "Капитан", "Огненный командир"}
                             
                             -----------------------------------------------------------------------------------
                             -- [1] Рекрут ---------------------------------------------------------------------
@@ -3079,6 +3078,111 @@ function main()
                                 sampProcessChatInput('/time',-1)
                             end
                         end
+
+                        if button == 1 and list == 7 then                            
+                            inputid()
+                            while sampIsDialogActive(2001) do wait(100) end
+                            local result, button, _, input = sampHasDialogRespond(2001)
+
+                            if button == 1 then
+                                local id = input
+                                local nick = sampGetPlayerNickname(id)
+                                local nm = trst(nick)
+                                sampProcessChatInput(nm..' для вас задание: закупите новую форму в пожарный департамент.',-1)
+                                wait(1000)
+                                sampProcessChatInput('/time',-1)
+                            end
+                        end
+
+                        if button == 1 and list == 8 then                            
+                            inputid()
+                            while sampIsDialogActive(2001) do wait(100) end
+                            local result, button, _, input = sampHasDialogRespond(2001)
+
+                            if button == 1 then
+                                local id = input
+                                local nick = sampGetPlayerNickname(id)
+                                local nm = trst(nick)
+                                sampProcessChatInput(nm..' для вас задание: доставьте новые рации в пожарный департамент.',-1)
+                                wait(1000)
+                                sampProcessChatInput('/time',-1)
+                            end
+                        end
+
+                        if button == 1 and list == 9 then                            
+                            inputid()
+                            while sampIsDialogActive(2001) do wait(100) end
+                            local result, button, _, input = sampHasDialogRespond(2001)
+
+                            if button == 1 then
+                                local id = input
+                                local nick = sampGetPlayerNickname(id)
+                                local nm = trst(nick)
+                                sampProcessChatInput(nm..' для вас задание: проведите тех. обслуживание рабочих машин.',-1)
+                                wait(1000)
+                                sampProcessChatInput('/time',-1)
+                            end
+                        end
+
+                        if button == 1 and list == 10 then                            
+                            inputid()
+                            while sampIsDialogActive(2001) do wait(100) end
+                            local result, button, _, input = sampHasDialogRespond(2001)
+
+                            if button == 1 then
+                                local id = input
+                                local nick = sampGetPlayerNickname(id)
+                                local nm = trst(nick)
+                                sampProcessChatInput(nm..' для вас задание: обновите план пожарной эвакуации в холле.',-1)
+                                wait(1000)
+                                sampProcessChatInput('/time',-1)
+                            end
+                        end
+
+                        if button == 1 and list == 11 then                            
+                            inputid()
+                            while sampIsDialogActive(2001) do wait(100) end
+                            local result, button, _, input = sampHasDialogRespond(2001)
+
+                            if button == 1 then
+                                local id = input
+                                local nick = sampGetPlayerNickname(id)
+                                local nm = trst(nick)
+                                sampProcessChatInput(nm..' для вас задание: обучите коллегу работе с огнетушителем.',-1)
+                                wait(1000)
+                                sampProcessChatInput('/time',-1)
+                            end
+                        end
+
+                        if button == 1 and list == 12 then                            
+                            inputid()
+                            while sampIsDialogActive(2001) do wait(100) end
+                            local result, button, _, input = sampHasDialogRespond(2001)
+
+                            if button == 1 then
+                                local id = input
+                                local nick = sampGetPlayerNickname(id)
+                                local nm = trst(nick)
+                                sampProcessChatInput(nm..' для вас задание: пробегите 3 минуты в спортзале на бег. дорожке (без формы).',-1)
+                                wait(1000)
+                                sampProcessChatInput('/time',-1)
+                            end
+                        end
+
+                        if button == 1 and list == 13 then                            
+                            inputid()
+                            while sampIsDialogActive(2001) do wait(100) end
+                            local result, button, _, input = sampHasDialogRespond(2001)
+
+                            if button == 1 then
+                                local id = input
+                                local nick = sampGetPlayerNickname(id)
+                                local nm = trst(nick)
+                                sampProcessChatInput(nm..' для вас задание: оплатите налоги за электричество пожарного департамента.',-1)
+                                wait(1000)
+                                sampProcessChatInput('/time',-1)
+                            end
+                        end
                     end
 
                     if button == 0 then zammenu() end
@@ -3119,27 +3223,11 @@ function main()
                 end
             end
 
-            -----------------------------------------------------------------------------------
-            -- Проверка на НонРП ник ----------------------------------------------------------
-            -----------------------------------------------------------------------------------
-            if button == 1 and list == 6 then
-                inputid()
-                while sampIsDialogActive(2001) do wait(100) end
-                local result, button, _, input = sampHasDialogRespond(2001)
-
-                if button == 1 then
-                    local id = input
-                    local nick = '/checkrp '..sampGetPlayerNickname(id)
-
-                    setClipboardText(nick)
-                    sampAddChatMessage('{78dbe2}Команда {ffa000}'..nick..' {78dbe2}скопирована в буфер обмена', -1)
-                end
-            end
 
             -----------------------------------------------------------------------------------
             -- Таймеры ------------------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 7 then
+            if button == 1 and list == 6 then
                 timermenu()
                 while sampIsDialogActive(2017) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(2017)
@@ -3330,7 +3418,7 @@ function main()
             -----------------------------------------------------------------------------------
             -- Заказать доставку ТС -----------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 9 then
+            if button == 1 and list == 8 then
                 sampProcessChatInput('/r Запрашиваю заправку служебного авто, просьба занять места.', -1)
                 wait(5000)
                 sampProcessChatInput('/r Заправка транспорта через 10 секунд.', -1)
@@ -3344,7 +3432,7 @@ function main()
             -----------------------------------------------------------------------------------
             -- Назначить собес на ближ. время -------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 10 then
+            if button == 1 and list == 9 then
                 start_sobes = true
                 sobes_start = true
                 local hour = os.date('%H', os.time() - ((UTC) * 3600) + 3600)
@@ -3355,74 +3443,9 @@ function main()
             end
 
             -----------------------------------------------------------------------------------
-            -- Установить отдел игроку --------------------------------------------------------
-            -----------------------------------------------------------------------------------
-            if button == 1 and list == 11 then
-                settag()
-                while sampIsDialogActive(2020) do wait(100) end
-                local result, button, list, input = sampHasDialogRespond(2020)
-                
-                if button == 1 and list == 0 then
-                    inputid()
-                    while sampIsDialogActive(2001) do wait(100) end
-                    local result, button, _, input = sampHasDialogRespond(2001)
-                    
-                    if button == 1 then
-                        local id = input
-                        local tagname = string.gsub(string.match(sampGetPlayerNickname(id), "_%a+"), "_", "")
-                        sampProcessChatInput('/settag '..id..' TD | '..tagname, -1)
-                    end
-                end
-
-                if button == 1 and list == 1 then
-                    inputid()
-                    while sampIsDialogActive(2001) do wait(100) end
-                    local result, button, _, input = sampHasDialogRespond(2001)
-                    
-                    if button == 1 then
-                        local id = input
-                        local tagname = string.gsub(string.match(sampGetPlayerNickname(id), "_%a+"), "_", "")
-                        sampProcessChatInput('/settag '..id..' ID | '..tagname, -1)
-                    end
-                end
-
-                if button == 1 and list == 2 then
-                    inputid()
-                    while sampIsDialogActive(2001) do wait(100) end
-                    local result, button, _, input = sampHasDialogRespond(2001)
-                    
-                    if button == 1 then
-                        local id = input
-                        local tagname = string.gsub(string.match(sampGetPlayerNickname(id), "_%a+"), "_", "")
-                        sampProcessChatInput('/settag '..id..' DA | '..tagname, -1)
-                    end
-                end
-
-                if button == 1 and list == 3 then
-                    inputid()
-                    while sampIsDialogActive(2001) do wait(100) end
-                    local result, button, _, input = sampHasDialogRespond(2001)
-                    
-                    if button == 1 then
-                        local date = (os.date('%d.%m')+1)
-                        local time = (os.date('%H:%M'))
-                        local id = input
-                        local name = sampGetPlayerNickname(id)
-                        local tagname = string.gsub(string.match(name, "_%a+"), "_", "")
-                        local nm = trst(name)
-                        sampProcessChatInput('/settag '..id..' РПник до '..date, -1)
-                        wait(1000)
-                        sampProcessChatInput('/r '..nm.. ', Вам необходимо сменить имя в течении 24 часов. Иначе Вы будете уволены.', -1)
-                        text = ('Игроку '..sampGetPlayerNickname(id).. ' ['..id..'] установлено требование:\nСменить НонРП ник до '..date..'.2025 '..time)
-                        vkmsg(encodeUrl(text))
-                    end
-                end
-            end
-
-            -----------------------------------------------------------------------------------
             -- Отправить сообщение в диалог вк ------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 12 then
+            if button == 1 and list == 10 then
                 inputmsg()
                 while sampIsDialogActive(2022) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2022)
@@ -3437,7 +3460,7 @@ function main()
             -----------------------------------------------------------------------------------
             -- Сообщение в диалог рук-ва ВК ---------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 13 then
+            if button == 1 and list == 11 then
                 inputmsg()
                 while sampIsDialogActive(2022) do wait(100) end
                 local result, button, _, input = sampHasDialogRespond(2022)
@@ -3453,7 +3476,7 @@ function main()
             -----------------------------------------------------------------------------------
             -- Совместные задания -------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 15 then
+            if button == 1 and list == 13 then
                 zadmenu()
                 while sampIsDialogActive(1000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(1000)
@@ -4055,12 +4078,12 @@ function main()
                 -- История выполнения заданий -----------------------------------------------------
                 -----------------------------------------------------------------------------------
                 if button == 1 and list == 4 then
-                    local cursor = assert(conn:execute("SELECT * FROM history ORDER by uid ASC"))
+                    local cursor = assert(conn:execute("SELECT * FROM history ORDER by uid DESC LIMIT 20"))
                     local row = cursor:fetch({}, "a")
                     info = ''
 
                     while row do
-                        info = '{87CEFA}'..row.datetime.. ' {FF8C00}' ..row.who_nick.. ' {87CEFA}выполнил задание: {FF8C00}'..row.zadanie..' '..row.nick..' {87CEFA}Причина: {FF8C00}'..row.reason..' {87CEFA}| {FF8C00}'..row.autor..' \n'..info
+                        info = info..'{87CEFA}'..row.datetime.. ' {FF8C00}' ..row.who_nick.. ' {87CEFA}выполнил задание: {FF8C00}'..row.zadanie..' '..row.nick..' {87CEFA}Причина: {FF8C00}'..row.reason..' {87CEFA}| {FF8C00}'..row.autor..'\n'
                         row = cursor:fetch({}, "a")
                     end
 
@@ -4077,7 +4100,7 @@ function main()
             -----------------------------------------------------------------------------------
             -- Сервисные функции --------------------------------------------------------------
             -----------------------------------------------------------------------------------
-            if button == 1 and list == 16 then
+            if button == 1 and list == 14 then
                 zammenu_service()
                 while sampIsDialogActive(9000) do wait(100) end
                 local result, button, list, input = sampHasDialogRespond(9000)
@@ -4103,194 +4126,9 @@ function main()
                 end
 
                 -----------------------------------------------------------------------------------
-                -- Режим AFK ----------------------------------------------------------------------
-                -----------------------------------------------------------------------------------
-                if button == 1 and list == 3 then
-                    if afk then
-                        afk = false
-                        sampAddChatMessage('Режим AFK отключен.', -255)
-                    else
-                        afk = true
-                        sampAddChatMessage('{90EE90}Включен режим AFK. Через 30 секунд ваша сессия будет завершена.', 0x90EE90)
-                        sampAddChatMessage('{90EE90}За 5 минут до окончания рабочего дня будет выполнена команда /rec.', 0x90EE90)
-                        sampAddChatMessage('{90EE90}После персонаж автоматически пойдет одеваться и встанет в угол фармить.', 0x90EE90)
-                        sampAddChatMessage('{90EE90}Для отключения зайдите обратно в сервисное меню и переключите режим.', 0x90EE90)
-                        lua_thread.create(function()
-                            if afk then
-                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}30 секунд', 0x90EE90)
-                                wait(1000*15)
-                            end
-                            if afk then                                
-                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}15 секунд', 0x90EE90)
-                                wait(1000*5)
-                            end
-                            if afk then
-                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}10 секунд', 0x90EE90)
-                                wait(1000*5)
-                            end
-                            if afk then
-                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}5 секунд', 0x90EE90)
-                                wait(1000)
-                            end
-                            if afk then
-                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}4 секунды', 0x90EE90)
-                                wait(1000)
-                            end
-                            if afk then
-                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}3 секунды', 0x90EE90)
-                                wait(1000)
-                            end
-                            if afk then
-                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}2 секунды', 0x90EE90)
-                                wait(1000)
-                            end
-                            if afk then
-                                sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}1 секунда', 0x90EE90)
-                                wait(1000)
-                            end
-                            if afk then
-                                sampAddChatMessage('{90EE90}Уходим в режим AFK до окончания рабочего дня.', 0x90EE90)
-                                wait(1000)
-                                sampSetGamestate(GAMESTATE_DISCONNECTED)
-                                sampDisconnectWithReason(0)
-                                sampAddChatMessage('', 0x90EE90)
-                                sampAddChatMessage('{90EE90}Выполнен уход в режим АФК.', 0x90EE90)
-                                sampAddChatMessage('{90EE90}Ожидаем {FFFFFF}19:55:00 {90EE90}для выхода из режима.', 0x90EE90)
-                                sampAddChatMessage('', 0x90EE90)
-                            end
-                        end)
-                    end
-                    zammenu()
-                end
-
-                -----------------------------------------------------------------------------------
-                -- Хелпер пожарника ---------------------------------------------------------------
-                -----------------------------------------------------------------------------------
-                if button == 1 and list == 4 then
-                    if fd_helper then
-                        fd_helper = false
-                        fd_find_fire = false
-                        sampAddChatMessage('{90EE90}Хелпер пожарного департамента {FFA07A}выключен.', 0x90EE90)
-                    else
-                        fd_helper = true
-                        lua_thread.create(function()
-                            sampAddChatMessage('{90EE90}Хелпер пожарного департамента {7CFC00}включен.', 0x90EE90)
-                            sampAddChatMessage('{90EE90}После происхождения первого пожара автоматически запустится отыгровка РП.', 0x90EE90)
-                            sampAddChatMessage('{90EE90}Пока проишествие не будет завершено, отыгровки по новой не запустятся.', 0x90EE90)
-                            sampAddChatMessage('{90EE90}По окончанию пожара вы получите окно статистики: ', 0x90EE90)
-                            sampAddChatMessage('{90EE90}Степень происшествия / Время начала / Время окончания / Сколько заработано', 0x90EE90)
-                            sampAddChatMessage('{7FFFD4}Для просмотра времени следующего происшествия введите: {ffa000}/ftime', 0x7FFFD4)
-                        end)
-                    end
-                    zammenu()
-                end
-
-                -----------------------------------------------------------------------------------
-                -- PAYDAY в телеграм --------------------------------------------------------------
-                -----------------------------------------------------------------------------------
-                if button == 1 and list == 5 then
-                    if tlg_send then
-                        tlg_send = false
-                        assert(conn:execute("UPDATE clients SET tlg_id = 0 WHERE nick = '"..who_nick.."'"))
-                        sampAddChatMessage('{90EE90}Уведомление в телеграм о получении PAYDAY {FFA07A}выключено.', 0x90EE90)
-                    else
-                        idtlg()
-                        while sampIsDialogActive(3000) do wait(100) end
-                        local result, button, _, input = sampHasDialogRespond(3000)
-
-                        if button == 1 then
-                            tlg_send = true
-                            tlg_id = input
-                            assert(conn:execute("UPDATE clients SET tlg_id = '"..tlg_id.."' WHERE nick = '"..who_nick.."'"))
-                            sampAddChatMessage('{90EE90}Уведомление в телеграм о получении PAYDAY {7CFC00}включено.', 0x90EE90)
-                            sampAddChatMessage('{90EE90}Уведомления будут приходить по {ffa000}id'..tlg_id, 0x90EE90)
-                        end
-
-                    end
-                    zammenu()
-                end
-
-                -----------------------------------------------------------------------------------
-                -- Меню отображения состава справа ------------------------------------------------
-                -----------------------------------------------------------------------------------
-                if button == 1 and list == 6 then
-                    if showorgs then
-                        showorgs = false
-                        assert(conn:execute("UPDATE clients SET coc = 0 WHERE nick = '"..who_nick.."'"))
-                        sampAddChatMessage('{90EE90}Отображение меню состава справа {FFA07A}выключено.', 0x90EE90)
-                    else
-                        showorgs = true
-                        assert(conn:execute("UPDATE clients SET coc = '1' WHERE nick = '"..who_nick.."'"))
-                        sampAddChatMessage('{90EE90}Отображение меню состава справа {7CFC00}включено.', 0x90EE90)
-                    end
-                    zammenu()
-                end
-
-                -----------------------------------------------------------------------------------
-                -- Отображение состава рядом ------------------------------------------------------
-                -----------------------------------------------------------------------------------
-                if button == 1 and list == 7 then
-                    if showorg then
-                        showorg = false
-                        assert(conn:execute("UPDATE clients SET co = 0 WHERE nick = '"..who_nick.."'"))
-                        sampAddChatMessage('{90EE90}Отображение состава рядом справа {FFA07A}выключено.', 0x90EE90)
-                    else
-                        showorg = true
-                        assert(conn:execute("UPDATE clients SET co = '1' WHERE nick = '"..who_nick.."'"))
-                        sampAddChatMessage('{90EE90}Отображение сотава рядом справа {7CFC00}включено.', 0x90EE90)
-                    end
-                    zammenu()
-                end
-
-                -----------------------------------------------------------------------------------
-                -- Быстрое восстановление льготы +10% ---------------------------------------------
-                -----------------------------------------------------------------------------------
-                if button == 1 and list == 9 then
-                    sampProcessChatInput('/r Уважаемые сотрудники, прошу минуточку внимания...',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r Я хочу напомнить вам о том, что спать в раздевалке...',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r В рабочее время запрещено.',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r Также запрещено разгуливать вне департамента...',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r в рабочей форме. Если поймаем вас на этом...',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r Будут применены дисциплинарные меры.',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r Спать в раздевалке можно только не в рабочее время.',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r Во избежание получения дисциплинарных взысканий, рекомендую Вам ознакомится....',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r ... с полным уставом, находящегося на официальном портале департамента.',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r С уважением, руководитель пожарного департамента - '..nick_fire..'.',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r Спасибо что прослушали эту информацию.',-1)
-                    wait(1000)
-                    sampProcessChatInput('/r Хорошей службы!',-1)
-                    wait(3000)
-                    sampProcessChatInput('/d [FD] - [ALL]: Уважаемые коллеги, прошу минуточку внимания...', -1)
-                    wait(1000)
-                    sampProcessChatInput('/d [FD] - [ALL]: В связи участившимися случаями пожаров, просьба довести до личного состава...', -1)
-                    wait(1000)
-                    sampProcessChatInput('/d [FD] - [ALL]: правила обращения со средствами пожаротушения. ', -1)
-                    wait(1000)
-                    sampProcessChatInput('/d [FD] - [ALL]: Проверить актуальность планов пожарной эвакуации...', -1)
-                    wait(1000)
-                    sampProcessChatInput('/d [FD] - [ALL]: а также проверить техническое состояние огнетушителей...', -1)
-                    wait(1000)
-                    sampProcessChatInput('/d [FD] - [ALL]: и наличие средств оказания первой помощи.', -1)
-                    wait(1000)
-                    sampProcessChatInput('/d [FD] - [ALL]: У меня на этом всё, благодарю за внимание.', -1)
-                    wait(1000)
-                    sampProcessChatInput('/d [FD] - [ALL]: С уважением, руководитель Пожарного департамента - '..nick_fire, -1)
-                end
-
-                -----------------------------------------------------------------------------------
                 -- Развернутая статистика по пожарам ----------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 10 then
+                if button == 1 and list == 2 then
                     local list = ''
                     local cnt = 0
                     local week_stats = 0
@@ -4370,37 +4208,37 @@ function main()
                     if button == 1 then 
                         local file_report = io.open(getGameDirectory() .. "\\moonloader\\report.txt", "w")
                         file_report:write("[TABLE width='100%']"..
-"[TR]\n"..
-"[td][FONT=times new roman]Имя Фамилия: [COLOR=rgb(65, 168, 95)]"..who_nick:gsub('_', ' ').."[/COLOR][/FONT][/td]\n"..
-"[/TR]\n"..
-"[TR]\n"..
-"[td][FONT=times new roman]Организация: [COLOR=rgb(65, 168, 95)]FD[/COLOR][/FONT][/td]\n"..
-"[/TR]\n"..
-"[TR]\n"..
-"[td][FONT=times new roman]Должность: [COLOR=rgb(65, 168, 95)]9[/COLOR][/FONT][/td]\n"..
-"[/TR]\n"..
-"[TR]\n"..
-"[td][FONT=times new roman]Ссылка на страницу ВК: [URL='https://vk.com/artemjevnikitos'][COLOR=rgb(65, 168, 95)]Документация[/COLOR][/URL][/FONT][/td]\n"..
-"[/TR]\n"..
-"[TR]\n"..
-"[td][FONT=times new roman]Что было проделано за эту неделю с доказательствами:\n"..
-"1. Пожары 1 степени ("..rowe.lvl1..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
-"2. Пожары 2 степени ("..rowe.lvl2..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
-"3. Пожары 3 степени ("..rowe.lvl3..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
-"4. Потушено очагов пожаров ("..fires..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
-"5. Спасено пострадавших ("..help..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
-"6. Времени на постах ("..time_post..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL][/FONT][/td]\n"..
-"[/TR]\n"..
-"[TR]\n"..
-"[td][FONT=times new roman]Кому выдать баллы (Лидер/Зам): [COLOR=rgb(65, 168, 95)]Заместитель (мне)[/COLOR][/FONT][/td]\n"..
-"[/TR]\n"..
-"[TR]\n"..
-"[td][FONT=times new roman]Доказательства онлайна в Discord [для получения бонуса]: -[/FONT][/td]\n"..
-"[/TR]\n"..
-"[TR]\n"..
-"[td][FONT=times new roman]Работа проведена с [COLOR=rgb(65, 168, 95)]15.09.2025[/COLOR] по [COLOR=rgb(65, 168, 95)]21.09.2025[/COLOR][/FONT][/td]\n"..
-"[/TR]\n"..
-"[/TABLE]")
+                        "[TR]\n"..
+                        "[td][FONT=times new roman]Имя Фамилия: [COLOR=rgb(65, 168, 95)]"..who_nick:gsub('_', ' ').."[/COLOR][/FONT][/td]\n"..
+                        "[/TR]\n"..
+                        "[TR]\n"..
+                        "[td][FONT=times new roman]Организация: [COLOR=rgb(65, 168, 95)]FD[/COLOR][/FONT][/td]\n"..
+                        "[/TR]\n"..
+                        "[TR]\n"..
+                        "[td][FONT=times new roman]Должность: [COLOR=rgb(65, 168, 95)]9[/COLOR][/FONT][/td]\n"..
+                        "[/TR]\n"..
+                        "[TR]\n"..
+                        "[td][FONT=times new roman]Ссылка на страницу ВК: [URL='https://vk.com/artemjevnikitos'][COLOR=rgb(65, 168, 95)]Документация[/COLOR][/URL][/FONT][/td]\n"..
+                        "[/TR]\n"..
+                        "[TR]\n"..
+                        "[td][FONT=times new roman]Что было проделано за эту неделю с доказательствами:\n"..
+                        "1. Пожары 1 степени ("..rowe.lvl1..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+                        "2. Пожары 2 степени ("..rowe.lvl2..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+                        "3. Пожары 3 степени ("..rowe.lvl3..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+                        "4. Потушено очагов пожаров ("..fires..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+                        "5. Спасено пострадавших ("..help..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL]\n"..
+                        "6. Времени на постах ("..time_post..") | [URL='ссылка'][COLOR=rgb(65, 168, 95)]Доказательство[/COLOR][/URL][/FONT][/td]\n"..
+                        "[/TR]\n"..
+                        "[TR]\n"..
+                        "[td][FONT=times new roman]Кому выдать баллы (Лидер/Зам): [COLOR=rgb(65, 168, 95)]Заместитель (мне)[/COLOR][/FONT][/td]\n"..
+                        "[/TR]\n"..
+                        "[TR]\n"..
+                        "[td][FONT=times new roman]Доказательства онлайна в Discord [для получения бонуса]: -[/FONT][/td]\n"..
+                        "[/TR]\n"..
+                        "[TR]\n"..
+                        "[td][FONT=times new roman]Работа проведена с [COLOR=rgb(65, 168, 95)]15.09.2025[/COLOR] по [COLOR=rgb(65, 168, 95)]21.09.2025[/COLOR][/FONT][/td]\n"..
+                        "[/TR]\n"..
+                        "[/TABLE]")
                         file_report:close()
                     end
 
@@ -4408,19 +4246,194 @@ function main()
                 end
 
                 -----------------------------------------------------------------------------------
-                -- Описание и возможности ---------------------------------------------------------
+                -- Режим AFK ----------------------------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 12 then
-                    sampShowDialog(0, "{FFA500}FAQ по работе с хелпером", "{ffa000}Доступные команды:"..
-                        "\n\t{7CFC00}/zam {7FFFD4}- Открыть хеплер руководителя пожарного департамента"..
-                        "\n\t{7CFC00}/ftime {7FFFD4}- Посмотреть время следующего пожара"..
-                        "\n\t{7CFC00}/stime {7FFFD4}- Сверка времени с сервером и времения на вашем компьютере"..
-                        "\n\t{7CFC00}/new [id] {7FFFD4}- Добавить сотрудника в список отслеживания онлайн организации"..
-                        "\n\t{7CFC00}/del [id] {7FFFD4}- Удалить сотрудника из списка отслеживания онлайн организации"..
-                        "\n\t{7CFC00}/afk {7FFFD4}- Моментально уйти в режим АФК до конца рабочего дня"..
-                        "\n\n{FFA07A}Дополнится в скором времени.",
-                        "Закрыть", "", DIALOG_STYLE_MSGBOX)
+                if button == 1 and list == 4 then
+                    if afk then
+                        afk = false
+                        sampAddChatMessage('Режим AFK отключен.', -255)
+                    else
+                        if afkmenu == 0 then 
+                            sampAddChatMessage('{90EE90}Вам необходимо установить пункт спавна Организация Пожарный департамент через команду {FA8072}/setafkmenu [номер пункта при спавне]', 0x90EE90)
+                        else
+
+                            afk = true
+                            sampAddChatMessage('{90EE90}Включен режим AFK. Через 30 секунд ваша сессия будет завершена.', 0x90EE90)
+                            sampAddChatMessage('{90EE90}За 5 минут до окончания рабочего дня будет выполнена команда /rec.', 0x90EE90)
+                            sampAddChatMessage('{90EE90}После персонаж автоматически пойдет одеваться и встанет в угол фармить.', 0x90EE90)
+                            sampAddChatMessage('{90EE90}Для отключения зайдите обратно в сервисное меню и переключите режим.', 0x90EE90)
+                            lua_thread.create(function()
+                                if afk then
+                                    sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}30 секунд', 0x90EE90)
+                                    wait(1000*15)
+                                end
+                                if afk then                                
+                                    sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}15 секунд', 0x90EE90)
+                                    wait(1000*5)
+                                end
+                                if afk then
+                                    sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}10 секунд', 0x90EE90)
+                                    wait(1000*5)
+                                end
+                                if afk then
+                                    sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}5 секунд', 0x90EE90)
+                                    wait(1000)
+                                end
+                                if afk then
+                                    sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}4 секунды', 0x90EE90)
+                                    wait(1000)
+                                end
+                                if afk then
+                                    sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}3 секунды', 0x90EE90)
+                                    wait(1000)
+                                end
+                                if afk then
+                                    sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}2 секунды', 0x90EE90)
+                                    wait(1000)
+                                end
+                                if afk then
+                                    sampAddChatMessage('{90EE90}До ухода в режим AFK осталось: {FFFFFF}1 секунда', 0x90EE90)
+                                    wait(1000)
+                                end
+                                if afk then
+                                    sampAddChatMessage('{90EE90}Уходим в режим AFK до окончания рабочего дня.', 0x90EE90)
+                                    wait(1000)
+                                    sampSetGamestate(GAMESTATE_DISCONNECTED)
+                                    sampDisconnectWithReason(0)
+                                    sampAddChatMessage('', 0x90EE90)
+                                    sampAddChatMessage('{90EE90}Выполнен уход в режим АФК.', 0x90EE90)
+                                    sampAddChatMessage('{90EE90}Ожидаем {FFFFFF}19:55:00 {90EE90}для выхода из режима.', 0x90EE90)
+                                    sampAddChatMessage('', 0x90EE90)
+                                end
+                            end)
+                        end
+                    end
+                    zammenu()
                 end
+
+                -----------------------------------------------------------------------------------
+                -- Хелпер пожарника ---------------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 5 then
+                    if fd_helper then
+                        fd_helper = false
+                        fd_find_fire = false
+                        sampAddChatMessage('{90EE90}Хелпер пожарного департамента {FFA07A}выключен.', 0x90EE90)
+                    else
+                        fd_helper = true
+                        lua_thread.create(function()
+                            sampAddChatMessage('{90EE90}Хелпер пожарного департамента {7CFC00}включен.', 0x90EE90)
+                            sampAddChatMessage('{90EE90}После происхождения первого пожара автоматически запустится отыгровка РП.', 0x90EE90)
+                            sampAddChatMessage('{90EE90}Пока проишествие не будет завершено, отыгровки по новой не запустятся.', 0x90EE90)
+                            sampAddChatMessage('{90EE90}По окончанию пожара вы получите окно статистики: ', 0x90EE90)
+                            sampAddChatMessage('{90EE90}Степень происшествия / Время начала / Время окончания / Сколько заработано', 0x90EE90)
+                            sampAddChatMessage('{7FFFD4}Для просмотра времени следующего происшествия введите: {ffa000}/ftime', 0x7FFFD4)
+                        end)
+                    end
+                    zammenu()
+                end
+
+                -----------------------------------------------------------------------------------
+                -- PAYDAY в телеграм --------------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 6 then
+                    if tlg_send then
+                        tlg_send = false
+                        assert(conn:execute("UPDATE clients SET tlg_id = 0 WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Уведомление в телеграм о получении PAYDAY {FFA07A}выключено.', 0x90EE90)
+                    else
+                        idtlg()
+                        while sampIsDialogActive(3000) do wait(100) end
+                        local result, button, _, input = sampHasDialogRespond(3000)
+
+                        if button == 1 then
+                            tlg_send = true
+                            tlg_id = input
+                            assert(conn:execute("UPDATE clients SET tlg_id = '"..tlg_id.."' WHERE nick = '"..who_nick.."'"))
+                            sampAddChatMessage('{90EE90}Уведомление в телеграм о получении PAYDAY {7CFC00}включено.', 0x90EE90)
+                            sampAddChatMessage('{90EE90}Уведомления будут приходить по {ffa000}id'..tlg_id, 0x90EE90)
+                        end
+
+                    end
+                    zammenu()
+                end
+
+                -----------------------------------------------------------------------------------
+                -- Меню отображения состава справа ------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 7 then
+                    if showorgs then
+                        showorgs = false
+                        assert(conn:execute("UPDATE clients SET coc = 0 WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Отображение меню состава справа {FFA07A}выключено.', 0x90EE90)
+                    else
+                        showorgs = true
+                        assert(conn:execute("UPDATE clients SET coc = '1' WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Отображение меню состава справа {7CFC00}включено.', 0x90EE90)
+                    end
+                    zammenu()
+                end
+
+                -----------------------------------------------------------------------------------
+                -- Отображение состава рядом ------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 8 then
+                    if showorg then
+                        showorg = false
+                        assert(conn:execute("UPDATE clients SET co = 0 WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Отображение состава рядом справа {FFA07A}выключено.', 0x90EE90)
+                    else
+                        showorg = true
+                        assert(conn:execute("UPDATE clients SET co = '1' WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Отображение сотава рядом справа {7CFC00}включено.', 0x90EE90)
+                    end
+                    zammenu()
+                end
+
+                -----------------------------------------------------------------------------------
+                -- Быстрое восстановление льготы +10% ---------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 10 then
+                    sampProcessChatInput('/r Уважаемые сотрудники, прошу минуточку внимания...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Я хочу напомнить вам о том, что спать в раздевалке...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r В рабочее время запрещено.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Также запрещено разгуливать вне департамента...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r в рабочей форме. Если поймаем вас на этом...',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Будут применены дисциплинарные меры.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Спать в раздевалке можно только не в рабочее время.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Во избежание получения дисциплинарных взысканий, рекомендую Вам ознакомится....',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r ... с полным уставом, находящегося на официальном портале департамента.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r С уважением, руководитель пожарного департамента - '..nick_fire..'.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Спасибо что прослушали эту информацию.',-1)
+                    wait(1000)
+                    sampProcessChatInput('/r Хорошей службы!',-1)
+                    wait(3000)
+                    sampProcessChatInput('/d [FD] - [ALL]: Уважаемые коллеги, прошу минуточку внимания...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: В связи участившимися случаями пожаров, просьба довести до личного состава...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: правила обращения со средствами пожаротушения. ', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: Проверить актуальность планов пожарной эвакуации...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: а также проверить техническое состояние огнетушителей...', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: и наличие средств оказания первой помощи.', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: У меня на этом всё, благодарю за внимание.', -1)
+                    wait(1000)
+                    sampProcessChatInput('/d [FD] - [ALL]: С уважением, руководитель Пожарного департамента - '..nick_fire, -1)
+                end    
 
                 if button == 0 then
                     zammenu()
@@ -4439,15 +4452,6 @@ function main()
     end
 end
 
--- function JSONSave()
---     if doesFileExist("moonloader/firedep_zam_helper/data.json") then
---         local f = io.open("moonloader/firedep_zam_helper/data.json", 'w+')
---         if f then
---             f:write(encodeJson(config)):close()
---         end
---     end
--- end
-
 function zammenu_service()
     
     if afk then afk_status = '{00FF7F}[Включен]' else afk_status = '{FFA07A}[Выключен]' end
@@ -4458,6 +4462,7 @@ function zammenu_service()
 
     sampShowDialog(9000, "Сервисное меню", "Проверить наличие обновления вручную"..
                                            "\nСписок изменений в обновлении {7CFC00}"..thisScript().version..
+                                           "\n{FFE4B5}Развернутая статистика по пожарам"..
                                            "\n "..
                                            "\nРежим AFK до конца РД \t\t\t"..afk_status..
                                            "\nХелпер пожарника \t\t\t\t"..fd_helper_status..
@@ -4465,14 +4470,11 @@ function zammenu_service()
                                            "\nМеню отображения состава справа \t"..showorgs_inf..
                                            "\nОтображение состава рядом \t\t"..showorg_inf..
                                            "\n "..
-                                           "\n{ffa000}[+10%] {FFFFFF}Быстрое восстановление льготы"..
-                                           "\n{FFE4B5}Развернутая статистика по пожарам"..
-                                           "\n "..
-                                           "\n{7FFFD4}[FAQ] Описание и возможности", 'Выбрать', 'Назад', 2)
+                                           "\n{ffa000}[+10%] {FFFFFF}Быстрое восстановление льготы", 'Выбрать', 'Назад', 2)
 end
 
 function zammenu()
-    sampShowDialog(1999, "{FFA500}Меню заместителя начальника пожарного департамента", 'Работа с составом\nПроверить работу сотрудника\nРП отыгровки (лекции / тренировки / уведомления)\n \nРуссифицировать ник в буфер\nСкопировать ник для проверки ЧСП и ЧСГос\nПроверка на НонРП ник\nТаймеры\n \n{e9dc7c}Заказать доставку ТС\nНазначить собес на ближ. время\nУстановить отдел игроку\n{00EAFF}Сообщение в диалог ВК\n{00EAFF}Сообщение в диалог рук-ва ВК\n \nСовместные задания\nСервисное меню', 'Выбрать', 'Отмена', 2)
+    sampShowDialog(1999, "{FFA500}Меню заместителя начальника пожарного департамента", 'Работа с составом\nПроверить работу сотрудника\nРП отыгровки (лекции / тренировки / уведомления)\n \nРуссифицировать ник в буфер\nСкопировать ник для проверки ЧСП и ЧСГос\nТаймеры\n \n{e9dc7c}Заказать доставку ТС\nНазначить собес на ближ. время\n{00EAFF}Сообщение в диалог ВК\n{00EAFF}Сообщение в диалог рук-ва ВК\n \nСовместные задания\nСервисное меню', 'Выбрать', 'Отмена', 2)
 end
 
 function zad()
@@ -4496,7 +4498,7 @@ function zadlist(logo,data)
 end
 
 function sostav()
-    sampShowDialog(2000, "{FFA500}Работа с составом", string.format("{7ce9b1}Принять в организацию\n{7ce9b1}Повысить сотрудника\n{7ce9b1}Снять выговор\nВыдать выговор\nВыдать выговор {f18779}(офлайн)\nУволить из организации\nУволить из организации {f18779}(офлайн)\nВыдать заглушку чата\nВнести в черный список\nВнести в черный список {f18779}(офлайн)\nПонизить сотрудника\n{dd3366}Выдать похвалу игроку\nВынести из черного списка\nВынести из черного списка {f18779}(офлайн)"), "Выбрать", "Отмена", 2)
+    sampShowDialog(2000, "{FFA500}Работа с составом", string.format("{7ce9b1}Принять в организацию\n{7ce9b1}Повысить сотрудника\n{7ce9b1}Снять выговор\n{B22222}Выдать выговор\nВыдать выговор {f18779}(офлайн)\nУволить из организации\nУволить из организации {f18779}(офлайн)\n{3CB371}Выдать заглушку чата\n{B22222}Внести в черный список\nВнести в черный список {f18779}(офлайн)\nПонизить сотрудника\n{dd3366}Выдать похвалу игроку\nВынести из черного списка\nВынести из черного списка {f18779}(офлайн)"), "Выбрать", "Отмена", 2)
 end
 
 function inputid()
@@ -4536,7 +4538,7 @@ function inputnick()
 end
 
 function rp()
-    sampShowDialog(2009, "{FFA500}РП задания для сотрудников", "Помыть полы в холле департамента\nПолить цветы в холле департамента\nПроверить состояние огнетушителя в холле департамента\nЗаправить все свободные пожарные машины водой\nУтилизировать старые личные дела в архиве\nПротереть доску почета от пыли\nВыбросить муссор из раздевалки пожарного департамента", "Выбрать", "Отмена", 2)
+    sampShowDialog(2009, "{FFA500}РП задания для сотрудников", "Помыть полы в холле департамента\nПолить цветы в холле департамента\nПроверить состояние огнетушителя в холле департамента\nЗаправить все свободные пожарные машины водой\nУтилизировать старые личные дела в архиве\nПротереть доску почета от пыли\nВыбросить муссор из раздевалки пожарного департамента\nЗакуп новой формы\nПоставка новых раций\nТех. обслуживание рабочих машин\nОбновление плана эвакуации\nОбучение коллеги работе с огнетушителем\nБеговая дорожка в спортзале\nОплата налогов за электричество", "Выбрать", "Отмена", 2)
 end
 
 function inputimer()
@@ -4611,6 +4613,15 @@ local id = ''
 function sampev.onServerMessage(color, text)
 
     if tlg_send and text:find('__________Банковский чек__________') then
+        
+        if RTX then lua_thread.create(function()
+            setVirtualKeyDown(VK_RETURN, true) -- зажать клавишу
+            wait(100)
+            setVirtualKeyDown(VK_RETURN, false) -- отжать клавишу
+            end)
+        end
+
+        sampProcessChatInput('/t 29', -1)
         parse = true
         message = (text:gsub("_", "")..'\n')
         elseif tlg_send and text:find('__________________________________') then
@@ -4975,6 +4986,14 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
+    -- if text:find('(.+)забанил игрока(.+)') then
+    --     ban_nick = string.match(text,"забанил игрока %a+_%a+")
+    --     ban_nick = ban_nick:gsub('забанил игрока ', '')
+    --     file = io.open("moonloader/firedep_zam_helper/banlist.txt", "a")
+    --     file:write(text..'\n/find '..ban_nick..' 9\n\n') --буфер откуда будет записывать инфу
+    --     file:close()
+    -- end
+
     if text:find('(%W)R(%W)(.+)(%a+)_(%a+)(.+):(%s)'..code_check) and string.match(text,"%a+_%a+") == nick then
         lua_thread.create(function() wait(100)
             nick = string.match(text,"%a+_%a+")
@@ -5031,10 +5050,10 @@ function sampev.onServerMessage(color, text)
     if x4_status and text:find('Общая заработная плата: $(%d+)') then
         x4_give = string.match(text,"Общая заработная плата: $(%d+)")
         x4_profit = x4_profit + x4_give
-        x4_dep = x4_dep + 849164
+        x4_dep = x4_dep + 977548
         x4_date = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
 
-        if x4_count < tonumber('1') then
+        if x4_count == tonumber('1') then
             
             x4_count = x4_count - 1
             sampAddChatMessage('Время действия X4 Payday {FF4500}завершен.', 0x00BFFF)
@@ -5062,6 +5081,17 @@ function sampev.onServerMessage(color, text)
             call = false
         end)
     end
+
+    if text:find('(.+)Сервер закрыл соединение(.+)') then 
+        lua_thread.create(function() 
+            wait(2000)
+            afk = true
+            sampAddChatMessage('Автоматический реконнект будет через {FFFFFFFF}7 минут', -255)
+            sampProcessChatInput('/t 7', -1)
+            wait(1000*60*7)
+            sampProcessChatInput('/rec', -1)
+        end)
+    end
 end
 
 
@@ -5087,10 +5117,10 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     if afk and dialogId == 25527 then
         if title:find("Выбор места спавна") then 
             if text:find("Последнее место выхода") then
-                sampSendDialogResponse(dialogId, 1, 7, nil)
+                sampSendDialogResponse(dialogId, 1, afkmenu+1, nil)
                 return false
             end
-            sampSendDialogResponse(dialogId, 1, 6, nil)
+            sampSendDialogResponse(dialogId, 1, afkmenu, nil)
             return false
         end
     end
@@ -5107,7 +5137,8 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         if dialogId == 7238 then
             lua_thread.create(function()
                 wait(2000)
-                sampSendDialogResponse(7238, 1, 1, nil)
+                sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№1', -255)
+                sampSendDialogResponse(7238, 1, 0, nil)
                 
                     ----------------------------------------
                     -- Дом №1 ------------------------------
@@ -5162,7 +5193,8 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
 
                     -- смена дома
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
-                    wait(1000) sampSendDialogResponse(7238, 1, 2, nil)
+                    sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№2', -255)
+                    wait(1000) sampSendDialogResponse(7238, 1, 1, nil)
                     
                     ----------------------------------------
                     -- Дом №2 ------------------------------
@@ -5216,7 +5248,8 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
 
                     -- смена дома
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
-                    wait(1000) sampSendDialogResponse(7238, 1, 3, nil)
+                    sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№3', -255)
+                    wait(1000) sampSendDialogResponse(7238, 1, 2, nil)
                     
                     ----------------------------------------
                     -- Дом №3 ------------------------------
@@ -5260,6 +5293,61 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     
                     ----------------------------------------
                     -- Дом №3 ------------------------------
+                    -- Стойка №5 ---------------------------
+                    -- Видеокарта №17-20 -------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 25, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 26, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 27, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 28, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    -- смена дома
+                    wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
+                    sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№5', -255)
+                    wait(1000) sampSendDialogResponse(7238, 1, 4, nil)
+                    
+                    ----------------------------------------
+                    -- Дом №4 ------------------------------
+                    -- Стойка №1 ---------------------------
+                    -- Видеокарта №1-4 ---------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 2, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 3, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 4, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    ----------------------------------------
+                    -- Дом №4 ------------------------------
+                    -- Стойка №2 ---------------------------
+                    -- Видеокарта №5-8 ---------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 7, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 8, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 9, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 10, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    ----------------------------------------
+                    -- Дом №4 ------------------------------
+                    -- Стойка №3 ---------------------------
+                    -- Видеокарта №9-12 --------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 13, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 14, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 15, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 16, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    ----------------------------------------
+                    -- Дом №4 ------------------------------
+                    -- Стойка №4 ---------------------------
+                    -- Видеокарта №13-16 -------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 19, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 20, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 21, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 22, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    
+                    ----------------------------------------
+                    -- Дом №4 ------------------------------
                     -- Стойка №5 ---------------------------
                     -- Видеокарта №17-20 -------------------
                     ----------------------------------------
@@ -5349,51 +5437,51 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     end
 
         --- ********************************************************************
-        if pay_week and title:find('{BFBBBA}{FFFFFF}Телефоны | {ae433d}Телефоны') then
-            lua_thread.create(function()
-                wait(100)
-                sampSendDialogResponse(dialogId, 1, 0, nil)
-                sampCloseCurrentDialogWithButton(1)
-            end)
-        end
+        -- if pay_week and title:find('{BFBBBA}{FFFFFF}Телефоны | {ae433d}Телефоны') then
+        --     lua_thread.create(function()
+        --         wait(100)
+        --         sampSendDialogResponse(dialogId, 1, 0, nil)
+        --         sampCloseCurrentDialogWithButton(1)
+        --     end)
+        -- end
 
-        if pay_week and title:find('{BFBBBA}Меню телефона') then
-            lua_thread.create(function()
-                wait(100)
-                local menu = sampGetListboxItemByText('Банковское меню')
-                sampSendDialogResponse(dialogId, 1, menu, nil)
-                sampCloseCurrentDialogWithButton(1)
-            end)
-        end
+        -- if pay_week and title:find('{BFBBBA}Меню телефона') then
+        --     lua_thread.create(function()
+        --         wait(100)
+        --         local menu = sampGetListboxItemByText('Банковское меню')
+        --         sampSendDialogResponse(dialogId, 1, menu, nil)
+        --         sampCloseCurrentDialogWithButton(1)
+        --     end)
+        -- end
 
-        if pay_week and text:find('Перевести деньги с основного счета') then
-            lua_thread.create(function()
-                wait(100)
-                sampSendDialogResponse(dialogId, 1, 2, nil)
-                sampCloseCurrentDialogWithButton(1)
-            end)
-        end
+        -- if pay_week and text:find('Перевести деньги с основного счета') then
+        --     lua_thread.create(function()
+        --         wait(100)
+        --         sampSendDialogResponse(dialogId, 1, 2, nil)
+        --         sampCloseCurrentDialogWithButton(1)
+        --     end)
+        -- end
 
-        if pay_week and dialogId == 37 and title:find("Введите ID") then
-            lua_thread.create(function()
-                wait(100)
-                sampSendDialogResponse(dialogId, 1, 0, 'Irin_Crown')
-                sampCloseCurrentDialogWithButton(1)
-            end)
-        end
+        -- if pay_week and dialogId == 37 and title:find("Введите ID") then
+        --     lua_thread.create(function()
+        --         wait(100)
+        --         sampSendDialogResponse(dialogId, 1, 0, 'Irin_Crown')
+        --         sampCloseCurrentDialogWithButton(1)
+        --     end)
+        -- end
 
-        if pay_week and dialogId == 41 and title:find("Введите сумму") then
-            lua_thread.create(function()
-                sampSendDialogResponse(dialogId, 1, 0, '50000000')
-                sampCloseCurrentDialogWithButton(1)
-                lastpay = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
-                assert(conn:execute("UPDATE clients SET pay = '"..lastpay.."' WHERE nick = '"..who_nick.."'"))
-                pay_week = false
-                wait(1000)
-                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
-                setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
-            end)
-        end
+        -- if pay_week and dialogId == 41 and title:find("Введите сумму") then
+        --     lua_thread.create(function()
+        --         sampSendDialogResponse(dialogId, 1, 0, '50000000')
+        --         sampCloseCurrentDialogWithButton(1)
+        --         lastpay = os.date('%d.%m.%Y')..' '..os.date('%H:%M:%S', os.time() - (UTC * 3600))
+        --         assert(conn:execute("UPDATE clients SET pay = '"..lastpay.."' WHERE nick = '"..who_nick.."'"))
+        --         pay_week = false
+        --         wait(1000)
+        --         setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+        --         setVirtualKeyDown(VK_ESCAPE, true) wait(100) setVirtualKeyDown(VK_ESCAPE, false)
+        --     end)
+        -- end
         --- ********************************************************************
 end
 
