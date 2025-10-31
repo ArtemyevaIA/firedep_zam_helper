@@ -496,7 +496,7 @@ function main()
             end
 
             renderFontDrawText(my_font, "{f87858}„лены организации онлайн:", ADM_POS_X, ADM_POS_Y, -255)
-            if showorg then renderFontDrawText(my_font, "{f87858}„лены организации р€дом:", ADM_POS_XX, ADM_POS_YY, -255) endя 
+            if showorg then renderFontDrawText(my_font, "{f87858}„лены организации р€дом:", ADM_POS_XX, ADM_POS_YY, -255) end
             for cnt_org, v_org in pairs(tbl_org) do
                 id_org = sampGetPlayerIdByNickname(v_org)
                 color = sampGetPlayerColor(id_org)
