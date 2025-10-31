@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.31.10.R1")
+script_version("Ver.31.10.R2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -53,7 +53,7 @@ local cruise = false
 local call = false
 local qtime = false
 local RTX = false
-local shownew = false
+local shownew = true
 
 local fires_list = {
                     {-846.0884, 1488.2093, 18.1344, 1, 'Возгорание магазина в пустыне'},             
@@ -94,6 +94,7 @@ local update_list = ('{FA8072}Ver.23.09'..
                     '\n\t{00BFFF}7. {87CEFA}Добавлена команда {FFD700}/qtime [00:00:00 мск] {87CEFA}для выхода из игры в установленное время по мск. Вводить полностью.'..
                     '\n\t{00BFFF}8. {87CEFA}На клавишу {32CD32}[NUM-] {87CEFA}включится круиз контроль. Машина будет ехать сама, пока не будет повторно нажата клавиша {32CD32}[NUM-] {87CEFA}или тормоз {32CD32}[S].'..
                     '\n\t{00BFFF}9. {87CEFA}Добавлена команда {FFD700}/setafkmenu [*] {87CEFA}для установки пункта при спавше Организация пожарный департамент.'..
+                    '\n\t{00BFFF}10. {87CEFA}Добавлен чекер игроков, которым одобрены заявления через бот в телеграмм. После выполнения задания, игрок исчезнет из списка.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
@@ -197,6 +198,21 @@ function main()
     end
 
     while not isSampAvailable() do wait(0) end
+
+    local tbl_orgnew = {}
+    local y_org, n_org = 0, 0
+    check_client = assert(conn:execute("SELECT * FROM neworg "))
+    row = check_client:fetch({}, "a")
+
+    for id_org = 0, sampGetMaxPlayerId() do
+        if sampIsPlayerConnected(id_org) then
+            local name_org, id_org = sampGetPlayerNickname(id_org)
+            while row do
+                table.insert(tbl_orgnew,row.nick)
+                row = check_client:fetch({}, "a")
+            end
+        end
+    end
     
     UTC = getpoyas() - 3
 
@@ -344,6 +360,48 @@ function main()
     sampRegisterChatCommand("2", function() lvl = 2 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('2', '"..x.."','"..y.."','"..z.."', 'ARM_2', '"..fire_place.."')")) end)
     sampRegisterChatCommand("3", function() lvl = 3 local x,y,z = getCharCoordinates(PLAYER_PED) assert(conn:execute("INSERT INTO temp (lvl, x, y, z, nick, fire_place) VALUES ('3', '"..x.."','"..y.."','"..z.."', 'ARM_3', '"..fire_place.."')")) end)
     
+    sampRegisterChatCommand("dell", function(var) 
+        var = tonumber(var)
+        del_nick = sampGetPlayerNickname(var)
+        assert(conn:execute("DELETE FROM neworg WHERE nick = '"..del_nick.."' "))
+        
+        tbl_orgnew = {}
+        y_org, n_org = 0, 0
+        check_client = assert(conn:execute("SELECT * FROM neworg "))
+        row = check_client:fetch({}, "a")
+
+        for id_org = 0, sampGetMaxPlayerId() do
+            if sampIsPlayerConnected(id_org) then
+                local name_org, id_org = sampGetPlayerNickname(id_org)
+                while row do
+                    table.insert(tbl_orgnew,row.nick)
+                    row = check_client:fetch({}, "a")
+                end
+            end
+        end
+    end)
+
+    sampRegisterChatCommand("neww", function(var) 
+        var = tonumber(var)
+        new_nick = sampGetPlayerNickname(var)
+        assert(conn:execute("INSERT INTO neworg (nick) VALUES ('"..new_nick.."')"))
+        
+        tbl_orgnew = {}
+        y_org, n_org = 0, 0
+        check_client = assert(conn:execute("SELECT * FROM neworg "))
+        row = check_client:fetch({}, "a")
+
+        for id_org = 0, sampGetMaxPlayerId() do
+            if sampIsPlayerConnected(id_org) then
+                local name_org, id_org = sampGetPlayerNickname(id_org)
+                while row do
+                    table.insert(tbl_orgnew,row.nick)
+                    row = check_client:fetch({}, "a")
+                end
+            end
+        end
+    end)
+    
     sampRegisterChatCommand("tt", function() 
             local resX, resY = getScreenResolution()
             local ADM_POS_X = resX-(resX/27*3)
@@ -438,6 +496,7 @@ function main()
             end
 
             renderFontDrawText(my_font, "{f87858}Члены организации онлайн:", ADM_POS_X, ADM_POS_Y, -255)
+            if showorg then renderFontDrawText(my_font, "{f87858}Члены организации рядом:", ADM_POS_XX, ADM_POS_YY, -255) endЯ 
             for cnt_org, v_org in pairs(tbl_org) do
                 id_org = sampGetPlayerIdByNickname(v_org)
                 color = sampGetPlayerColor(id_org)
@@ -447,7 +506,6 @@ function main()
                         local result_org, uid_org = sampGetPlayerIdByCharHandle(a)
                         if result_org and id_org == uid_org then
                             y_org = y_org+1
-                            renderFontDrawText(my_font, "{f87858}Члены организации рядом:", ADM_POS_XX, ADM_POS_YY, -255)
                             
                             if color == 2164212992 then
                                 renderFontDrawText(my_font, cnt_org..". {33ee66}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_XX+n_org*150, ADM_POS_YY+y_org*13, ((findInIni(v_org[1]) and -255) or -255))
@@ -467,7 +525,6 @@ function main()
                 else
                     renderFontDrawText(my_font, cnt_org..". {f87858}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X, ADM_POS_Y+cnt_org*13, -255)
                 end
-                
             end
         end
 
@@ -480,20 +537,8 @@ function main()
             local PLY_POS_Y = resY/3
             local PLY_POS_X = resX/27
 
-            local tbl_orgnew = {}
-            local y_org, n_org = 0, 0
-
-            for id_org = 0, sampGetMaxPlayerId() do
-                if sampIsPlayerConnected(id_org) then
-                    local name_org, id_org = sampGetPlayerNickname(id_org)
-                    if findInIni(name_org) then 
-                        table.insert(tbl_orgnew,name_org)
-                    end
-                end
-            end
-
-            renderFontDrawText(my_font, "{1E90FF}Сотрудники по заявлению:", ADM_POS_X-290, ADM_POS_Y, -255)
             for cnt_org, v_org in pairs(tbl_orgnew) do
+                renderFontDrawText(my_font, "{1E90FF}Сотрудники по заявлению:", ADM_POS_X-290, ADM_POS_Y, -255)
                 id_org = sampGetPlayerIdByNickname(v_org)
                 color = sampGetPlayerColor(id_org)                
                 renderFontDrawText(my_font, cnt_org..". {87CEFA}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X-290, ADM_POS_Y+cnt_org*13, -255)
@@ -538,6 +583,23 @@ function main()
                 wait(1000)
                 sampProcessChatInput('/leca',-1)
                 runToCorner()
+        end
+
+        if os.date('%S', os.time() - (UTC * 3600)) == "30" then
+            tbl_orgnew = {}
+            y_org, n_org = 0, 0
+            check_client = assert(conn:execute("SELECT * FROM neworg "))
+            row = check_client:fetch({}, "a")
+
+            for id_org = 0, sampGetMaxPlayerId() do
+                if sampIsPlayerConnected(id_org) then
+                    local name_org, id_org = sampGetPlayerNickname(id_org)
+                    while row do
+                        table.insert(tbl_orgnew,row.nick)
+                        row = check_client:fetch({}, "a")
+                    end
+                end
+            end
         end
 
         if isKeyJustPressed(vkey.VK_SCROLL) then
@@ -3886,6 +3948,8 @@ function main()
                                         cnt = cnt+1
                                     end
                                 end
+
+                                sampProcessChatInput('/dell '..id)
                             end
 
                             if row.name:match('отдел') then                                                                                              -- если выполнить задание: выдать отдел
@@ -5695,7 +5759,15 @@ function os.offset()
    return currenttime - os.time(datetime)
 end
 
-function findInIni(nick) for _,v in pairs(mainIni.orgs) do if v == nick then return _ end end return false end
+function findInIni(nick)
+    for _,v in pairs(mainIni.orgs) do 
+        if v == nick then 
+            return _ 
+        end 
+    end 
+
+    return false 
+end
 
 function co()
     showorgs = not showorgs
