@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.31.10.R3")
+script_version("Ver.01.11.R1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -203,6 +203,15 @@ function main()
     local y_org, n_org = 0, 0
     check_client = assert(conn:execute("SELECT * FROM neworg "))
     row = check_client:fetch({}, "a")
+    
+    -- for id_org = 0, sampGetMaxPlayerId() do
+    --     if sampIsPlayerConnected(id_org) then
+    --         local name_org, id_org = sampGetPlayerNickname(id_org)
+    --         if findInIni(name_org) then 
+    --             table.insert(tbl_org,name_org)
+    --         end
+    --     end
+    -- end
 
     for id_org = 0, sampGetMaxPlayerId() do
         if sampIsPlayerConnected(id_org) then
@@ -501,7 +510,6 @@ function main()
                 color = sampGetPlayerColor(id_org)
 
                 if showorg then
-
                     for _, a in pairs(getAllChars()) do
                         local result_org, uid_org = sampGetPlayerIdByCharHandle(a)
                         if result_org and id_org == uid_org then
@@ -537,12 +545,15 @@ function main()
             local ADM_POS_YY = resY/4
             local PLY_POS_Y = resY/3
             local PLY_POS_X = resX/27
-
+            local cnt_z = 0
+            
             for cnt_org, v_org in pairs(tbl_orgnew) do
-                renderFontDrawText(my_font, "{1E90FF}Сотрудники по заявлению:", ADM_POS_X-290, ADM_POS_Y, -255)
                 id_org = sampGetPlayerIdByNickname(v_org)
-                color = sampGetPlayerColor(id_org)                
-                renderFontDrawText(my_font, cnt_org..". {87CEFA}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X-290, ADM_POS_Y+cnt_org*13, -255)
+                if sampIsPlayerConnected(id_org) then
+                    cnt_z = cnt_z+1
+                    renderFontDrawText(my_font, "{1E90FF}Сотрудники по заявлению:", ADM_POS_X-290, ADM_POS_Y, -255)
+                    renderFontDrawText(my_font, cnt_z..". {87CEFA}"..v_org.." {ffffff}["..id_org.."]", ADM_POS_X-290, ADM_POS_Y+cnt_z*13, -255)
+                end
             end
         end
 
@@ -2025,7 +2036,7 @@ function main()
                             wait(2000)
                             sampProcessChatInput('/time ',-1)
                             sampShowDialog(0, "{FFA500}Занесение в ЧС ОРГ", "{78dbe2}Сотрудник: {ffa000}"..nick.." ["..id.."]\n\n{78dbe2}Дата занесения: {ffa000}"..date.."\n{78dbe2}Время Занесения: {ffa000}"..time.."\n\n{78dbe2}Причина блокировки: {ffa000}"..reason, "Док-ва", "Закрыть", DIALOG_STYLE_MSGBOX)
-
+                            sampProcessChatInput('/del '..id, -1)
                             lfs.mkdir('moonloader/firedep_zam_helper/Отчеты о проделанной работе/Наказания/'..date.. ' ' ..timed.. ' ' ..nick.. ' (blacklist)')
 
                             while sampIsDialogActive(0) do wait(100) end
@@ -2619,7 +2630,7 @@ function main()
                             wait(1000)
                             sampProcessChatInput('/me выключает КПК и вешает обратно на пояс', -1)
                             wait(1000)
-                            sampProcessChatInput('/unblacklist '..id.. ' -1 '..reason, -1)
+                            sampProcessChatInput('/unblacklist '..id.. ' '..reason, -1)
                             wait(1000)
                             sampProcessChatInput('/r Сотрудник '..nm..' был вынесен из черного списка организации.',-1)
                             wait(2000)
@@ -2686,7 +2697,7 @@ function main()
                             wait(1000)
                             sampProcessChatInput('/me выключает КПК и вешает обратно на пояс', -1)
                             wait(1000)
-                            sampProcessChatInput('/unblacklistoff '..nick.. ' -1 '..reason, -1)
+                            sampProcessChatInput('/unblacklistoff '..nick.. ' '..reason, -1)
                             wait(1000)
                             sampProcessChatInput('/r Сотрудник '..nm..' был вынесен из черного списка организации.',-1)
                             wait(2000)
@@ -3951,6 +3962,7 @@ function main()
                                 end
 
                                 sampProcessChatInput('/dell '..id)
+                                sampProcessChatInput('/new '..id)
                             end
 
                             if row.name:match('отдел') then                                                                                              -- если выполнить задание: выдать отдел
