@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.01.11.R1")
+script_version("Ver.06.11.U1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -34,7 +34,6 @@ local trstl1 = {['ph'] = 'ф',['Ph'] = 'Ф',['Ch'] = 'Ч',['ch'] = 'ч',['Th'] = 'Т'
 
 local date = os.date('%d.%m.%Y')
 local fd_helper, fd_find_fire, autoupdate_loaded, start_sobes, enable_autoupdate, Update, sobes_start = false, false, false, false, true, nil, false
-local afk = false
 local sobes, next_fire, time_fire, time_end = ',05,Пожарный департамент', 'появится после пожара', '00:00:00', '00:00:00'
 local give, stats, lvl, UTC = 0, 0, 0, 0
 local config = {}
@@ -54,6 +53,7 @@ local call = false
 local qtime = false
 local RTX = false
 local shownew = true
+local afk = false
 
 local fires_list = {
                     {-846.0884, 1488.2093, 18.1344, 1, 'Возгорание магазина в пустыне'},             
@@ -5204,7 +5204,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         end
     end
 
-    if afk and dialogId == 27263 then
+    if afk and dialogId == 27267 then
         if title:find("Раздевалка") then
             changedesk = false
             sampSendDialogResponse(dialogId, 1, 0, nil)
@@ -5446,6 +5446,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     img = 'photo-232454643_456239049'
                     vkdev(encodeUrl('Произведен вывод биткойнов с ферм.\nБыло выведено '..BTC..' BTC'), img)
                     BTC = 0
+                    thisScript():reload()
             end)
             return 
         end
@@ -5494,8 +5495,8 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         sampAddChatMessage(fire_place, -255)
     end
 
-    if light and dialogId == 27258 then
-        sampSendDialogResponse(27258, 1, 2, nil)
+    if light and dialogId == 27262 then
+        sampSendDialogResponse(27262, 1, 2, nil)
         return false
     end
 
