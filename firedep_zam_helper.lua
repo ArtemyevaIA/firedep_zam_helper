@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.06.11.U1")
+script_version("Ver.07.11.U1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -82,7 +82,7 @@ local fires_list = {
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
-local update_list = ('{FA8072}Ver.31.10.R3'..
+local update_list = ('{FA8072}Ver.06.11.U1'..
                     '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
                     '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
                     '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
@@ -93,10 +93,11 @@ local update_list = ('{FA8072}Ver.31.10.R3'..
                     '\n\t{00BFFF}8. {87CEFA}На клавишу {32CD32}[NUM-] {87CEFA}включится круиз контроль. Машина будет ехать сама, пока не будет повторно нажата клавиша {32CD32}[NUM-] {87CEFA}или тормоз {32CD32}[S].'..
                     '\n\t{00BFFF}9. {87CEFA}Добавлена команда {FFD700}/setafkmenu [*] {87CEFA}для установки пункта при спавше Организация пожарный департамент.'..
                     '\n\t{00BFFF}10. {87CEFA}Добавлен чекер игроков, которым одобрены заявления через бот в телеграмм. После выполнения задания, игрок исчезнет из списка.'..
+                    '\n\t{00BFFF}11. {87CEFA}Исправлен баг с чекером игроков по заявлению. Теперь работает исправно.'..
+                    '\n\t{00BFFF}12. {87CEFA}Для удаления игрока из чекера вручную команда {FFD700}/dell [id]'..
+                    '\n\t{00BFFF}13. {87CEFA}Для добавления игрока в чекер вручную команда {FFD700}/neww [id]'..
                     '\n\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Исправлен баг с чекером игроков по заявлению. Теперь работает исправно.'..
-                    '\n\t{00BFFF}2. {87CEFA}Для удаления игрока из чекера вручную команда {FFD700}/dell [id]'..
-                    '\n\t{00BFFF}3. {87CEFA}Для добавления игрока в чекер вручную команда {FFD700}/neww [id]'..
+                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка со статистикой заработка за день'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
@@ -4220,7 +4221,7 @@ function main()
                     local give_firestats = assert(conn:execute("SELECT *, DATE_FORMAT(date, '%d.%m.%Y') AS date, WEEK(date,1) AS week FROM firehelp_history WHERE nick = '"..who_nick.."' AND active = 1 ORDER by id DESC LIMIT 20"))
                     local row = give_firestats:fetch({}, "a")
 
-                    local give_day_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND DATE_FORMAT(date, '%d') = '"..day_number.."' AND active = 1"))
+                    local give_day_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND DATE_FORMAT(date, '%m-%d') = '"..month_number.."-"..day_number.."' AND active = 1"))
                     local rowb = give_day_stats:fetch({}, "a")
 
                     local give_week_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1"))
