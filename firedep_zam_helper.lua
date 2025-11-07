@@ -1,5 +1,5 @@
 script_name("firedep_zam_helper")
-script_version("Ver.07.11.U1")
+script_version("Ver.07.11.U2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
