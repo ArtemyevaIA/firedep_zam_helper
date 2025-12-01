@@ -1,5 +1,21 @@
+-- Начальник Департамента - Вакантно [открыты заявки]
+-- ИО Начальника Департамента - Irin Crown
+-- Зам. Начальника Департамента - Вакантно
+-- Зам. Начальника Департамента - Вакантно
+-- Зам. Начальника Департамента - Вакантно
+
+-- Рабочий день с 09:00 по 20:00
+-- Происшествия происходят с 10:00 по 22:00
+-- Дневной перерыв с 13:00 до 14:00
+-- Вечерний перерыв с 16:00 до 17:00
+
+-- Сон в раздевалке в рабочее время строго запрещен!
+-- Просьба выдачи похвал, проверки отчета, повышение и т.п. - выговор.
+-- Снимать дисциплинарные взыскания только через портал штата
+-- Вход в кабинет руководителя строго с 8 должности
+
 script_name("firedep_zam_helper")
-script_version("Ver.07.11.U2")
+script_version("Ver.01.12.U1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -7,6 +23,7 @@ local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/ma
 local mysql                         = require "luasql.mysql"
 local env                           = assert(mysql.mysql())
 local conn                          = assert(env:connect("arizona", "longames", "q2w3e4r5", "92.63.71.249", 3306))
+--local conn                          = assert(env:connect("arizona", "longames", "q2w3e4r5", "127.0.0.1", 3306))
 assert(conn:execute("SET NAMES 'cp1251'"))
 
 local ffi                           = require('ffi')
@@ -78,11 +95,10 @@ local fires_list = {
                     {-1419.5426,-1471.6375,101.1161,3, 'Пожар на заброшенной ферме'},
                     {1541.0775, -1672.4488, 13.0568, 3, 'Возгорание отделения полиции ЛС'},
                     {-1030.7767, -669.1055, 31.5134, 3, '***'},
-                    {2464.0771, 1981.6748, 11.0209, 1, '***'},
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
-local update_list = ('{FA8072}Ver.06.11.U1'..
+local update_list = ('{FA8072}Ver.07.11.U2'..
                     '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
                     '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
                     '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
@@ -97,7 +113,7 @@ local update_list = ('{FA8072}Ver.06.11.U1'..
                     '\n\t{00BFFF}12. {87CEFA}Для удаления игрока из чекера вручную команда {FFD700}/dell [id]'..
                     '\n\t{00BFFF}13. {87CEFA}Для добавления игрока в чекер вручную команда {FFD700}/neww [id]'..
                     '\n\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка со статистикой заработка за день'..
+                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка в подсчете баллов руководителя'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
@@ -207,15 +223,6 @@ function main()
     check_client = assert(conn:execute("SELECT * FROM neworg "))
     row = check_client:fetch({}, "a")
     
-    -- for id_org = 0, sampGetMaxPlayerId() do
-    --     if sampIsPlayerConnected(id_org) then
-    --         local name_org, id_org = sampGetPlayerNickname(id_org)
-    --         if findInIni(name_org) then 
-    --             table.insert(tbl_org,name_org)
-    --         end
-    --     end
-    -- end
-
     for id_org = 0, sampGetMaxPlayerId() do
         if sampIsPlayerConnected(id_org) then
             local name_org, id_org = sampGetPlayerNickname(id_org)
@@ -302,16 +309,13 @@ function main()
             end
         else
             if x4_status then
-                --if tonumber(x4_profit) < 0 then sim = '{FFA07A}-' else sim = '{FFD700}+' end
                 sampAddChatMessage('', 0x1E90FF)
                 sampAddChatMessage('Статистика по талону X4', 0x1E90FF)
                 sampAddChatMessage('——————————————————', 0x00BFFF)
                 sampAddChatMessage('Осталось Payday: {FFD700}'..x4_count..' / 24', 0x00BFFF)
                 sampAddChatMessage('Цена талона: {FFD700}$'..tonumber(x4_price).. ' ['..string.format("%2.1f", x4_price/1000000)..'М]\n', 0x00BFFF)
-                --sampAddChatMessage('', 0x00BFFF)
                 sampAddChatMessage('——————————————————', 0x00BFFF)
                 sampAddChatMessage('Последняя получка: {FFD700}$'..tonumber(x4_give).. ' ['..string.format("%2.1f", tonumber(x4_give)/1000000)..'М]\n', 0x87CEFA)
-                --sampAddChatMessage('Профит: '..sim..'$'..tonumber((x4_profit:gsub('-','')))..' ['..string.format("%2.1f", tonumber(x4_profit)/1000000)..'М]\n', 0x87CEFA)
                 sampAddChatMessage('Профит: {FFD700}$'..tonumber(x4_profit)..' ['..string.format("%2.1f", tonumber(x4_profit)/1000000)..'М]\n', 0x87CEFA)
                 sampAddChatMessage('Депозит: {FFD700}$'..tonumber(x4_dep)..' ['..string.format("%2.1f", tonumber(x4_dep)/1000000)..'М]\n', 0x87CEFA)
                 sampAddChatMessage('', 0x87CEFA)
@@ -586,18 +590,6 @@ function main()
             sampAddChatMessage("{90EE90}Время выходить из игры",-1)
             wait(2000)
             sampProcessChatInput('/q',-1)
-        end
-
-        if os.date('%H:%M:%S', os.time() - (UTC * 3600)) == "00:05:00" then
-                wait(1000)
-                afk = true
-                wait(1000)
-                sampProcessChatInput('/rec',-1)
-                wait(7000)
-                afk = false
-                wait(1000)
-                sampProcessChatInput('/leca',-1)
-                runToCorner()
         end
 
         if os.date('%S', os.time() - (UTC * 3600)) == "30" then
@@ -4230,7 +4222,7 @@ function main()
                     local give_month_stats = assert(conn:execute("SELECT * FROM firehelp_history WHERE nick = '"..who_nick.."' AND month(date) = '"..month_number.."' AND active = 1"))
                     local rowc = give_month_stats:fetch({}, "a")
 
-                    local give_balls = assert(conn:execute("SELECT COUNT(*)*5 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 1 UNION ALL SELECT COUNT(*)*10 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 2 UNION ALL SELECT COUNT(*)*15 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 3 "))
+                    local give_balls = assert(conn:execute("SELECT COUNT(*)*5 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 1 UNION ALL SELECT COUNT(*)*8 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 2 UNION ALL SELECT COUNT(*)*13 as cnt FROM firehelp_history WHERE nick = '"..who_nick.."' AND WEEK(date,1) = '"..week_number.."' AND active = 1 and lvl = 3 "))
                     local rowd = give_balls:fetch({}, "a")
 
                     local give_bs = assert(conn:execute("SELECT a.lvl1, b.lvl2, c.lvl3 from (SELECT COUNT(*) as lvl1 from firehelp_history where nick = '"..who_nick.."' and lvl = '1' AND WEEK(date,1) = '"..week_number.."') as a, (select COUNT(*) as lvl2 from firehelp_history where nick = '"..who_nick.."' and lvl = '2' AND WEEK(date,1) = '"..week_number.."') as b, (select COUNT(*) as lvl3 from firehelp_history where nick = '"..who_nick.."' and lvl = '3' AND WEEK(date,1) = '"..week_number.."') as c"))
@@ -4270,12 +4262,12 @@ function main()
                                                                        "\n{d5a044}Заработано за месяц: {FFFFFF}+$"..month_stats.. " ["..string.format("%2.1f", month_stats/1000000).."М] "..
                                                                        "\n{d5a044}Заработано всего: {FFFFFF}+$"..stats.. " ["..string.format("%2.1f", stats/1000000).."М]"..
                                                                        "\n"..
-                                                                       "\n{d5a044}Предварительные баллы руководителя: {FFFFFF}+"..(rowe.lvl1*5)+(rowe.lvl2*10)+(rowe.lvl3*15)+balls..
+                                                                       "\n{d5a044}Предварительные баллы руководителя: {FFFFFF}+"..(rowe.lvl1*5)+(rowe.lvl2*8)+(rowe.lvl3*13)+balls..
                                                                        "\n{d5a044}Пожары 1 степени: {FFFFFF} "..rowe.lvl1.." шт. \t"..(rowe.lvl1*5).." баллов"..
-                                                                       "\n{d5a044}Пожары 2 степени: {FFFFFF} "..rowe.lvl2.." шт. \t"..(rowe.lvl2*10).." баллов"..
-                                                                       "\n{d5a044}Пожары 3 степени: {FFFFFF} "..rowe.lvl3.." шт. \t"..(rowe.lvl3*15).." баллов"..
-                                                                       "\n{d5a044}Времени на посту: {FFFFFF} "..time_post.." шт. \t"..math.floor(time_post/10).." баллов"..
-                                                                       "\n{d5a044}Потушено очагов: {FFFFFF} "..fires.." шт. \t"..math.floor(fires/10).." баллов"..
+                                                                       "\n{d5a044}Пожары 2 степени: {FFFFFF} "..rowe.lvl2.." шт. \t"..(rowe.lvl2*8).." баллов"..
+                                                                       "\n{d5a044}Пожары 3 степени: {FFFFFF} "..rowe.lvl3.." шт. \t"..(rowe.lvl3*13).." баллов"..
+                                                                       "\n{d5a044}Времени на посту: {FFFFFF} "..time_post.." шт. \t"..math.floor(time_post/10*2).." баллов"..
+                                                                       "\n{d5a044}Потушено очагов: {FFFFFF} "..fires.." шт. \t"..math.floor(fires/8).." баллов"..
                                                                        "\n{d5a044}Пострадавшие: {FFFFFF} "..help.." шт. \t"..math.floor(help/5).." баллов"..
                                                                        "\n"..
                                                                        "\n{d5a044}Для очистки всей статистики введите команду {FF6347}/fclean {E9967A}(вся статистика будет сброшена)"..
@@ -4733,14 +4725,14 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
-            lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
-            if lvl == '3' then 
-                img = 'https://firstlineresponse.co.uk/wp-content/uploads/2016/06/level-3.png'
-                message = '@longames @mayer_666 @bbv_cvv @krytoikirieska \n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 уровня!'
-                sendTelegramFire(img, message)
-            end
-    end
+    -- if text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
+    --         lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
+    --         if lvl == '3' then 
+    --             img = 'https://firstlineresponse.co.uk/wp-content/uploads/2016/06/level-3.png'
+    --             message = '@longames @mayer_666 @bbv_cvv @krytoikirieska \n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 уровня!'
+    --             sendTelegramFire(img, message)
+    --         end
+    -- end
 
     if (text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)некст") or text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)next") or text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)Next") or text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)Некст")) then
             lua_thread.create(function() wait(1000)
@@ -5274,7 +5266,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     -- смена дома
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
                     sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№2', -255)
-                    wait(1000) sampSendDialogResponse(7238, 1, 1, nil)
+                    wait(1000) sampSendDialogResponse(7238, 1, 2, nil)
                     
                     ----------------------------------------
                     -- Дом №2 ------------------------------
@@ -5329,7 +5321,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     -- смена дома
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
                     sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№3', -255)
-                    wait(1000) sampSendDialogResponse(7238, 1, 2, nil)
+                    wait(1000) sampSendDialogResponse(7238, 1, 3, nil)
                     
                     ----------------------------------------
                     -- Дом №3 ------------------------------
@@ -5384,7 +5376,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     -- смена дома
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
                     sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№5', -255)
-                    wait(1000) sampSendDialogResponse(7238, 1, 4, nil)
+                    wait(1000) sampSendDialogResponse(7238, 1, 5, nil)
                     
                     ----------------------------------------
                     -- Дом №4 ------------------------------
@@ -5506,14 +5498,19 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         post = post:gsub('Статистика успеваемости за сегодня(.+)', '')
         time_post = post:gsub('(.+)Времени на постах: {F9FF23}', '')
         time_post = time_post:match('(%d+)')
+        
+        if time_post >= '300' then 
+            time_post = 300
+        end
+
         help = post:gsub('(.+)Спасено пострадавших: {F9FF23}', '')
         help = help:match('(%d+)')
         fires = post:gsub('(.+)Потушено очагов: {F9FF23}', '')
         fires = fires:match('(%d+)')
-        balls = math.floor(time_post/10) + math.floor(help/5) + math.floor(fires/10)
+        balls = math.floor(time_post/10*2) + math.floor(help/5) + math.floor(fires/8)
         sampAddChatMessage('{7FFFD4}Баллы по статистике: {FFFFFF}'..balls, 0x7FFFD4)
-        sampAddChatMessage('{7FFFD4}Посты: {FFFFFF}'..math.floor(time_post/10).." ["..time_post.." мин.]"..
-                           ' | {7FFFD4}Очаги: {FFFFFF}'..math.floor(fires/10).." ["..fires.." шт.]"..
+        sampAddChatMessage('{7FFFD4}Посты: {FFFFFF}'..math.floor(time_post/10*2).." ["..time_post.." мин.]"..
+                           ' | {7FFFD4}Очаги: {FFFFFF}'..math.floor(fires/8).." ["..fires.." шт.]"..
                            ' | {7FFFD4}Пострадавшие: {FFFFFF}'..math.floor(help/5).." ["..help.." шт.]", 0x7FFFD4)
     end
 
