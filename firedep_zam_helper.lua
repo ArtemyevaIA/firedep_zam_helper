@@ -15,7 +15,7 @@
 -- Вход в кабинет руководителя строго с 8 должности
 
 script_name("firedep_zam_helper")
-script_version("Ver.01.12.U1")
+script_version("Ver.02.12.U1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -98,7 +98,7 @@ local fires_list = {
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
-local update_list = ('{FA8072}Ver.07.11.U2'..
+local update_list = ('{FA8072}Ver.01.12.U1'..
                     '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
                     '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
                     '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
@@ -112,8 +112,9 @@ local update_list = ('{FA8072}Ver.07.11.U2'..
                     '\n\t{00BFFF}11. {87CEFA}Исправлен баг с чекером игроков по заявлению. Теперь работает исправно.'..
                     '\n\t{00BFFF}12. {87CEFA}Для удаления игрока из чекера вручную команда {FFD700}/dell [id]'..
                     '\n\t{00BFFF}13. {87CEFA}Для добавления игрока в чекер вручную команда {FFD700}/neww [id]'..
+                    '\n\t{00BFFF}14. {87CEFA}Исправлена ошибка в подсчете баллов руководителя'..
                     '\n\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Исправлена ошибка в подсчете баллов руководителя'..
+                    '\n\t{00BFFF}1. {87CEFA}Исправлен неправильный подсчёт баллов за посты'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
@@ -5499,7 +5500,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         time_post = post:gsub('(.+)Времени на постах: {F9FF23}', '')
         time_post = time_post:match('(%d+)')
         
-        if time_post >= '300' then 
+        if tonumber(time_post) >= 300 then
             time_post = 300
         end
 
