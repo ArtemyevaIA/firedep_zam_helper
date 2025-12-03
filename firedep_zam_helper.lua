@@ -15,7 +15,7 @@
 -- Вход в кабинет руководителя строго с 8 должности
 
 script_name("firedep_zam_helper")
-script_version("Ver.03.12.U1")
+script_version("Ver.04.12.U1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -4729,11 +4729,14 @@ function sampev.onServerMessage(color, text)
 
     if text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
             lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
+            time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
+            d_id = sampGetPlayerIdByNickname(who_nick)
             if lvl == '3' then 
                 -- img = 'https://firstlineresponse.co.uk/wp-content/uploads/2016/06/level-3.png'
                 -- message = '@longames @mayer_666 @bbv_cvv @krytoikirieska \n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 уровня!'
                 -- sendTelegramFire(img, message)
-                sendvkfire()
+                msg = encodeUrl("@all, ВНИМАНИЕ!\n\nВ штате произошло происшествие, повышенной степени опасности! Успей приссоединиться к команде, чтобы потушить его быстрее!\n\nСтепень опасности: "..lvl.."\nВремя происшествия: "..time_fire.."\nДиспетчер: "..who_nick.." ["..d_id.."]")
+                sendvkfire(msg)
             end
     end
 
@@ -5649,13 +5652,15 @@ function sendvkimg(msg,img)
     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
 end
 
+-----------------------------------------------------------------------------------
+-- Уведомление в диалог ВК о пожаре 3 степени -------------------------------------
+-----------------------------------------------------------------------------------
 function sendvkfire(msg,img)
     math.randomseed(os.time())
     local rnd = math.random(-2147483648, 2147483647)
     local peer_id = 2000000004
     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
     local img = 'photo-232454643_456239053'
-    local msg = encodeUrl("@all\n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 степени опасности! Успей приссоединиться к команде, чтобы потушить его быстрее!")
     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
 end
 
