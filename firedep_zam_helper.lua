@@ -15,7 +15,7 @@
 -- Вход в кабинет руководителя строго с 8 должности
 
 script_name("firedep_zam_helper")
-script_version("Ver.04.12.U1")
+script_version("Ver.04.12.U2")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -70,7 +70,6 @@ local call = false
 local qtime = false
 local RTX = false
 local shownew = true
-local afk = false
 
 local fires_list = {
                     {-846.0884, 1488.2093, 18.1344, 1, 'Возгорание магазина в пустыне'},             
@@ -98,7 +97,7 @@ local fires_list = {
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
-local update_list = ('{FA8072}Ver.02.12.U1'..
+local update_list = ('{FA8072}Ver.03.12.U2'..
                     '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
                     '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
                     '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
@@ -114,8 +113,9 @@ local update_list = ('{FA8072}Ver.02.12.U1'..
                     '\n\t{00BFFF}13. {87CEFA}Для добавления игрока в чекер вручную команда {FFD700}/neww [id]'..
                     '\n\t{00BFFF}14. {87CEFA}Исправлена ошибка в подсчете баллов руководителя'..
                     '\n\t{00BFFF}15. {87CEFA}Исправлен неправильный подсчёт баллов за посты'..
+                    '\n\t{00BFFF}16. {87CEFA}Добавлено оповещение в группу ВК о пожаре 3 степени опасности'..
                     '\n\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Добавлено оповещение в группу ВК о пожаре 3 степени опасности'..
+                    '\n\t{00BFFF}1. {87CEFA}Добавлено включение автоматичекого одевания в форму в сервисном меню'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
@@ -253,7 +253,7 @@ function main()
         assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin, ver, co, coc, afk) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."', '"..thisScript().version.."', '1', '1', '0')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
-        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats, c.co, c.coc, c.afk from clients c left join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
+        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats, c.co, c.coc, c.afk, c.autoform from clients c left join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
         local row = client:fetch({}, "a")
         tlg_id = row['tlg_id']
         give = row['give']
@@ -261,8 +261,10 @@ function main()
         set_co = row['co']
         set_coc = row['coc']
         afkmenu = row['afk']
+        autoform = row['autoform']
 
         if tlg_id ~= '0' then tlg_send = true end
+        if autoform == '0' then afk = false else afk = true end
         if set_co == '0' then showorgs = false else showorgs = true end
         if set_coc == '0' then showorg = false else showorg = true end
 
@@ -353,7 +355,7 @@ function main()
         assert(conn:execute("UPDATE firehelp_history SET active = 0 WHERE nick = '"..who_nick.."'"))
     end)
     sampRegisterChatCommand('afk', function()
-        if afkmenu == 0 then 
+        if tonumber(afkmenu) == 0 then 
             sampAddChatMessage('{90EE90}Вам необходимо установить пункт спавна Организация Пожарный департамент через команду {FA8072}/setafkmenu [номер пункта при спавне]', 0x90EE90)
         else
             afk = true
@@ -486,9 +488,14 @@ function main()
 
     sampRegisterChatCommand('setafkmenu', function(var)
         afkmenu = tonumber(var-1)
-        if afkmenu == -1 then afkmenu = 0 end
-        assert(conn:execute("UPDATE clients SET afk = '"..afkmenu.."' WHERE nick = '"..who_nick.."'"))
-        sampAddChatMessage('Пукнт при спавне Организация Пожарный департамент установлен на {FFFFFF}'..var, -255)
+        if tonumber(afkmenu) == -1 then afkmenu = 0 end
+            if afkmenu == 0 then
+                sampAddChatMessage('Пукнт при спавне Организация Пожарный департамент {FFFFFF}сброшен', -255)
+                assert(conn:execute("UPDATE clients SET afk = '"..afkmenu.."' WHERE nick = '"..who_nick.."'"))
+            else
+                assert(conn:execute("UPDATE clients SET afk = '"..afkmenu.."' WHERE nick = '"..who_nick.."'"))
+                sampAddChatMessage('Пукнт при спавне Организация Пожарный департамент установлен на {FFFFFF}'..var, -255)
+            end
     end)
             
     while true do wait(0)
@@ -4320,14 +4327,34 @@ function main()
                 end
 
                 -----------------------------------------------------------------------------------
-                -- Режим AFK ----------------------------------------------------------------------
+                -- АвтоAFK при заходе -------------------------------------------------------------
                 -----------------------------------------------------------------------------------
                 if button == 1 and list == 4 then
+                    if tonumber(autoform) == 0 then
+                        if tonumber(afkmenu) == 0 then
+                            sampAddChatMessage('{90EE90}Вам необходимо установить пункт спавна Организация Пожарный департамент через команду {FA8072}/setafkmenu [номер пункта при спавне]', 0x90EE90)
+                        else
+                            autoform = 1
+                            assert(conn:execute("UPDATE clients SET autoform = 1 WHERE nick = '"..who_nick.."'"))
+                            sampAddChatMessage('{90EE90}Автоматическое переодевание в форму {FFA07A}включено.', 0x90EE90)
+                        end
+                    else
+                        autoform = 0
+                        assert(conn:execute("UPDATE clients SET autoform = 0 WHERE nick = '"..who_nick.."'"))
+                        sampAddChatMessage('{90EE90}Автоматическое переодевание в форму {FFA07A}выключено.', 0x90EE90)
+                    end
+                    zammenu()
+                end
+
+                -----------------------------------------------------------------------------------
+                -- Режим AFK ----------------------------------------------------------------------
+                -----------------------------------------------------------------------------------
+                if button == 1 and list == 5 then
                     if afk then
                         afk = false
                         sampAddChatMessage('Режим AFK отключен.', -255)
                     else
-                        if afkmenu == 0 then 
+                        if tonumber(afkmenu) == 0 then 
                             sampAddChatMessage('{90EE90}Вам необходимо установить пункт спавна Организация Пожарный департамент через команду {FA8072}/setafkmenu [номер пункта при спавне]', 0x90EE90)
                         else
 
@@ -4388,7 +4415,7 @@ function main()
                 -----------------------------------------------------------------------------------
                 -- Хелпер пожарника ---------------------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 5 then
+                if button == 1 and list == 6 then
                     if fd_helper then
                         fd_helper = false
                         fd_find_fire = false
@@ -4410,7 +4437,7 @@ function main()
                 -----------------------------------------------------------------------------------
                 -- PAYDAY в телеграм --------------------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 6 then
+                if button == 1 and list == 7 then
                     if tlg_send then
                         tlg_send = false
                         assert(conn:execute("UPDATE clients SET tlg_id = 0 WHERE nick = '"..who_nick.."'"))
@@ -4435,7 +4462,7 @@ function main()
                 -----------------------------------------------------------------------------------
                 -- Меню отображения состава справа ------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 7 then
+                if button == 1 and list == 8 then
                     if showorgs then
                         showorgs = false
                         assert(conn:execute("UPDATE clients SET coc = 0 WHERE nick = '"..who_nick.."'"))
@@ -4451,7 +4478,7 @@ function main()
                 -----------------------------------------------------------------------------------
                 -- Отображение состава рядом ------------------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 8 then
+                if button == 1 and list == 9 then
                     if showorg then
                         showorg = false
                         assert(conn:execute("UPDATE clients SET co = 0 WHERE nick = '"..who_nick.."'"))
@@ -4467,7 +4494,7 @@ function main()
                 -----------------------------------------------------------------------------------
                 -- Быстрое восстановление льготы +10% ---------------------------------------------
                 -----------------------------------------------------------------------------------
-                if button == 1 and list == 10 then
+                if button == 1 and list == 11 then
                     sampProcessChatInput('/r Уважаемые сотрудники, прошу минуточку внимания...',-1)
                     wait(1000)
                     sampProcessChatInput('/r Я хочу напомнить вам о том, что спать в раздевалке...',-1)
@@ -4529,7 +4556,8 @@ end
 function zammenu_service()
     
     if afk then afk_status = '{00FF7F}[Включен]' else afk_status = '{FFA07A}[Выключен]' end
-    if fd_helper then fd_helper_status = '{00FF7F}[Включен]' else fd_helper_status = '{FFA07A}[Выключен]' end
+    if fd_helper then fd_helper_status = '{00FF7F}[Включено]' else fd_helper_status = '{FFA07A}[Выключено]' end
+    if tonumber(autoform) == 1 then autoform_inf = '{00FF7F}[Включен]' else autoform_inf = '{FFA07A}[Выключен]' end
     if tlg_send then tlg_status = '{00FF7F}[Подключен]' else tlg_status = '{FFA07A}[Не подключен]' end
     if showorg then showorg_inf = '{00FF7F}[Показывать]' else showorg_inf = '{FFA07A}[Не показывать]' end
     if showorgs then showorgs_inf = '{00FF7F}[Показывать]' else showorgs_inf = '{FFA07A}[Не показывать]' end
@@ -4538,6 +4566,7 @@ function zammenu_service()
                                            "\nСписок изменений в обновлении {7CFC00}"..thisScript().version..
                                            "\n{FFE4B5}Развернутая статистика по пожарам"..
                                            "\n "..
+                                           "\nАвтоформа при запуске игры \t\t"..autoform_inf..
                                            "\nРежим AFK до конца РД \t\t\t"..afk_status..
                                            "\nХелпер пожарника \t\t\t\t"..fd_helper_status..
                                            "\nPAYDAY в телеграм \t\t\t\t"..tlg_status..
