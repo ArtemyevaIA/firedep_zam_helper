@@ -15,7 +15,7 @@
 -- Вход в кабинет руководителя строго с 8 должности
 
 script_name("firedep_zam_helper")
-script_version("Ver.02.12.U1")
+script_version("Ver.03.12.U1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -98,7 +98,7 @@ local fires_list = {
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
-local update_list = ('{FA8072}Ver.01.12.U1'..
+local update_list = ('{FA8072}Ver.02.12.U1'..
                     '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
                     '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
                     '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
@@ -113,8 +113,9 @@ local update_list = ('{FA8072}Ver.01.12.U1'..
                     '\n\t{00BFFF}12. {87CEFA}Для удаления игрока из чекера вручную команда {FFD700}/dell [id]'..
                     '\n\t{00BFFF}13. {87CEFA}Для добавления игрока в чекер вручную команда {FFD700}/neww [id]'..
                     '\n\t{00BFFF}14. {87CEFA}Исправлена ошибка в подсчете баллов руководителя'..
+                    '\n\t{00BFFF}15. {87CEFA}Исправлен неправильный подсчёт баллов за посты'..
                     '\n\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Исправлен неправильный подсчёт баллов за посты'..
+                    '\n\t{00BFFF}1. {87CEFA}Добавлено оповещение в группу ВК о пожаре 3 степени опасности'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
@@ -4726,14 +4727,15 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    -- if text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
-    --         lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
-    --         if lvl == '3' then 
-    --             img = 'https://firstlineresponse.co.uk/wp-content/uploads/2016/06/level-3.png'
-    --             message = '@longames @mayer_666 @bbv_cvv @krytoikirieska \n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 уровня!'
-    --             sendTelegramFire(img, message)
-    --         end
-    -- end
+    if text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
+            lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
+            if lvl == '3' then 
+                -- img = 'https://firstlineresponse.co.uk/wp-content/uploads/2016/06/level-3.png'
+                -- message = '@longames @mayer_666 @bbv_cvv @krytoikirieska \n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 уровня!'
+                -- sendTelegramFire(img, message)
+                sendvkfire()
+            end
+    end
 
     if (text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)некст") or text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)next") or text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)Next") or text:find("(%W)R(%W)(.+)(%a+)_(%a+)(.+)Некст")) then
             lua_thread.create(function() wait(1000)
@@ -5644,6 +5646,16 @@ function sendvkimg(msg,img)
     local peer_id = 2000000004
     local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
     local test = 'photo-232454643_456239019'
+    async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
+end
+
+function sendvkfire(msg,img)
+    math.randomseed(os.time())
+    local rnd = math.random(-2147483648, 2147483647)
+    local peer_id = 2000000004
+    local token2 = 'vk1.a.5MHxEjL9XhlKr4tWm_zjzke1IM86jlBC3UrZdFGQbHAD05Xteuc2cohwaUKQN3wcw8bgXJRm1o7tGc0u2qVUbVZPbAdIQaRoCp1gmQIf0Z8d3FX_3iZswg7qF8mcAWIlTrgHr5D9xtPUaTw5h3CAyxT8Dqcs20_z1lXiUCtSLHa4-teHPO7rozXirKy_B6gnBMAAqFunjb5k_R5ai60Xmg'
+    local img = 'photo-232454643_456239053'
+    local msg = encodeUrl("@all\n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 степени опасности! Успей приссоединиться к команде, чтобы потушить его быстрее!")
     async_http_request('https://api.vk.com/method/messages.send', 'peer_id='..peer_id..'&random_id=' .. rnd .. '&message='..msg..'&attachment='..img..'&access_token='..token2..'&v=5.81')
 end
 
