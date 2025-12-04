@@ -15,7 +15,7 @@
 -- Вход в кабинет руководителя строго с 8 должности
 
 script_name("firedep_zam_helper")
-script_version("Ver.04.12.U2")
+script_version("Ver.05.12.U1")
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -93,11 +93,11 @@ local fires_list = {
                     {2011.6634, -1954.3240, 13.7767, 3, 'Свалка в Лос Сантосе'},
                     {-1419.5426,-1471.6375,101.1161,3, 'Пожар на заброшенной ферме'},
                     {1541.0775, -1672.4488, 13.0568, 3, 'Возгорание отделения полиции ЛС'},
-                    {-1030.7767, -669.1055, 31.5134, 3, '***'},
+                    {-1030.7767, -669.1055, 31.5134, 3, 'Пожар на нефтебазе'},
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
-local update_list = ('{FA8072}Ver.03.12.U2'..
+local update_list = ('{FA8072}Ver.04.12.U2'..
                     '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
                     '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
                     '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
@@ -114,8 +114,9 @@ local update_list = ('{FA8072}Ver.03.12.U2'..
                     '\n\t{00BFFF}14. {87CEFA}Исправлена ошибка в подсчете баллов руководителя'..
                     '\n\t{00BFFF}15. {87CEFA}Исправлен неправильный подсчёт баллов за посты'..
                     '\n\t{00BFFF}16. {87CEFA}Добавлено оповещение в группу ВК о пожаре 3 степени опасности'..
+                    '\n\t{00BFFF}17. {87CEFA}Добавлено включение автоматичекого одевания в форму в сервисном меню'..
                     '\n\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Добавлено включение автоматичекого одевания в форму в сервисном меню'..
+                    '\n\t{00BFFF}1. {87CEFA}Доступ к хелперу закрыт для посторонних лиц. Теперь для его открытия необходимо разрешение разработчика.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
@@ -253,7 +254,7 @@ function main()
         assert(conn:execute("INSERT INTO clients (nick, tlg_id, firehelper, lastlogin, ver, co, coc, afk) VALUES ('"..who_nick.."', '0', '0', '"..lastlogin.."', '"..thisScript().version.."', '1', '1', '0')"))
         assert(conn:execute("INSERT INTO firehelp (nick, give, stats) VALUES ('"..who_nick.."', '0','0')"))
     else
-        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats, c.co, c.coc, c.afk, c.autoform from clients c left join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
+        local client = assert(conn:execute("select c.nick, c.tlg_id, f.give, f.stats, c.co, c.coc, c.afk, c.autoform, c.zamlvl from clients c left join firehelp f on c.nick = f.nick WHERE c.nick = '"..who_nick.."'"))
         local row = client:fetch({}, "a")
         tlg_id = row['tlg_id']
         give = row['give']
@@ -262,6 +263,7 @@ function main()
         set_coc = row['coc']
         afkmenu = row['afk']
         autoform = row['autoform']
+        zamlvl = row['zamlvl']
 
         if tlg_id ~= '0' then tlg_send = true end
         if autoform == '0' then afk = false else afk = true end
@@ -339,7 +341,13 @@ function main()
     sampRegisterChatCommand("rtx", function() RTX = not RTX
         sampProcessChatInput((RTX and ')' or '('), -1)
     end)
-    sampRegisterChatCommand('zam', zammenu)
+    sampRegisterChatCommand('zam', function() 
+        if tonumber(zamlvl) > 0 then 
+            zammenu()
+        else 
+            sampAddChatMessage("У вас нет прав на использование этой команды. Обратитесь к разработчику хелпера.", -255)
+        end
+    end)
     sampRegisterChatCommand('upd', upd)
     sampRegisterChatCommand('stime', stime)
     sampRegisterChatCommand('ftime', function() 
@@ -619,7 +627,11 @@ function main()
         end
 
         if isKeyJustPressed(vkey.VK_SCROLL) then
-           zammenu()
+            if tonumber(zamlvl) > 0 then
+                zammenu()
+            else
+                sampAddChatMessage("У вас нет прав на использование этого хелпера. Обратитесь к разработчику.", -255)
+            end
         end
 
         if isKeyJustPressed(vkey.VK_SUBTRACT) then
