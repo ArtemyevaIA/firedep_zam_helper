@@ -15,7 +15,28 @@
 -- Вход в кабинет руководителя строго с 8 должности
 
 script_name("firedep_zam_helper")
-script_version("Ver.17.12.U1")
+script_version("Ver.18.12.U1")
+
+--===============================================================
+-- тренинг капчи
+--===============================================================
+local q = require 'lib.samp.events'
+local imgui = require 'imgui'
+local inicfg = require 'inicfg'
+local vkeys = require 'vkeys'
+local status, autostate, captca = false, false, false
+local state = false
+local delay = false
+local t, f = 0, 0
+local UTC = 0
+local cfg = inicfg.load({
+    main = { 
+        key = 113,
+        record = nil
+    }
+}, "Captcha")
+math.randomseed(os.clock())
+--===============================================================
 
 local download = getGameDirectory()..'\\moonloader\\config\\firedep_zam_helper.lua.ini'
 local url = 'https://github.com/ArtemyevaIA/firedep_zam_helper/raw/refs/heads/main/firedep_zam_helper.lua.ini'
@@ -97,7 +118,7 @@ local fires_list = {
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
-local update_list = ('{FA8072}Ver.04.12.U2'..
+local update_list = ('{FA8072}Ver.17.12.U1'..
                     '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
                     '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
                     '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
@@ -115,8 +136,13 @@ local update_list = ('{FA8072}Ver.04.12.U2'..
                     '\n\t{00BFFF}15. {87CEFA}Исправлен неправильный подсчёт баллов за посты'..
                     '\n\t{00BFFF}16. {87CEFA}Добавлено оповещение в группу ВК о пожаре 3 степени опасности'..
                     '\n\t{00BFFF}17. {87CEFA}Добавлено включение автоматичекого одевания в форму в сервисном меню'..
+                    '\n\t{00BFFF}18. {87CEFA}Доступ к хелперу закрыт для посторонних лиц. Теперь для его открытия необходимо разрешение разработчика.'..
                     '\n\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Доступ к хелперу закрыт для посторонних лиц. Теперь для его открытия необходимо разрешение разработчика.'..
+                    '\n\t{00BFFF}1. {87CEFA}Добавлен тренинг капчи.'..
+                    '\n\t{00BFFF}2. {87CEFA}Команда для включение тренинга: {FFD700}/asd'..
+                    '\n\t{00BFFF}3. {87CEFA}Команда для включение задержки: {FFD700}/asdd'..
+                    '\n\t{00BFFF}4. {87CEFA}Команда для включение автоматического появления: {FFD700}/asda'..
+                    '\n\t{00BFFF}5. {87CEFA}Запустить капчу - клавиша {FFD700}N'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
@@ -221,6 +247,21 @@ function main()
     end
 
     while not isSampAvailable() do wait(0) end
+
+    if not doesFileExist(getWorkingDirectory()..'\\config\\Captcha.ini') then inicfg.save(cfg, 'Captcha.ini') end
+        sampAddChatMessage('{778899}[Скорострел] {C0C0C0}Скрипт загружен! Рекорд ввода: {FFC900}'..(cfg.main.record ~= nil and cfg.main.record..' сек.' or 'Отсутвует.'), 0xC0C0C0)
+
+        sampRegisterChatCommand("asd", function() state = not state
+           sampAddChatMessage((state and '{778899}[Скорострел] {C0C0C0}Тренинг капчи {98FB98}включен' or '{778899}[Скорострел] {C0C0C0}Тренинг капчи {FFA07A}выключен'), 0xC0C0C0)
+        end)
+
+        sampRegisterChatCommand("asda", function() autostate = not autostate
+           sampAddChatMessage((autostate and '{778899}[Скорострел] {C0C0C0}Автоматическая капча {98FB98}включена' or '{778899}[Скорострел] {C0C0C0}Автоматическая капча {FFA07A}выключена'), 0xC0C0C0)
+        end)
+
+        sampRegisterChatCommand("asdd", function() delay = not delay
+           sampAddChatMessage((delay and '{778899}[Скорострел] {C0C0C0}Задержка для тренировки капчи {98FB98}включена' or '{778899}[Скорострел] {C0C0C0}Задержка для тренировки капчи {FFA07A}выключена'), 0xC0C0C0)
+        end)
 
     local tbl_orgnew = {}
     local y_org, n_org = 0, 0
@@ -508,6 +549,93 @@ function main()
     end)
             
     while true do wait(0)
+        if captca then
+            lua_thread.create(function()
+                timer_end = os.time() + 10
+                captcha = false
+                autostate = true
+                sampAddChatMessage('{778899}Начало через {FFFFFF}5', 0x778899)
+                wait(1000)
+                sampAddChatMessage('{778899}Начало через {FFFFFF}4', 0x778899)
+                wait(1000)
+                sampAddChatMessage('{778899}Начало через {FFFFFF}3', 0x778899)
+                wait(1000)
+                sampAddChatMessage('{778899}Начало через {FFFFFF}2', 0x778899)
+                wait(1000)
+                sampAddChatMessage('{778899}Начало через {FFFFFF}1', 0x778899)
+                wait(1000)
+                sampAddChatMessage('{778899}Погнали!', 0x778899)
+                timer_end = os.time() + 120
+                getDialog()
+                
+                while os.time() < timer_end do wait(0) end
+                autostate = false
+
+                sampCloseCurrentDialogWithButton(0)
+                sampAddChatMessage('{778899}Время вышло', 0x778899)
+                sampAddChatMessage('{778899}Введено капч: {FFFFFF}'..t+f, 0x778899)
+                sampAddChatMessage('{778899}Правильно введено капч: {FFFFFF}'..t, 0x778899)
+                sampAddChatMessage('{778899}Неправильно введено капч: {FFFFFF}'..f, 0x778899)
+
+                balls = (t*3)-(f*5)
+                sampAddChatMessage('{778899}Количество баллов: {FFFFFF}'..balls, 0x778899)
+                t,f = 0,0
+            end)   
+        end
+
+        if state and isKeyJustPressed(78) then if delay then wait(math.random(100, 2000)) end getDialog() end
+        local result, button, list, input = sampHasDialogRespond(22222)
+        if result and status then
+            if button == 1 then
+                input = input:gsub('%s', '')
+                local timer = ("%.2f sec"):format(os.clock() - startTime)
+                if tostring(input) == tostring(captcha) then
+                    addOneOffSound(0.0, 0.0, 0.0, 1054)
+                    if cfg.main.record == nil or (os.clock() - startTime) < cfg.main.record then 
+                        sampAddChatMessage('{778899}[Скорострел] {C0C0C0}Введена верно: ('..input..' | '..captcha..') {C0C0C0}за{FFC900} '..timer..' ( Рекорд! ). {C0C0C0}Первая цифра введена за: {FFC900}'..firstKeyTime..' sec', 0xC0C0C0)
+                        printStyledString('~y~'..timer, 3000, 4)
+                        cfg.main.record = floorStep(os.clock() - startTime, 0.01)
+                        inicfg.save(cfg, 'Captcha.ini')
+                        t = t+1
+                    else
+                        sampAddChatMessage('{778899}[Скорострел] {C0C0C0}Введена верно: ('..input..' | '..captcha..') {C0C0C0}за{98FB98} '..timer..'.{C0C0C0} Первая цифра введена за: {98FB98}'..firstKeyTime..' sec', 0xC0C0C0)
+                        printStyledString('~w~'..timer, 3000, 4)
+                        t = t+1
+                    end
+                else 
+                    addOneOffSound(0.0, 0.0, 0.0, 1057)
+                    printStyledString('~r~Miss!', 3000, 4)
+                    if input == '' then input = 'ничего' end
+                    sampAddChatMessage('{778899}[Скорострел] {C0C0C0}Введена не верно: ( '..input..' | '..captcha..' ) {C0C0C0}за{FFA07A} '..timer, 0xC0C0C0)
+                    f = f+1
+                end
+                
+                if autostate then
+                    if delay then 
+                        wait(math.random(100, 2000)) 
+                    end
+                    getDialog()
+                else
+                    status = false
+                end
+                
+            else
+                sampAddChatMessage('{778899}[Скорострел] {C0C0C0}Отказались от ввода капчи: {AFAFAF}'..captcha, 0xC0C0C0)
+                status = false
+            end
+        end
+        if sampGetCurrentDialogId() == 22222 and sampIsDialogActive() and status then
+            local sw, sh = getScreenResolution()
+            renderDrawBoxWithBorder((sw - 380) / 2, (sh - 150) / 3, 380, 100, 0xFF76A4AB, 7, 0xFF121624)
+            tCaptcha = {}
+            for k in tostring(captcha):gmatch('%d') do table.insert(tCaptcha, k) end
+            local x = (sw - 340) / 2
+            local y = (sh - 110) / 3
+            for k, num in pairs(tCaptcha) do
+                drawCaptchaNum(tonumber(num), x, y, rth[k], 0xFF121624)
+                x = x + 70
+            end
+        end
         if showorgs then
             local resX, resY = getScreenResolution()
             local ADM_POS_X = resX-(resX/27*3)
@@ -5754,7 +5882,7 @@ function vkdev(msg, img)
 end
 
 function upd()
-   local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
+   local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)else wait(500) sampAddChatMessage('Нет нового доступного обновления', -120)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                            sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
                                                                                                                    sampShowDialog(0, "{FFA500}Вышло обновление", "{FFA500}Помощник руководителя пожарного департамента\n{78dbe2}был автоматически обновлен на новую версию.\nПосмотреть изменения можно в Меню -> Сервисные функции -> Изменения", "Закрыть", "", DIALOG_STYLE_MSGBOX)
                                                            print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
@@ -5765,7 +5893,6 @@ function upd()
            Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
            Update.url = "https://github.com/ArtemyevaIA/firedep_zam_helper"
        end
-
    end
    if autoupdate_loaded and Update then
        pcall(Update.check, Update.json_url, Update.prefix, Update.url)
@@ -5936,4 +6063,121 @@ function flashmine ()
     flashminer = true 
     sampAddChatMessage('Начинаю собирать биткойны', -255)
     sampProcessChatInput('/flashminer', -1)
+end
+
+function os.offset()
+   local currenttime = os.time()
+   local datetime = os.date("*t",currenttime)
+   datetime.isdst = true -- Флаг дневного времени суток
+   return currenttime - os.time(datetime)
+end
+
+function floorStep(num, step)
+   return num - num % step
+end
+
+function onWindowMessage(msg, wparam, lparam)
+    if sampGetCurrentDialogId() == 22222 and sampIsDialogActive() and not firstKey then
+        for _, key in pairs(tKeys) do
+            if wparam == key and isKeyDown(key) then 
+                firstKey = true
+                firstKeyTime = floorStep(os.clock() - startTime, 0.01)
+            end
+        end
+    end
+end
+
+tKeys = {
+    0x60, 0x30, 0x61, 0x31,
+    0x62, 0x32, 0x63, 0x33,
+    0x64, 0x34, 0x65, 0x35,
+    0x66, 0x36, 0x67, 0x37,
+    0x68, 0x38, 0x69, 0x39
+}
+
+function getDialog()
+    status = true
+    startTime = os.clock()
+    firstKey = false
+    math.randomseed(os.clock())
+
+    -- generate captcha
+    captcha = tostring(math.random(1000, 9999)) -- first four nums
+    --captcha = captcha:gsub(captcha, (math.random(1, 10) <= 6 and captcha..'0' or captcha..tostring(math.random(1, 9)))) -- 60% chance that the last num is zero
+    captcha = tonumber(captcha)..""..tonumber(0) -- tostring in tonumber
+
+    -- generate thickness
+    rth = {
+        [1] = math.random(8, 15),
+        [2] = math.random(8, 15),
+        [3] = math.random(8, 15),
+        [4] = math.random(8, 15),
+        [5] = math.random(8, 15)
+    }
+
+    -- offset digit 1 by x
+    oneOffset = math.random(0, 45)
+    sampShowDialog(22222, "{FF8B7A}Проверка на робота", "{C0C0C0}Введите {6CFF92}5{C0C0C0} символов, которые\nвидно на {6CFF92}вашем{C0C0C0} экране", "Принять", "Отмена", 1)
+end
+
+function drawCaptchaNum(num, posX, posY, thickness, color)
+    if num == 1 then
+        renderDrawBox(posX + oneOffset, posY, thickness, 70, color)
+    end
+    if num == 2 then 
+        renderDrawBox(posX, posY, 50, thickness, color)
+        renderDrawBox(posX + 50, posY, thickness, 30, color)
+        renderDrawBox(posX, posY + 30, 50 + thickness, thickness, color)
+        renderDrawBox(posX, posY + 30, thickness, 30, color)
+        renderDrawBox(posX, posY + 60, 50 + thickness, thickness, color)
+    end
+    if num == 3 then
+        renderDrawBox(posX, posY, 50, thickness, color)
+        renderDrawBox(posX, posY + 30, 50, thickness, color)
+        renderDrawBox(posX, posY + 60, 50, thickness, color)
+        renderDrawBox(posX + 50, posY, thickness, 60 + thickness, color)
+    end
+    if num == 4 then
+        renderDrawBox(posX, posY, thickness, 30, color)
+        renderDrawBox(posX, posY + 30, 50, thickness, color)
+        renderDrawBox(posX + 50, posY, thickness, 70, color)
+    end
+    if num == 5 then 
+        renderDrawBox(posX, posY, 50 + thickness, thickness, color)
+        renderDrawBox(posX, posY, thickness, 30, color)
+        renderDrawBox(posX, posY + 30, 50 + thickness, thickness, color)
+        renderDrawBox(posX + 50, posY + 30, thickness, 30, color)
+        renderDrawBox(posX, posY + 60, 50 + thickness, thickness, color)
+    end
+    if num == 6 then 
+        renderDrawBox(posX, posY, 50 + thickness, thickness, color)
+        renderDrawBox(posX, posY, thickness, 60, color)
+        renderDrawBox(posX, posY + 30, 50 + thickness, thickness, color)
+        renderDrawBox(posX + 50, posY + 30, thickness, 30, color)
+        renderDrawBox(posX, posY + 60, 50 + thickness, thickness, color)
+    end
+    if num == 7 then
+        renderDrawBox(posX + 40, posY, thickness, 70, color)
+        renderDrawBox(posX, posY, 40, thickness, color)
+    end
+    if num == 8 then 
+        renderDrawBox(posX, posY, 50 + thickness, thickness, color)
+        renderDrawBox(posX, posY, thickness, 60, color)
+        renderDrawBox(posX, posY + 30, 50 + thickness, thickness, color)
+        renderDrawBox(posX + 50, posY, thickness, 60, color)
+        renderDrawBox(posX, posY + 60, 50 + thickness, thickness, color)
+    end
+    if num == 9 then 
+        renderDrawBox(posX, posY, 50 + thickness, thickness, color)
+        renderDrawBox(posX, posY, thickness, 30, color)
+        renderDrawBox(posX, posY + 30, 50 + thickness, thickness, color)
+        renderDrawBox(posX + 50, posY, thickness, 60, color)
+        renderDrawBox(posX, posY + 60, 50 + thickness, thickness, color)
+    end
+    if num == 0 then 
+        renderDrawBox(posX, posY, 50 + thickness, thickness, color)
+        renderDrawBox(posX, posY, thickness, 60, color)
+        renderDrawBox(posX + 50, posY, thickness, 60, color)
+        renderDrawBox(posX, posY + 60, 50 + thickness, thickness, color)
+    end
 end
