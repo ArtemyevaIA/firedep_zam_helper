@@ -16,7 +16,7 @@
 -- Вход в кабинет руководителя строго с 8 должности
 
 script_name("firedep_zam_helper")
-script_version("Ver.30.12.U1")
+script_version("Ver.30.12.U2")
 
 --===============================================================
 -- тренинг капчи
@@ -119,7 +119,7 @@ local fires_list = {
                     {2422.2346, 1896.9704, 6.0156, 3, 'Большой пожар на стройке в Лас Вентурасе'}
                 }
 
-local update_list = ('{FA8072}Ver.18.12.U1'..
+local update_list = ('{FA8072}Ver.30.12.U1'..
                     '\n\t{00BFFF}1. {87CEFA}Убраны лишние пункты меню.'..
                     '\n\t{00BFFF}2. {87CEFA}В списке выполненных заданий отображаются 15 последних выполненых.'..
                     '\n\t{00BFFF}3. {87CEFA}Развернутая статистика по пожарам сместилась выше в сервисном меню.'..
@@ -145,6 +145,7 @@ local update_list = ('{FA8072}Ver.18.12.U1'..
                     '\n\t{00BFFF}23. {87CEFA}Запустить капчу - клавиша {FFD700}N'..
                     '\n\n{7CFC00}'..thisScript().version..
                     '\n\t{00BFFF}1. {87CEFA}Исправлены небольшие баги.'..
+                    '\n\t{00BFFF}2. {87CEFA}Добавлена автоматическая выдача /fractionrp при обнаружении в чате слова {FFD700}grp'..
                     '\n\n{FFD700}В перспективе следующего обновления:'..
                     '\n\t{00BFFF}1. {87CEFA}Сделать причины увольнения и ЧС с выбором причины (диалог).')
 
@@ -5157,7 +5158,7 @@ function sampev.onServerMessage(color, text)
         end)
     end
 
-    if text:find('rp') then
+    if text:find('grp') then
         lua_thread.create(function()
             wait(1000)
             nick_give = string.match(text,"%a+_%a+")
