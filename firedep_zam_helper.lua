@@ -16,7 +16,7 @@
 -- Вход в кабинет руководителя строго с 8 должности
 
 script_name("firedep_zam_helper")
-script_version("Ver.30.12.U3")
+script_version("Ver.28.01.U1")
 
 --===============================================================
 -- тренинг капчи
@@ -5154,18 +5154,6 @@ function sampev.onServerMessage(color, text)
             if nick_give == 'Irin_Crown' and who_nick ~= 'Irin_Crown' then
                 sampProcessChatInput('/q', -1)
             end
-        end)
-    end
-
-    if text:find('rp') then
-        lua_thread.create(function()
-            wait(1000)
-            nick_give = string.match(text,"%a+_%a+")
-            --if nick_give == 'Irin_Crown' and who_nick ~= 'Irin_Crown' then
-                rp_id = sampGetPlayerIdByNickname(nick_give)
-                sampProcessChatInput('/fractionrp Irin_Crown', -1)
-                sampProcessChatInput('/fractionrp '..rp_id, -1)
-            --end
         end)
     end
 
